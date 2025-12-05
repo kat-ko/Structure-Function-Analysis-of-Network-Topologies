@@ -59,13 +59,13 @@ def create_small_world_topology(input_dim: int, hidden_size: int, output_dim: in
             if edge[0] + 1 < hidden_end:
                 max_attempts = 100
                 attempts = 0
-            new_node = rng.randint(edge[0] + 1, hidden_end)
-            while G.has_edge(edge[0], new_node) and attempts < max_attempts:
                 new_node = rng.randint(edge[0] + 1, hidden_end)
-                attempts += 1
+                while G.has_edge(edge[0], new_node) and attempts < max_attempts:
+                    new_node = rng.randint(edge[0] + 1, hidden_end)
+                    attempts += 1
                 if attempts < max_attempts:
                     G.add_edge(edge[0], new_node)
-                    # If we can't find a valid edge, just skip rewiring for this edge
+                # If we can't find a valid edge, just skip rewiring for this edge
 
     # Add connections from input nodes to hidden nodes
     if input_dim is not None:
@@ -79,9 +79,9 @@ def create_small_world_topology(input_dim: int, hidden_size: int, output_dim: in
             for hidden_node in range(hidden_end - min(k, hidden_size), hidden_end):
                 G.add_edge(hidden_node, output_node)
 
-        # Ensure topology is a DAG
-        if not nx.is_directed_acyclic_graph(G):
-            raise ValueError("FFN requires a Directed Acyclic Graph (DAG) topology")
+    # Ensure topology is a DAG
+    if not nx.is_directed_acyclic_graph(G):
+        raise ValueError("FFN requires a Directed Acyclic Graph (DAG) topology")
 
     input_nodes = list(range(input_dim))
     output_nodes = list(range(input_dim + hidden_size, input_dim + hidden_size + output_dim))
