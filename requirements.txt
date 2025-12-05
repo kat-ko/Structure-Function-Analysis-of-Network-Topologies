@@ -24,5 +24,9 @@ wandb>=0.15.0,<1.0.0
 # Image processing
 Pillow>=8.0.0,<11.0.0
 
+# Video creation
+imageio>=2.9.0,<3.0.0
+imageio-ffmpeg>=0.4.0,<1.0.0
+
 # Additional utilities
 pathlib2>=2.3.0; python_version<"3.4" 

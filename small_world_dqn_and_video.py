@@ -22,8 +22,8 @@ except ImportError:
 
 def create_small_world_topology(input_dim: int, hidden_size: int, output_dim: int, 
                                 k: int, p: float, seed: int) -> Tuple[nx.DiGraph, List[int], List[int]]:
-"""
-Generate the small-world network topology as a single connected graph.
+    """
+    Generate the small-world network topology as a single connected graph.
 
 Args:
         input_dim: Number of input nodes
@@ -43,59 +43,59 @@ Args:
         raise ValueError(f"k ({k}) must be at least 2 for ring lattice")
     
     rng = np.random.RandomState(seed)
-total_nodes = input_dim + hidden_size + output_dim
-
-G = nx.DiGraph()
-G.add_nodes_from(range(total_nodes))
-
-hidden_start = input_dim
-hidden_end = hidden_start + hidden_size
-
-# Create initial ring lattice structure for hidden nodes (directed, acyclic)
-for i in range(hidden_start, hidden_end):
-    # Only add edges to higher-indexed hidden nodes to maintain acyclicity
-    for j in range(1, k // 2 + 1):
-        target = hidden_start + ((i - hidden_start + j) % hidden_size)
-        if target > i and target < hidden_end:  # Only add forward edges within hidden layer
-            G.add_edge(i, target)
-
-# Rewire edges with probability p (maintaining acyclicity)
-for edge in list(G.edges()):
-    if rng.random() < p:
-        # Remove the edge
-        G.remove_edge(*edge)
-        # Add a new random edge (only to higher-indexed hidden nodes)
+    total_nodes = input_dim + hidden_size + output_dim
+    
+    G = nx.DiGraph()
+    G.add_nodes_from(range(total_nodes))
+    
+    hidden_start = input_dim
+    hidden_end = hidden_start + hidden_size
+    
+    # Create initial ring lattice structure for hidden nodes (directed, acyclic)
+    for i in range(hidden_start, hidden_end):
+        # Only add edges to higher-indexed hidden nodes to maintain acyclicity
+        for j in range(1, k // 2 + 1):
+            target = hidden_start + ((i - hidden_start + j) % hidden_size)
+            if target > i and target < hidden_end:  # Only add forward edges within hidden layer
+                G.add_edge(i, target)
+    
+    # Rewire edges with probability p (maintaining acyclicity)
+    for edge in list(G.edges()):
+        if rng.random() < p:
+            # Remove the edge
+            G.remove_edge(*edge)
+            # Add a new random edge (only to higher-indexed hidden nodes)
             # Error handling: ensure we can find a valid target
             if edge[0] + 1 < hidden_end:
                 max_attempts = 100
                 attempts = 0
-        new_node = rng.randint(edge[0] + 1, hidden_end)
+                new_node = rng.randint(edge[0] + 1, hidden_end)
                 while G.has_edge(edge[0], new_node) and attempts < max_attempts:
-            new_node = rng.randint(edge[0] + 1, hidden_end)
+                    new_node = rng.randint(edge[0] + 1, hidden_end)
                     attempts += 1
                 if attempts < max_attempts:
-        G.add_edge(edge[0], new_node)
+                    G.add_edge(edge[0], new_node)
                 # If we can't find a valid edge, just skip rewiring for this edge
-
-# Add connections from input nodes to hidden nodes
-if input_dim is not None:
-    for input_node in range(input_dim):
-        for hidden_node in range(hidden_start, hidden_start + min(k, hidden_size)):
-            G.add_edge(input_node, hidden_node)
-
-# Add connections from hidden nodes to output nodes
-if output_dim is not None:
-    for output_node in range(hidden_end, total_nodes):
-        for hidden_node in range(hidden_end - min(k, hidden_size), hidden_end):
-            G.add_edge(hidden_node, output_node)
-
+    
+    # Add connections from input nodes to hidden nodes
+    if input_dim is not None:
+        for input_node in range(input_dim):
+            for hidden_node in range(hidden_start, hidden_start + min(k, hidden_size)):
+                G.add_edge(input_node, hidden_node)
+    
+    # Add connections from hidden nodes to output nodes
+    if output_dim is not None:
+        for output_node in range(hidden_end, total_nodes):
+            for hidden_node in range(hidden_end - min(k, hidden_size), hidden_end):
+                G.add_edge(hidden_node, output_node)
+    
     # Ensure topology is a DAG
     if not nx.is_directed_acyclic_graph(G):
         raise ValueError("FFN requires a Directed Acyclic Graph (DAG) topology")
-
-input_nodes = list(range(input_dim))
-output_nodes = list(range(input_dim + hidden_size, input_dim + hidden_size + output_dim))
-
+    
+    input_nodes = list(range(input_dim))
+    output_nodes = list(range(input_dim + hidden_size, input_dim + hidden_size + output_dim))
+    
     return G, input_nodes, output_nodes
 
 
@@ -124,50 +124,25 @@ class TopologyNetwork(nn.Module):
         self.input_nodes = input_nodes
         self.output_nodes = output_nodes
         self.node_order = list(nx.topological_sort(topology))
-
-# Set seed for reproducible weight initialization
-np.random.seed(seed)
+        
+        # Set seed for reproducible weight initialization
+        np.random.seed(seed)
         torch.manual_seed(seed)
 
-        # Precompute predecessor lists for all nodes (avoid NetworkX calls in forward pass)
-        self.predecessors_list = {}
-        for node in list(topology.nodes()):
-            self.predecessors_list[node] = list(topology.predecessors(node))
-        
         # Convert node_states to nn.Parameters for automatic gradient computation
-        # Use ParameterList for faster indexed access instead of ParameterDict
-        self.biases = nn.ParameterDict()  # Keep for compatibility with get_biases_dict
-        self.weights = nn.ParameterList()  # Use ParameterList for indexed access
-        self.weight_indices = {}  # Map (source, target) -> index in weights list
-        self.predecessor_weights = {}  # Map node -> list of weight parameter indices
-        self.predecessor_nodes = {}  # Map node -> list of predecessor node indices (aligned with weights)
+        self.biases = nn.ParameterDict()
+        self.weights = nn.ParameterDict()
         
-        # Build weight parameter list and mappings
-        weight_idx = 0
-for node in list(topology.nodes()):
+        for node in list(topology.nodes()):
             # Initialize bias as a parameter
             bias_value = np.random.normal(0, 0.1)
             self.biases[str(node)] = nn.Parameter(torch.tensor(bias_value, dtype=torch.float32))
             
             # Initialize weights for incoming edges (predecessors)
-            node_predecessors = self.predecessors_list[node]
-            node_weight_indices = []
-            node_predecessor_list = []
-            
-            for neighbor in node_predecessors:
+            for neighbor in topology.predecessors(node):
                 weight_value = np.random.normal(0, 0.1)
-                self.weights.append(nn.Parameter(torch.tensor(weight_value, dtype=torch.float32)))
-                self.weight_indices[(neighbor, node)] = weight_idx
-                node_weight_indices.append(weight_idx)
-                node_predecessor_list.append(neighbor)
-                weight_idx += 1
-            
-            self.predecessor_weights[node] = node_weight_indices
-            self.predecessor_nodes[node] = node_predecessor_list
-        
-        # Store node indices for fast lookup
-        self.node_to_index = {node: idx for idx, node in enumerate(self.node_order)}
-        self.num_nodes = len(self.node_order)
+                param_name = f"{neighbor}_to_{node}"
+                self.weights[param_name] = nn.Parameter(torch.tensor(weight_value, dtype=torch.float32))
         
         # Set activation function
         if activation == 'leaky_relu':
@@ -179,7 +154,7 @@ for node in list(topology.nodes()):
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Optimized forward pass through the topology network.
+        Forward pass through the topology network.
         
         Args:
             x: Input tensor of shape [batch_size, input_dim]
@@ -190,43 +165,38 @@ for node in list(topology.nodes()):
         batch_size = x.shape[0]
         device = x.device
         
-        # Use tensor array instead of dictionary for activations (much faster)
-        # Pre-allocate activation tensor: [num_nodes, batch_size]
-        activations = torch.zeros(self.num_nodes, batch_size, dtype=torch.float32, device=device)
+        # Initialize activations dictionary
+        activations = {}
         
         # Set input node activations
         for i, input_node in enumerate(self.input_nodes):
-            node_idx = self.node_to_index[input_node]
-            activations[node_idx] = x[:, i]
+            activations[input_node] = x[:, i]
+        
+        # Initialize all other nodes to zero
+        for node in self.topology.nodes():
+            if node not in activations:
+                activations[node] = torch.zeros(batch_size, device=device)
         
         # Process through network in topological order
         for node in self.node_order:
             if node not in self.input_nodes:
-                node_idx = self.node_to_index[node]
-                
                 # Get bias
                 bias = self.biases[str(node)]
                 
-                # Start with bias (broadcast to batch_size automatically)
-                weighted_sum = bias.unsqueeze(0).expand(batch_size)
+                # Sum weighted inputs from predecessors
+                weighted_sum = torch.full((batch_size,), bias.item(), dtype=torch.float32, device=device)
                 
-                # Sum weighted inputs from predecessors using precomputed lists
-                pred_nodes = self.predecessor_nodes[node]
-                pred_weight_indices = self.predecessor_weights[node]
-                
-                for neighbor, weight_idx in zip(pred_nodes, pred_weight_indices):
-                    neighbor_idx = self.node_to_index[neighbor]
-                    weight_param = self.weights[weight_idx]
-                    weighted_sum = weighted_sum + activations[neighbor_idx] * weight_param
+                for neighbor in self.topology.predecessors(node):
+                    weight_param = self.weights[f"{neighbor}_to_{node}"]
+                    weighted_sum = weighted_sum + activations[neighbor] * weight_param
                 
                 # Apply activation function
-                activations[node_idx] = self.activation(weighted_sum)
+                activations[node] = self.activation(weighted_sum)
         
         # Collect output node activations
         output_values = []
         for output_node in sorted(self.output_nodes):
-            output_idx = self.node_to_index[output_node]
-            output_values.append(activations[output_idx])
+            output_values.append(activations[output_node])
         
         # Stack into [batch_size, output_dim] tensor
         return torch.stack(output_values, dim=1)
@@ -239,8 +209,13 @@ for node in list(topology.nodes()):
             Dictionary mapping (source_node, target_node) tuples to weight values
         """
         weights_dict = {}
-        for (source, target), weight_idx in self.weight_indices.items():
-            weights_dict[(source, target)] = self.weights[weight_idx].data.cpu().item()
+        for param_name, param in self.weights.items():
+            # Parse param_name format: "{source}_to_{target}"
+            parts = param_name.split('_to_')
+            if len(parts) == 2:
+                source = int(parts[0])
+                target = int(parts[1])
+                weights_dict[(source, target)] = param.data.cpu().item()
         return weights_dict
     
     def get_biases_dict(self) -> Dict[int, float]:
@@ -1098,7 +1073,7 @@ if __name__ == "__main__":
     dqn_learning_rate = 0.001
     dqn_gamma = 0.99
     dqn_batch_size = 32
-    num_episodes = 200
+    num_episodes = 2000
     epsilon_start = 1.0
     epsilon_end = 0.01
     epsilon_decay = 0.995
@@ -1109,8 +1084,8 @@ if __name__ == "__main__":
     # Topology parameters
     network_type = "small_world"
     seed = 47
-    hidden_size = 32
-    k = 9
+    hidden_size = 264
+    k = 40
     p = 0.2
     
     # Auto-detect GPU availability
