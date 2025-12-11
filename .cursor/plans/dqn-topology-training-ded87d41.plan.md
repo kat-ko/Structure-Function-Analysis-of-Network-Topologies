@@ -1,4 +1,21 @@
-<!-- ded87d41-b4a9-4fe0-b3a7-1b060b886da4 5a97a37c-2a9c-4db1-81f5-d808bff0f039 -->
+---
+name: Optimize DQN Training Performance
+overview: ""
+todos:
+  - id: cd605c4b-07b0-4c17-a036-c8635f6b1d63
+    content: Precompute predecessor lists and weight mappings in __init__ to avoid NetworkX calls in forward pass
+    status: pending
+  - id: 9ce950b0-1378-4f5c-93c6-aa5a03d3f367
+    content: Replace ParameterDict with indexed ParameterList or tensor-based storage for faster weight access
+    status: pending
+  - id: bd4ccd5a-51ca-479b-a160-678a8ec5d4b0
+    content: Replace dictionary activations with tensor array, use precomputed predecessors, batch operations
+    status: pending
+  - id: d817c57b-e762-49ca-9ccd-59e4f3ac00df
+    content: Verify optimizations maintain correctness and measure performance improvement
+    status: pending
+---
+
 # Optimize DQN Training Performance
 
 ## Performance Bottlenecks Identified
@@ -55,10 +72,3 @@
 - Keep the topological ordering for interpretability
 - Maintain the same network structure and behavior
 - Only optimize the internal implementation, not the interface
-
-### To-dos
-
-- [ ] Precompute predecessor lists and weight mappings in __init__ to avoid NetworkX calls in forward pass
-- [ ] Replace ParameterDict with indexed ParameterList or tensor-based storage for faster weight access
-- [ ] Replace dictionary activations with tensor array, use precomputed predecessors, batch operations
-- [ ] Verify optimizations maintain correctness and measure performance improvement
