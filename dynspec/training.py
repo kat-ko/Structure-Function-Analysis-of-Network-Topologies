@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 from tqdm.notebook import tqdm as tqdm_n
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 import copy
 
 from dynspec.data_process import process_data

@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from scipy.stats import pearsonr
 from tqdm.notebook import tqdm as tqdm_n
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 from dynspec.data_process import process_data
 from dynspec.training import is_notebook
 

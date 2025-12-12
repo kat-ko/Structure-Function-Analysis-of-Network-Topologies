@@ -6,7 +6,7 @@ from dynspec.training import train_community, test_community, is_notebook, get_a
 from dynspec.models import Readout, init_model
 from dynspec.data_process import process_data
 from tqdm.notebook import tqdm as tqdm_n
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 import copy
 
 metric_norm_acc = lambda m: np.clip(m - 0.1 / (1 - 0.1), 1e-5, 1)
