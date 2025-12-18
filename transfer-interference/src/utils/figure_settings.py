@@ -12,7 +12,10 @@ mpl.rcParams['xtick.major.width'] = 0.5
 mpl.rcParams['ytick.major.width'] = 0.5
 mpl.rcParams['xtick.minor.width'] = 0.25
 mpl.rcParams['ytick.minor.width'] = 0.25
-mpl.rcParams['font.family'] = 'Arial'
+# Use DejaVu Sans (common on Linux) or fall back to sans-serif
+# If you need Arial specifically, install: sudo apt-get install ttf-mscorefonts-installer
+mpl.rcParams['font.family'] = 'sans-serif'
+mpl.rcParams['font.sans-serif'] = ['DejaVu Sans', 'Arial', 'Helvetica', 'sans-serif']
 mpl.rcParams['font.size'] = 8
 mpl.rcParams['axes.titlesize'] = 8
 mpl.rcParams['axes.labelsize'] = 8

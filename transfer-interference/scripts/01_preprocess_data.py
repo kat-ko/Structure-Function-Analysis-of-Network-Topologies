@@ -5,6 +5,14 @@ import os
 import sys
 import numpy as np
 import pandas as pd
+
+# Get the script's directory and the project root
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)  # transfer-interference directory
+
+# Add project root to Python path so we can import src
+sys.path.insert(0, PROJECT_ROOT)
+
 from src.analysis.preprocessing import (
     load_participant_data, 
     add_computed_columns, 
@@ -18,9 +26,9 @@ def main():
     SEED = 2024
     set_seed(SEED)
     
-    # Define paths
-    DATA_FOLDER = 'data/participants/raw'
-    OUTPUT_PATH = 'data/participants/trial_df.csv'
+    # Define paths relative to project root
+    DATA_FOLDER = os.path.join(PROJECT_ROOT, 'data', 'participants', 'raw')
+    OUTPUT_PATH = os.path.join(PROJECT_ROOT, 'data', 'participants', 'trial_df.csv')
     
     # Define batches
     study1_batches = ['study1_same', 'study1_near', 'study1_far']

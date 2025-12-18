@@ -6,10 +6,19 @@
 #   python scripts/02_run_simulations.py rich_50 --geometry --participant study1_same_sub20
 
 import os
+import sys
 import json
 import argparse
 import pandas as pd
 import numpy as np
+
+# Get the script's directory and the project root
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)  # transfer-interference directory
+
+# Add project root to Python path so we can import src
+sys.path.insert(0, PROJECT_ROOT)
+
 from src.utils.basic_funcs import set_seed
 from src.models import neural_network as net
 from src.analysis import ann as ann
@@ -46,6 +55,11 @@ def run_experiment(condition_name, base_folder='./'):
     # Setup parameters
     task_parameters = ann.setup_task_parameters()
     
+    # Extract initialization type (defaults to "custom" for backward compatibility)
+    init_type = condition.get('init_type', 'custom')
+    # Extract gamma (defaults to 1e-3 if not present, but won't be used for standard init)
+    gamma = condition.get('gamma', 1e-3)
+    
     # Network parameters
     dim_input = task_parameters['nStim_perTask'] * 2
     dim_hidden = condition['dim_hidden']
@@ -60,7 +74,7 @@ def run_experiment(condition_name, base_folder='./'):
         settings['n_epochs'] * (task_parameters['nStim_perTask']*2) * 10,  # n_train_trials
         settings['shuffle'],  # shuffle
         settings['batch_size'],  # batch_size
-        condition['gamma'],  # gamma
+        gamma,  # gamma
         settings['learning_rate'],  # learning rate
     ]
     
@@ -78,7 +92,8 @@ def run_experiment(condition_name, base_folder='./'):
             "n_train_trials": settings['n_epochs'] * (task_parameters['nStim_perTask']*2) * 10,
             "shuffle": settings['shuffle'],
             "batch_size": settings['batch_size'],
-            "gamma": condition['gamma'],
+            "gamma": condition.get('gamma', 1e-3),
+            "init_type": init_type,
             "lr": settings['learning_rate'],
         },
         "network_params": network_params,
@@ -103,7 +118,8 @@ def run_experiment(condition_name, base_folder='./'):
         df,
         do_test=1,
         dosave=1,
-        sim_folder=sim_folder
+        sim_folder=sim_folder,
+        init_type=init_type
     )
 
 
@@ -170,7 +186,8 @@ def run_geometry_experiment(condition_name, participant_to_copy='study1_same_sub
         network_params,
         task_parameters,
         geometry_df,
-        do_test=0
+        do_test=0,
+        init_type=init_type
     )
     
     # Save results
@@ -183,8 +200,8 @@ def main():
     parser = argparse.ArgumentParser(description='Run neural network simulations')
     parser.add_argument('condition', type=str, 
                        help='Condition to run (e.g., rich_10, rich_50, rich_200)')
-    parser.add_argument('--base-folder', type=str, default='./', 
-                       help='Base project folder path (default: current directory)')
+    parser.add_argument('--base-folder', type=str, default=None, 
+                       help='Base project folder path (default: script parent directory)')
     parser.add_argument('--geometry', action='store_true',
                        help='Run geometry visualization experiment')
     parser.add_argument('--participant', type=str, default='study1_same_sub20',
@@ -192,10 +209,13 @@ def main():
     
     args = parser.parse_args()
     
+    # Use PROJECT_ROOT if base_folder not specified
+    base_folder = args.base_folder if args.base_folder else PROJECT_ROOT
+    
     if args.geometry:
-        run_geometry_experiment(args.condition, args.participant, args.base_folder)
+        run_geometry_experiment(args.condition, args.participant, base_folder)
     else:
-        run_experiment(args.condition, args.base_folder)
+        run_experiment(args.condition, base_folder)
 
 if __name__ == "__main__":
     main()

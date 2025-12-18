@@ -1,4 +1,4 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: maslow
 Version: 0.1
 Requires-Dist: numpy
@@ -9,3 +9,4 @@ Requires-Dist: seaborn
 Requires-Dist: torch
 Requires-Dist: argparse
 Requires-Dist: tdqm
+Dynamic: requires-dist

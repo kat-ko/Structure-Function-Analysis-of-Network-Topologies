@@ -35,7 +35,7 @@ class simpleLinearNet(nn.Module):
         out = self.hid_out(hid)
         return out, hid
 
-def ex_initializer_(model, gamma=1e-3,mean=0.0):
+def ex_initializer_(model, gamma=1e-3, mean=0.0, init_type="custom"):
     """
     In-place Re-initialization of weights
 
@@ -44,7 +44,13 @@ def ex_initializer_(model, gamma=1e-3,mean=0.0):
         PyTorch neural net model
         
         gamma: float
-        Initialization scale
+        Initialization scale (used when init_type="custom")
+        
+        mean: float
+        Mean for weight initialization (used when init_type="custom")
+        
+        init_type: str
+        Type of initialization: "custom" (gamma-based) or "standard" (Xavier/Glorot)
 
     Returns:
         Nothing
@@ -52,13 +58,23 @@ def ex_initializer_(model, gamma=1e-3,mean=0.0):
     for name, param in model.named_parameters():
         if "weight" in name:  
             n_out, n_in = param.shape
-                
-            if "hid_out" in name:  # Output layer weights
-                std = 1e-3
-            else:  # Hidden layer weights
-                std = gamma
-                
-            nn.init.normal_(param, mean=mean, std=std)
+            
+            if init_type == "standard":
+                # Use Xavier/Glorot initialization for standard regime
+                if "hid_out" in name:  # Output layer weights
+                    # Keep small initialization for output layer
+                    nn.init.normal_(param, mean=0.0, std=1e-3)
+                else:  # Hidden layer weights
+                    # Use Xavier/Glorot normal initialization
+                    nn.init.xavier_normal_(param, gain=1.0)
+            else:  # init_type == "custom" (default)
+                # Use existing gamma-based initialization
+                if "hid_out" in name:  # Output layer weights
+                    std = 1e-3
+                else:  # Hidden layer weights
+                    std = gamma
+                    
+                nn.init.normal_(param, mean=mean, std=std)
 
 class CreateParticipantDataset(Dataset):
     """PyTorch Dataset for participant data."""
@@ -94,7 +110,7 @@ def ordered_sweep(network, ranked_inputs):
     preds, hids = network(ranked_inputs)
     return preds.detach().numpy().copy(), hids.detach().numpy().copy()
 
-def run_simulation(training_params, network_params, task_parameters, df, do_test, dosave=0, sim_folder=np.nan):
+def run_simulation(training_params, network_params, task_parameters, df, do_test, dosave=0, sim_folder=np.nan, init_type="custom"):
     """Run neural network simulation for participant learning.
     
     1. Initializes network and loads participant data
@@ -109,6 +125,7 @@ def run_simulation(training_params, network_params, task_parameters, df, do_test
         do_test: Whether to run test trials
         dosave: Whether to save results
         sim_folder: Folder to save results if dosave=1
+        init_type: Type of initialization ("custom" or "standard")
         
     Returns:
         List of results per participant
@@ -143,7 +160,7 @@ def run_simulation(training_params, network_params, task_parameters, df, do_test
         # Train network through phases A1 -> B -> A2
         participant_results = runSchedule(
             train_participant_schedule, lr, gamma, n_epochs, dim_input, dim_hidden,
-            dim_output, trainloader_A1, trainloader_B, trainloader_A2, ordered_inputs, do_test
+            dim_output, trainloader_A1, trainloader_B, trainloader_A2, ordered_inputs, do_test, init_type
         )
 
         participant_results['participant'] = participant
@@ -158,11 +175,14 @@ def run_simulation(training_params, network_params, task_parameters, df, do_test
 
     return results
 
-def runSchedule(train_function, lr, gamma, n_epochs, dim_input, dim_hidden, dim_output, trainloader_A1, trainloader_B, trainloader_A2, ordered_inputs, do_test):
+def runSchedule(train_function, lr, gamma, n_epochs, dim_input, dim_hidden, dim_output, trainloader_A1, trainloader_B, trainloader_A2, ordered_inputs, do_test, init_type="custom"):
     """
     Runs a complete learning cycle:
     A: n_epochs of training on task A stimuli
     B: n_epochs of training on task B stimuli
+    
+    Args:
+        init_type: Type of initialization ("custom" or "standard")
     """
     n_train_trials = n_epochs * dim_input * 10
     n_phase = 3  # A, B, A
@@ -186,7 +206,7 @@ def runSchedule(train_function, lr, gamma, n_epochs, dim_input, dim_hidden, dim_
     network = simpleLinearNet(dim_input, dim_hidden, dim_output)
 
     # Initialize weights
-    ex_initializer_(network, gamma)
+    ex_initializer_(network, gamma, init_type=init_type)
 
     optimizer = torch.optim.SGD(network.parameters(), lr=lr)
     loss_function = nn.MSELoss()
@@ -336,7 +356,7 @@ def train_participant_schedule(network, trainloader, n_epochs, loss_function, op
     )
 
 
-def train_single_schedule(training_params, network_params, task_parameters, df, do_test):
+def train_single_schedule(training_params, network_params, task_parameters, df, do_test, init_type="custom"):
     
     dim_input, dim_hidden, dim_output = network_params
     _, n_phase, n_epochs, n_train_trials, shuffle, batch_size, gamma, lr = training_params
@@ -394,7 +414,7 @@ def train_single_schedule(training_params, network_params, task_parameters, df, 
     network = simpleLinearNet(dim_input, dim_hidden, dim_output)
 
     # Initialize weights
-    ex_initializer_(network, gamma)
+    ex_initializer_(network, gamma, init_type=init_type)
 
     optimizer = torch.optim.SGD(network.parameters(), lr=lr)
     loss_function = nn.MSELoss()

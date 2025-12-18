@@ -12,6 +12,13 @@ import numpy as np
 import pandas as pd
 import argparse
 
+# Get the script's directory and the project root
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)  # transfer-interference directory
+
+# Add project root to Python path so we can import src
+sys.path.insert(0, PROJECT_ROOT)
+
 from src.models import vonmises as vm
 from src.utils import basic_funcs as basic
 from src.analysis import participant, ann, stats
@@ -170,11 +177,15 @@ def main():
                       help='Type of data to analyze')
     parser.add_argument('--sim-name', type=str,
                       help='Name of simulation folder (required if data_type is simulations)')
-    parser.add_argument('--base-folder', type=str, default='./',
-                      help='Base project folder path (default: current directory)')
+    parser.add_argument('--base-folder', type=str, default=None,
+                      help='Base project folder path (default: script parent directory)')
     
     args = parser.parse_args()
-    run_analysis(args.data_type, args.sim_name, args.base_folder)
+    
+    # Use PROJECT_ROOT if base_folder not specified
+    base_folder = args.base_folder if args.base_folder else PROJECT_ROOT
+    
+    run_analysis(args.data_type, args.sim_name, base_folder)
 
 if __name__ == "__main__":
     main()
