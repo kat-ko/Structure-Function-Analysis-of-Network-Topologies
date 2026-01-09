@@ -280,12 +280,16 @@ def get_principal_angles(ann_data):
     --------
     pandas.DataFrame
         A DataFrame containing participant IDs, conditions, and computed principal angles.
+        Columns: participant, condition, within_task_A, within_task_B, average_within_task, across_task
     """
     # Initialize results dictionary
     results = {
         'participant': [],
         'condition': [],
-        'principal_angle_between': []
+        'within_task_A': [],
+        'within_task_B': [],
+        'average_within_task': [],
+        'across_task': []
     }
 
     # Iterate through conditions and participants
@@ -297,13 +301,29 @@ def get_principal_angles(ann_data):
             A_hids = schedule_data[subj]['hiddens_post_phase_1'][0:6, :].copy()
             B_hids = schedule_data[subj]['hiddens_post_phase_1'][6:, :].copy()
             
-            # Compute principal angle between A and B representations
-            angle_between, _ = compute_principal_angle(A_hids, B_hids, n_components=2)
+            # Within-task A: split into two groups of 3 (first 3 vs last 3 stimuli)
+            A_hids_group1 = A_hids[0:3, :]
+            A_hids_group2 = A_hids[3:6, :]
+            within_A, _ = compute_principal_angle(A_hids_group1, A_hids_group2, n_components=2)
+            
+            # Within-task B: split into two groups of 3 (first 3 vs last 3 stimuli)
+            B_hids_group1 = B_hids[0:3, :]
+            B_hids_group2 = B_hids[3:6, :]
+            within_B, _ = compute_principal_angle(B_hids_group1, B_hids_group2, n_components=2)
+            
+            # Average within-task
+            avg_within = (within_A + within_B) / 2
+            
+            # Across-task (existing computation)
+            across, _ = compute_principal_angle(A_hids, B_hids, n_components=2)
             
             # Store results
             results['participant'].append(str(schedule_data[subj]['participant']))
             results['condition'].append(schedule_name)
-            results['principal_angle_between'].append(angle_between)
+            results['within_task_A'].append(within_A)
+            results['within_task_B'].append(within_B)
+            results['average_within_task'].append(avg_within)
+            results['across_task'].append(across)
     
     # Create DataFrame from results
     agg_df = pd.DataFrame(results)
