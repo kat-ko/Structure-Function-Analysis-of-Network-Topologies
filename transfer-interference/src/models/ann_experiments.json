@@ -31,6 +31,11 @@
             "dim_hidden": 50
         },
         {
+            "name": "standard_50",
+            "init_type": "standard",
+            "dim_hidden": 50
+        },
+        {
             "name": "gamma_1_50",
             "gamma": 1,
             "dim_hidden": 50
@@ -49,11 +54,6 @@
             "name": "lazy_200",
             "gamma": 2,
             "dim_hidden": 200
-        },
-        {
-            "name": "standard_50",
-            "init_type": "standard",
-            "dim_hidden": 50
         }
     ],
     "n_epochs": 100,
