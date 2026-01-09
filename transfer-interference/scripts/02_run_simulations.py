@@ -149,6 +149,11 @@ def run_geometry_experiment(condition_name, participant_to_copy='study1_same_sub
     # Load participant data
     df = ann.load_participant_data(data_folder)
     
+    # Extract initialization type (defaults to "custom" for backward compatibility)
+    init_type = condition.get('init_type', 'custom')
+    # Extract gamma (defaults to 1e-3 if not present, but won't be used for standard init)
+    gamma = condition.get('gamma', 1e-3)
+    
     # Setup parameters
     task_parameters = ann.setup_task_parameters()
     network_params = [
@@ -165,7 +170,7 @@ def run_geometry_experiment(condition_name, participant_to_copy='study1_same_sub
         settings['n_epochs'] * (task_parameters['nStim_perTask']*2) * 10,
         settings['shuffle'],
         settings['batch_size'],
-        condition['gamma'],
+        gamma,
         settings['learning_rate']
     ]
     
