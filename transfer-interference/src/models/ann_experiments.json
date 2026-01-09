@@ -21,6 +21,11 @@
             "dim_hidden": 50
         },
         {
+            "name": "gamma_5e_2_50",
+            "gamma": 5e-2,
+            "dim_hidden": 50
+        },
+        {
             "name": "gamma_e_1_50",
             "gamma": 1e-1,
             "dim_hidden": 50
