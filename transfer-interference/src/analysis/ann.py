@@ -420,3 +420,80 @@ def add_ann_metrics(rich_data, lazy_data, rich_group_params, lazy_group_params):
     ann_behav_df = pd.DataFrame(ann_behav_data)
 
     return ann_behav_df
+
+
+def add_ann_metrics_single(schedule_data, group_params, group_name='ann'):
+    """
+    Compute behavioral metrics for a single ANN configuration.
+    
+    Parameters
+    ----------
+    schedule_data : list
+        List of participant data dictionaries for a single schedule (e.g., 'near')
+    group_params : pd.DataFrame
+        DataFrame containing von Mises fit parameters for this configuration
+    group_name : str
+        Name to use for the 'group' column (default: 'ann')
+        
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with behavioral metrics for all participants
+    """
+    ann_behav_data = []
+    
+    final_A_acc = np.full((len(schedule_data)), np.nan)
+    initial_B_acc = np.full((len(schedule_data)), np.nan)
+    
+    # Loop through participants and save their flattened losses
+    for subj in range(len(schedule_data)):
+        # get accuracy by task section
+        A1_accuracy = schedule_data[subj]['accuracy'][0, 1::2].copy()  # winter only i.e. odd features
+        B_accuracy = schedule_data[subj]['accuracy'][1, 1::2].copy()
+        A2_accuracy = schedule_data[subj]['accuracy'][2, 1::2].copy()
+        
+        # average over relevant window
+        final_A1_acc = np.mean(A1_accuracy[-6:])  # final pass through A stimuli set
+        initial_B_acc_val = np.mean(B_accuracy[0:6])  # first pass through B stimuli set
+        A2_accuracy_mean = np.mean(A2_accuracy)
+        
+        # get diffs
+        transfer_error_diff = initial_B_acc_val - final_A1_acc
+        retest_error_diff = A2_accuracy_mean - final_A1_acc
+        
+        # summer accuracy
+        summer_accuracy = np.mean(schedule_data[subj]['accuracy'][0, 0::2].copy())
+        
+        # generalisation accuracy
+        test_stim = schedule_data[subj]['test_stim'][0, 1::2].copy().astype(int)
+        all_A1_accuracy = schedule_data[subj]['accuracy'][0, 1::2].copy()  # winter only
+        all_A1_accuracy[test_stim == 0] = np.nan
+        generalisation_accuracy = np.nanmean(all_A1_accuracy)
+        
+        # Get participant ID and find matching von Mises params
+        participant_id = str(schedule_data[subj]['participant'])
+        participant_params = group_params.loc[group_params['participant'] == participant_id]
+        
+        if len(participant_params) > 0:
+            retest_int = 1 - participant_params['A_weight_A2'].values[0].astype(np.float32)  # interference = use of B rule at A2
+        else:
+            retest_int = np.nan
+        
+        # Use the group_name (config name) as the group label for all participants in this config
+        # ANNs don't have splitters/lumpers - they're just grouped by config
+        participant_group = group_name
+        
+        # Append data
+        ann_behav_data.append({
+            'group': participant_group,
+            'participant': participant_id,
+            'initialB': initial_B_acc_val,
+            'transfer_error_diff': transfer_error_diff,
+            'retest_error_diff': retest_error_diff,
+            'summer_accuracy': summer_accuracy,
+            'generalisation_acc': generalisation_accuracy,
+            'interference': retest_int
+        })
+    
+    ann_behav_df = pd.DataFrame(ann_behav_data)
+    return ann_behav_df

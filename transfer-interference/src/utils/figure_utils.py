@@ -31,10 +31,13 @@ def significance_stars(p_value):
         return ''
     
 def plot_transfer(data, var, condition_order, ylabel, xlim, ylim, yticks, schedule_colours, p_values,
-                  addtests=1, markersize=1.5, scatter=True, figsize=[3 / 2.54, 4.5 / 2.54]):
+                  addtests=1, markersize=1.5, scatter=True, figsize=[3 / 2.54, 4.5 / 2.54], ax=None):
     
     """Plots the main data split by condition."""
-    fig, ax = plt.subplots(figsize=figsize)
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = ax.figure
 
     sns.stripplot(data=data, x='condition', y=var, ax=ax, 
                 order=condition_order, hue_order=condition_order,
@@ -89,7 +92,7 @@ def plot_transfer(data, var, condition_order, ylabel, xlim, ylim, yticks, schedu
 
 
 
-def plot_interference(param_df, A2_param, schedule_colours, figsize=[3 / 2.54, 4.5 / 2.54], ylabel='interference weight'):
+def plot_interference(param_df, A2_param, schedule_colours, figsize=[3 / 2.54, 4.5 / 2.54], ylabel='interference weight', ax=None):
     """
     Plot interference analysis comparing A2 parameters.
     
@@ -105,13 +108,18 @@ def plot_interference(param_df, A2_param, schedule_colours, figsize=[3 / 2.54, 4
         Figure dimensions [width, height] in cm
     ylabel : str
         Label for y-axis
+    ax : matplotlib.axes.Axes, optional
+        Axes to plot on. If None, creates new figure.
         
     Returns
     -------
     fig, ax : tuple
         Figure and axis objects
     """
-    fig, ax = plt.subplots(figsize=figsize)
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = ax.figure
 
     # Prepare data
     param_df_tmp = param_df.loc[param_df['condition']!='same'].copy()
@@ -246,9 +254,12 @@ def plot_accuracy_timecourse(trial_df, feature_idx, schedule_colours, condition_
 
 ## Individual differences plotting functions
 
-def plot_near_hist(data, schedule_colours, figsize=[4.5 / 2.54, 3 / 2.54]):
+def plot_near_hist(data, schedule_colours, figsize=[4.5 / 2.54, 3 / 2.54], ax=None):
 
-    fig,ax=plt.subplots(figsize=figsize)
+    if ax is None:
+        fig,ax=plt.subplots(figsize=figsize)
+    else:
+        fig = ax.figure
 
     ax.hist(1-data['A_weight_A2'], color=schedule_colours[1], linewidth=0.5, edgecolor='k', alpha=0.5)
     ax.set_yticks(range(0,41,20))
@@ -257,10 +268,12 @@ def plot_near_hist(data, schedule_colours, figsize=[4.5 / 2.54, 3 / 2.54]):
 
     # Style the plot
     _style_axes(ax)
+    
+    return fig, ax
 
 ## ANN specific plotting functions
 
-def plot_loss_curves(ann_data, schedule_name, schedule_colours, n_epochs=100, figsize=[3 / 2.54, 2 / 2.54]):
+def plot_loss_curves(ann_data, schedule_name, schedule_colours, n_epochs=100, figsize=[3 / 2.54, 2 / 2.54], ax=None):
     """
     Plot loss curves for a specific schedule.
     
@@ -274,6 +287,8 @@ def plot_loss_curves(ann_data, schedule_name, schedule_colours, n_epochs=100, fi
         Number of epochs per phase
     figsize : list, optional
         Figure dimensions [width, height]
+    ax : matplotlib.axes.Axes, optional
+        Axes to plot on. If None, creates new figure.
         
     Returns
     -------
@@ -283,7 +298,10 @@ def plot_loss_curves(ann_data, schedule_name, schedule_colours, n_epochs=100, fi
     schedule_data = ann_data[schedule_name]
     s_idx = ['same', 'near', 'far'].index(schedule_name)
     
-    fig, ax = plt.subplots(figsize=figsize)
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = ax.figure
     
     # Plot phase transition lines
     ax.axvline(n_epochs * 6 * 10, color='k', linestyle='--', alpha=0.3)
@@ -324,7 +342,7 @@ def plot_loss_curves(ann_data, schedule_name, schedule_colours, n_epochs=100, fi
     
     return fig, ax
 
-def plot_pca_components(agg_df_long, task_colours, cm_conv=1/2.54):
+def plot_pca_components(agg_df_long, task_colours, cm_conv=1/2.54, ax=None):
     """
     Plot the number of PCA components needed to explain variance across conditions.
     
@@ -336,13 +354,18 @@ def plot_pca_components(agg_df_long, task_colours, cm_conv=1/2.54):
         Dictionary mapping tasks to colors
     cm_conv : float, optional
         Conversion factor from cm to inches (default: 1/2.54)
+    ax : matplotlib.axes.Axes, optional
+        Axes to plot on. If None, creates new figure.
     
     Returns:
     --------
     tuple
         Figure and axes objects
     """
-    fig, ax = plt.subplots(figsize=[3*cm_conv, 3*cm_conv])
+    if ax is None:
+        fig, ax = plt.subplots(figsize=[3*cm_conv, 3*cm_conv])
+    else:
+        fig = ax.figure
     
     # Style the plot
     _style_axes(ax)
@@ -397,9 +420,12 @@ def plot_split_stim(ax, hiddens_pca, task_colours,lims):
 
 ## Individual differences plotting functions
 
-def plot_near_hist(near_participants_group, schedule_colours, figsize=[4.5 / 2.54, 3 / 2.54]):
+def plot_near_hist(near_participants_group, schedule_colours, figsize=[4.5 / 2.54, 3 / 2.54], ax=None):
 
-    fig,ax=plt.subplots(figsize=figsize)
+    if ax is None:
+        fig,ax=plt.subplots(figsize=figsize)
+    else:
+        fig = ax.figure
 
     ax.hist(1-near_participants_group['A_weight_A2'], color=schedule_colours[1], linewidth=0.5, edgecolor='k', alpha=0.5)
     ax.set_yticks(range(0,41,20))
@@ -413,9 +439,32 @@ def plot_near_hist(near_participants_group, schedule_colours, figsize=[4.5 / 2.5
 
 
 
-def plot_id_1group(data, grouping, group_order, group_names, var, yticks, ytick_labs, ylim, ylab, colors, add_tests=0, p_value=np.nan, y_coord=np.nan,figsize=[3 / 2.54, 4.5 / 2.54]):
+def plot_id_1group(data, grouping, group_order, group_names, var, yticks, ytick_labs, ylim, ylab, colors, add_tests=0, p_value=np.nan, y_coord=np.nan,figsize=[3 / 2.54, 4.5 / 2.54], ax=None):
     """Plot individual differences for one group with error bars and significance testing."""
-    fig, ax = plt.subplots(figsize=figsize)
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = ax.figure
+    
+    # Filter out NaN values in grouping column and the variable column
+    data = data.dropna(subset=[grouping, var]).copy()
+    
+    if len(data) == 0:
+        # No data after filtering, return empty plot
+        return fig, ax
+    
+    # Only use groups that actually exist in the data (check after filtering)
+    unique_groups_in_data = set(data[grouping].dropna().unique())
+    available_groups = [g for g in group_order if g in unique_groups_in_data]
+    if len(available_groups) == 0:
+        # No valid groups, return empty plot
+        return fig, ax
+    
+    # Update group_order and group_names to only include available groups
+    # Find indices of available groups in original group_order
+    original_indices = [i for i, g in enumerate(group_order) if g in available_groups]
+    group_names = [group_names[i] for i in original_indices]
+    group_order = available_groups
     
     # Create base plot layers
     sns.stripplot(data=data, x=grouping, y=var, ax=ax,
@@ -441,9 +490,14 @@ def plot_id_1group(data, grouping, group_order, group_names, var, yticks, ytick_
     _style_axes(ax)
     
     # Set labels and limits
-    ax.set_xticks([0,1], group_names)
+    n_groups = len(group_order)
+    if n_groups == 1:
+        ax.set_xticks([0], group_names)
+        ax.set_xlim([-0.5, 0.5])
+    else:
+        ax.set_xticks(range(n_groups), group_names)
+        ax.set_xlim([-0.5, n_groups - 0.5])
     ax.set_xlabel('')
-    ax.set_xlim([-0.5, 1.5])
     ax.set_yticks(yticks, ytick_labs)
     ax.set_ylabel(ylab)
     ax.set_ylim(ylim)
@@ -456,9 +510,12 @@ def plot_id_1group(data, grouping, group_order, group_names, var, yticks, ytick_
     
     return fig, ax
 
-def plot_id_groups(data, grouping, group_order, group_names, var, yticks, ytick_labs, ylim, ylab, colors='grey', add_tests=0, p_value=np.nan, y_coord=np.nan,figsize=[6 / 2.54, 4.5 / 2.54]):
+def plot_id_groups(data, grouping, group_order, group_names, var, yticks, ytick_labs, ylim, ylab, colors='grey', add_tests=0, p_value=np.nan, y_coord=np.nan,figsize=[6 / 2.54, 4.5 / 2.54], ax=None):
     """Plot individual differences comparing multiple groups with error bars and connecting lines."""
-    fig, ax = plt.subplots(figsize=figsize)
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = ax.figure
 
     # Create base plot layers
     sns.stripplot(data=data, x=grouping, y=var, ax=ax, hue='ann',

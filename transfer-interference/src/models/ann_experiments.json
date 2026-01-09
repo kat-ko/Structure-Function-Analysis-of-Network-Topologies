@@ -17,7 +17,7 @@
         },
         {
             "name": "gamma_e_2_50",
-            "gamma": 1e-3,
+            "gamma": 1e-2,
             "dim_hidden": 50
         },
         {
@@ -31,9 +31,19 @@
             "dim_hidden": 50
         },
         {
+            "name": "gamma_1_200",
+            "gamma": 1,
+            "dim_hidden": 200
+        },
+        {
             "name": "lazy_50",
             "gamma": 2,
             "dim_hidden": 50
+        },
+        {
+            "name": "lazy_200",
+            "gamma": 2,
+            "dim_hidden": 200
         },
         {
             "name": "standard_50",

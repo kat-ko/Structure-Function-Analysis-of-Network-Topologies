@@ -318,6 +318,7 @@
         "shuffle": false,
         "batch_size": 1,
         "gamma": 2,
+        "init_type": "custom",
         "lr": 0.01
     },
     "network_params": [

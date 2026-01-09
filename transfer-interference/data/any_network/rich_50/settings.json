@@ -337,5 +337,12 @@
             "near rule",
             "far rule"
         ]
+    },
+    "network_config": {
+        "network_type": "ffn",
+        "rnn_cell_type": null,
+        "rnn_num_layers": null,
+        "rnn_dropout": null,
+        "sequence_mode": null
     }
 }

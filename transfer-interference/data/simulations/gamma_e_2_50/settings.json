@@ -1,7 +1,7 @@
 {
     "condition": {
-        "name": "rich_50",
-        "gamma": 0.001,
+        "name": "gamma_e_2_50",
+        "gamma": 0.01,
         "dim_hidden": 50
     },
     "training_params": {
@@ -317,7 +317,7 @@
         "n_train_trials": 12000,
         "shuffle": false,
         "batch_size": 1,
-        "gamma": 0.001,
+        "gamma": 0.01,
         "init_type": "custom",
         "lr": 0.01
     },

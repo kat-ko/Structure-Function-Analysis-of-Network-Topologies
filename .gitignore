@@ -35,6 +35,7 @@ __pycache__/
 # C extensions
 *.so
 
+# Transfer and Interference data
 *.npz
 
 # Distribution / packaging

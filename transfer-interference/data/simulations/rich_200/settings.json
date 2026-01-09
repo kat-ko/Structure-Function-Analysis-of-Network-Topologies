@@ -1,8 +1,8 @@
 {
     "condition": {
-        "name": "rich_50",
+        "name": "rich_200",
         "gamma": 0.001,
-        "dim_hidden": 50
+        "dim_hidden": 200
     },
     "training_params": {
         "participants": [
@@ -323,7 +323,7 @@
     },
     "network_params": [
         12,
-        50,
+        200,
         4
     ],
     "task_parameters": {

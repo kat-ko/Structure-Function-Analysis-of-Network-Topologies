@@ -224,7 +224,7 @@ def train_participant_schedule(network, trainloader, n_epochs, loss_function, op
             
                     
             joined_label = torch.cat((label_x.unsqueeze(1), label_y.unsqueeze(1)), dim=1)
-            radians_label = math.atan2(label_x, label_y)
+            radians_label = torch.atan2(label_x, label_y)
 
             # Forward pass - use interface method
             out, hid = network(input)
@@ -238,13 +238,13 @@ def train_participant_schedule(network, trainloader, n_epochs, loss_function, op
             
             if feature_probe_val == 0:
                 loss = loss_function(out[:, :2], joined_label)
-                pred_rads = math.atan2(out[:, 0].detach().cpu().numpy(), out[:, 1].detach().cpu().numpy())
-                accuracy = compute_accuracy(pred_rads, radians_label.cpu().numpy())
+                pred_rads = torch.atan2(out[:, 0], out[:, 1]).detach().cpu().numpy()
+                accuracy = compute_accuracy(pred_rads, radians_label.detach().cpu().numpy())
                 
             elif feature_probe_val == 1:
                 loss = loss_function(out[:, 2:4], joined_label)
-                pred_rads = math.atan2(out[:, 2].detach().cpu().numpy(), out[:, 3].detach().cpu().numpy())
-                accuracy = compute_accuracy(pred_rads, radians_label.cpu().numpy())
+                pred_rads = torch.atan2(out[:, 2], out[:, 3]).detach().cpu().numpy()
+                accuracy = compute_accuracy(pred_rads, radians_label.detach().cpu().numpy())
                 
             else:
                 raise ValueError("Undefined loss setting for feature_probe.")
@@ -504,7 +504,9 @@ def main():
     # Set random seed
     set_seed(2024)
     condition_name = "rich_50" # Condition to run (e.g., rich_10, rich_50, rich_200)
-    base_folder='./'
+    # Get the directory where this script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    base_folder = script_dir
     
     # Network configuration - can be set via command line args or config file in future
     network_type = "ffn"  # Options: "ffn" or "rnn"
