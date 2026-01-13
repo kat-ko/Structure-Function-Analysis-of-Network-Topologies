@@ -20,3 +20,13 @@ You're all set !
 ## Example
 You will find a main example in the notebook modular_networks.ipynb. This notebook shows how to create and train architecture with varying parameters, and their resulting specialization levels and dynamics. It goes over all the main findings of the paper, in a straightforward fashion. 
 
+
+
+# Run
+
+To generate geometry results for all configurations:
+```
+cd transfer-interference
+python scripts/generate_all_geometry_results.py
+```
+
