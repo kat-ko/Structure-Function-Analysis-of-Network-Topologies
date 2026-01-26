@@ -60,7 +60,7 @@ class SimpleRNN(InterferenceTaskNetwork):
         # Hidden state storage
         self._hidden_state = None
         
-    def forward(self, x, hidden=None):
+    def forward(self, x, hidden=None, task_id=None):
         """
         Forward pass through the network.
         
@@ -69,6 +69,7 @@ class SimpleRNN(InterferenceTaskNetwork):
                 - Single timestep: (batch_size, input_dim)
                 - Sequence: (batch_size, seq_len, input_dim)
             hidden: Optional hidden state (if None, uses internal state or initializes)
+            task_id: Ignored for RNN (kept for interface compatibility)
         
         Returns:
             output: Network output

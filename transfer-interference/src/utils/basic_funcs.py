@@ -44,10 +44,10 @@ def get_datasets(df, participant, task_parameters):
     raw_inputs[1], raw_labels[1] = process_raw_inputs_and_labels(participant_training_B, task_parameters['nStim_perTask'], 1)
     raw_inputs[2], raw_labels[2] = process_raw_inputs_and_labels(participant_training_A2, task_parameters['nStim_perTask'], 2)
 
-    # Assemble datasets
-    dataset_A1 = assemble_dataset(participant_training_A1, A1_inputs, np.cos(participant_training_A1['feat_val'].values), np.sin(participant_training_A1['feat_val'].values))
-    dataset_B = assemble_dataset(participant_training_B, B_inputs, np.cos(participant_training_B['feat_val'].values), np.sin(participant_training_B['feat_val'].values))
-    dataset_A2 = assemble_dataset(participant_training_A2, A2_inputs, np.cos(participant_training_A2['feat_val'].values), np.sin(participant_training_A2['feat_val'].values))
+    # Assemble datasets with task_id
+    dataset_A1 = assemble_dataset(participant_training_A1, A1_inputs, np.cos(participant_training_A1['feat_val'].values), np.sin(participant_training_A1['feat_val'].values), task_id="A")
+    dataset_B = assemble_dataset(participant_training_B, B_inputs, np.cos(participant_training_B['feat_val'].values), np.sin(participant_training_B['feat_val'].values), task_id="B")
+    dataset_A2 = assemble_dataset(participant_training_A2, A2_inputs, np.cos(participant_training_A2['feat_val'].values), np.sin(participant_training_A2['feat_val'].values), task_id="A")
 
     return dataset_A1, dataset_B, dataset_A2, raw_inputs, raw_labels
 
@@ -105,11 +105,18 @@ def process_raw_inputs_and_labels(participant_data, n_stim_per_task, task_idx):
 
     return raw_inputs, raw_labels
 
-def assemble_dataset(participant_data, inputs, label_cos, label_sin):
+def assemble_dataset(participant_data, inputs, label_cos, label_sin, task_id=None):
     """
     Assemble the dataset dictionary for a task.
+    
+    Args:
+        participant_data: DataFrame with participant data
+        inputs: Input matrix
+        label_cos: Cosine labels
+        label_sin: Sine labels
+        task_id: Task identifier ("A" for A1/A2, "B" for B)
     """
-    return {
+    dataset = {
         'index': participant_data['index'].values,
         'stim_index': participant_data['stimID'].values,
         'input': inputs,
@@ -118,6 +125,10 @@ def assemble_dataset(participant_data, inputs, label_cos, label_sin):
         'label_x': label_cos,
         'label_y': label_sin,
     }
+    # Add task_id if provided
+    if task_id is not None:
+        dataset['task_id'] = np.full(len(participant_data), task_id, dtype=object)
+    return dataset
 
 def get_clockwise_order(labels):
     """

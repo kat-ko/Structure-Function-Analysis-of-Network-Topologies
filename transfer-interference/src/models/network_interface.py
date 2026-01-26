@@ -19,7 +19,8 @@ class InterferenceTaskNetwork(ABC, torch.nn.Module):
     """
     
     @abstractmethod
-    def forward(self, x: torch.Tensor, hidden: Optional[torch.Tensor] = None) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, x: torch.Tensor, hidden: Optional[torch.Tensor] = None, 
+                task_id: Optional[str] = None) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Forward pass through the network.
         
@@ -30,6 +31,9 @@ class InterferenceTaskNetwork(ABC, torch.nn.Module):
             hidden: Optional hidden state for RNNs
                 - For FFN: Ignored (should be None)
                 - For RNN: (batch_size, hidden_dim) or (num_layers, batch_size, hidden_dim)
+            task_id: Optional task identifier for task-based routing
+                - For two-module networks: "A" or "B" to route to specific module
+                - For single-module networks: Can be ignored (backward compatible)
         
         Returns:
             output: Network output

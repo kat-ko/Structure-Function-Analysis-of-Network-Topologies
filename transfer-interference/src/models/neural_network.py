@@ -71,6 +71,12 @@ def ex_initializer_(model, gamma=1e-3, mean=0.0, init_type="custom"):
                 # Use existing gamma-based initialization
                 if "hid_out" in name:  # Output layer weights
                     std = 1e-3
+                elif "comm_ab" in name.lower() or "comm_ba" in name.lower():  # Communication layers
+                    std = 1e-3
+                elif "readout_a" in name.lower() or "readout_b" in name.lower():  # Readout layers
+                    std = 1e-3
+                elif "mod_a" in name.lower() or "mod_b" in name.lower():  # Module input layers
+                    std = gamma
                 else:  # Hidden layer weights
                     std = gamma
                     
@@ -105,9 +111,58 @@ def batch_to_torch(numpy_version):
     """Convert numpy batch to torch tensor."""
     return numpy_version.type(torch.FloatTensor)
 
-def ordered_sweep(network, ranked_inputs):
-    """Run network on ordered inputs for interpretable results."""
-    preds, hids = network(ranked_inputs)
+def ordered_sweep(network, ranked_inputs, n_stim_per_task=6):
+    """
+    Run network on ordered inputs for interpretable results.
+    
+    For two-module networks, this handles task routing based on input position.
+    """
+    from src.models.two_module_mlp import TwoModuleMLP
+    
+    # Convert to torch tensor if needed
+    if isinstance(ranked_inputs, np.ndarray):
+        ranked_inputs = torch.from_numpy(ranked_inputs).float()
+    
+    is_two_module = isinstance(network, TwoModuleMLP)
+    
+    if is_two_module:
+        # For two-module networks, process with task routing
+        n_samples = ranked_inputs.shape[0]
+        preds_list = []
+        hids_list = []
+        h_A_list = []
+        h_B_list = []
+        
+        for i in range(n_samples):
+            input_sample = ranked_inputs[i:i+1]
+            # Determine task_id based on position
+            if i < n_stim_per_task:
+                task_id = "A"
+            else:
+                task_id = "B"
+            
+            # Forward pass with task_id
+            pred, hid = network(input_sample, task_id=task_id)
+            preds_list.append(pred)
+            hids_list.append(hid)
+            
+            # Store per-module hidden states
+            try:
+                h_A, h_B = network.get_module_hidden_states()
+                h_A_list.append(h_A)
+                h_B_list.append(h_B)
+            except RuntimeError:
+                h_A_list.append(torch.zeros(1, network.dim_hidden_per_module, device=pred.device))
+                h_B_list.append(torch.zeros(1, network.dim_hidden_per_module, device=pred.device))
+        
+        preds = torch.cat(preds_list, dim=0)
+        hids = torch.cat(hids_list, dim=0)
+        network._ordered_sweep_h_A = torch.cat(h_A_list, dim=0)
+        network._ordered_sweep_h_B = torch.cat(h_B_list, dim=0)
+    else:
+        # For single-module networks, process all at once
+        preds, hids = network(ranked_inputs)
+    
     return preds.detach().numpy().copy(), hids.detach().numpy().copy()
 
 def run_simulation(training_params, network_params, task_parameters, df, do_test, dosave=0, sim_folder=np.nan, init_type="custom"):
@@ -212,7 +267,8 @@ def runSchedule(train_function, lr, gamma, n_epochs, dim_input, dim_hidden, dim_
     loss_function = nn.MSELoss()
   
     # Initial pass of the network
-    initial_preds, initial_hiddens = ordered_sweep(network, torch.from_numpy(ordered_inputs).float())
+    n_stim_per_task = ordered_inputs.shape[0] // 2
+    initial_preds, initial_hiddens = ordered_sweep(network, torch.from_numpy(ordered_inputs).float(), n_stim_per_task=n_stim_per_task)
     results["preds_pre_training"] = initial_preds
     results["hiddens_pre_training"] = initial_hiddens
 
@@ -240,7 +296,8 @@ def runSchedule(train_function, lr, gamma, n_epochs, dim_input, dim_hidden, dim_
         )
 
         # Post-phase ordered sweep
-        post_preds, post_hiddens = ordered_sweep(network, torch.from_numpy(ordered_inputs).float())
+        n_stim_per_task = ordered_inputs.shape[0] // 2
+        post_preds, post_hiddens = ordered_sweep(network, torch.from_numpy(ordered_inputs).float(), n_stim_per_task=n_stim_per_task)
         results[f"preds_post_phase_{phase}"] = post_preds
         results[f"hiddens_post_phase_{phase}"] = post_hiddens
 
@@ -272,6 +329,8 @@ def train_participant_schedule(network, trainloader, n_epochs, loss_function, op
         "accuracy": [],
         "predictions": [],
         "hiddens": [],
+        "hiddens_A": [],  # Per-module hidden states for two-module networks
+        "hiddens_B": [],
         "embeddings": [],
         "readouts": [],
         "probes": [],
@@ -292,13 +351,21 @@ def train_participant_schedule(network, trainloader, n_epochs, loss_function, op
             label_y = batch_to_torch(data['label_y'])
             feature_probe = batch_to_torch(data['feature_probe'])
             test_stim = batch_to_torch(data['test_stim'])
+            task_id = data.get('task_id', None)  # Get task_id if available
+            
+            # Handle task_id: if it's a numpy array, get first element; if string, use as-is
+            if task_id is not None:
+                if isinstance(task_id, np.ndarray):
+                    task_id = task_id[0] if task_id.size > 0 else None
+                elif isinstance(task_id, (list, tuple)):
+                    task_id = task_id[0] if len(task_id) > 0 else None
             
                     
             joined_label = torch.cat((label_x.unsqueeze(1), label_y.unsqueeze(1)), dim=1)
             radians_label = math.atan2(label_x, label_y)
 
-            # Forward pass
-            out, hid = network(input)
+            # Forward pass with task_id
+            out, hid = network(input, task_id=task_id)
 
             # Calculate loss based on feature probe
             if feature_probe == 0:
@@ -335,11 +402,69 @@ def train_participant_schedule(network, trainloader, n_epochs, loss_function, op
             metrics["accuracy"].append(accuracy)
             metrics["predictions"].append(np.expand_dims(out.detach().numpy(), axis=1))
             metrics["hiddens"].append(hid.detach().numpy())
-            metrics["embeddings"].append(network.in_hid.weight.detach().numpy())
-            metrics["readouts"].append(network.hid_out.weight.detach().numpy())
+            
+            # Store per-module hidden states if available
+            if h_A is not None:
+                metrics["hiddens_A"].append(h_A)
+            else:
+                metrics["hiddens_A"].append(None)
+            if h_B is not None:
+                metrics["hiddens_B"].append(h_B)
+            else:
+                metrics["hiddens_B"].append(None)
+            
+            # Get embeddings and readouts (handle both single and two-module networks)
+            embeddings = network.get_embeddings()
+            if embeddings is not None:
+                metrics["embeddings"].append(embeddings.detach().cpu().numpy())
+            else:
+                metrics["embeddings"].append(None)
+            
+            readouts = network.get_readouts()
+            if readouts is not None:
+                metrics["readouts"].append(readouts.detach().cpu().numpy())
+            else:
+                metrics["readouts"].append(None)
 
-    # Convert lists to arrays where applicable
-    metrics = {key: np.squeeze(value) for key, value in metrics.items()}
+    # Handle per-module hidden states (hiddens_A, hiddens_B)
+    for key in ["hiddens_A", "hiddens_B"]:
+        if metrics[key] and all(x is None for x in metrics[key]):
+            metrics[key] = np.array([])
+        elif metrics[key] and any(x is None for x in metrics[key]):
+            # Filter out None values
+            metrics[key] = [x for x in metrics[key] if x is not None]
+            if metrics[key]:
+                metrics[key] = np.squeeze(np.array(metrics[key]))
+            else:
+                metrics[key] = np.array([])
+        elif metrics[key]:
+            metrics[key] = np.squeeze(np.array(metrics[key]))
+        else:
+            metrics[key] = np.array([])
+    
+    # Handle embeddings and readouts (may contain None)
+    for key in ["embeddings", "readouts"]:
+        if metrics[key] and all(x is None for x in metrics[key]):
+            metrics[key] = np.array([])
+        elif metrics[key] and any(x is None for x in metrics[key]):
+            # Filter out None values
+            metrics[key] = [x for x in metrics[key] if x is not None]
+            if metrics[key]:
+                metrics[key] = np.squeeze(np.array(metrics[key]))
+            else:
+                metrics[key] = np.array([])
+        elif metrics[key]:
+            metrics[key] = np.squeeze(np.array(metrics[key]))
+        else:
+            metrics[key] = np.array([])
+    
+    # Convert other metrics
+    for key in ["indexes", "inputs", "labels", "probes", "test_stim", "losses", 
+                "accuracy", "predictions", "hiddens"]:
+        if metrics[key]:
+            metrics[key] = np.squeeze(np.array(metrics[key]))
+        else:
+            metrics[key] = np.array([])
     
     return (
         metrics["indexes"],
@@ -353,6 +478,8 @@ def train_participant_schedule(network, trainloader, n_epochs, loss_function, op
         metrics["hiddens"],
         metrics["embeddings"],
         metrics["readouts"],
+        metrics.get("hiddens_A", np.array([])),  # Per-module hidden states (empty for non-two-module)
+        metrics.get("hiddens_B", np.array([])),  # Per-module hidden states (empty for non-two-module)
     )
 
 
@@ -427,7 +554,8 @@ def train_single_schedule(training_params, network_params, task_parameters, df, 
     results["indexes"][0, 0, :], results["inputs"][0,0, :, :],results["labels"][0,0, :, :],results["probes"][0,0, :],results["test_stim"][0,0, :],results["losses"][0,0, :],results["accuracy"][0,0, :],results["predictions"][0,0, :, :],results["hiddens"][0,0, :, :],results["embeddings"][0,0, :, :, :],results["readouts"][0,0, :, :, :] = train_participant_schedule(network, trainloader_A1, n_epochs, loss_function, optimizer, 1, do_test)
     
     # Post-phase ordered sweep
-    post_preds, post_hiddens = ordered_sweep(network, torch.from_numpy(ordered_inputs).float())
+    n_stim_per_task = ordered_inputs.shape[0] // 2
+    post_preds, post_hiddens = ordered_sweep(network, torch.from_numpy(ordered_inputs).float(), n_stim_per_task=n_stim_per_task)
     results[f"preds_post_phase_0"][0,:,:] = post_preds
     results[f"hiddens_post_phase_0"][0,:,:] = post_hiddens
      
@@ -465,7 +593,8 @@ def train_single_schedule(training_params, network_params, task_parameters, df, 
             ) = train_participant_schedule(condition_network, loader, n_epochs, loss_function, condition_optimizer, do_update, do_test)
 
             # Post-phase ordered sweep
-            post_preds, post_hiddens = ordered_sweep(condition_network, torch.from_numpy(ordered_inputs).float())
+            n_stim_per_task = ordered_inputs.shape[0] // 2
+            post_preds, post_hiddens = ordered_sweep(condition_network, torch.from_numpy(ordered_inputs).float(), n_stim_per_task=n_stim_per_task)
             results[f"preds_post_phase_{phase}"][condition_idx,:,:] = post_preds
             results[f"hiddens_post_phase_{phase}"][condition_idx,:,:] = post_hiddens
             

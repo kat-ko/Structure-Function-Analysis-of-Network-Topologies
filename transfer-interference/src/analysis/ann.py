@@ -36,7 +36,7 @@ def load_ann_data(ann_folder):
             if condition in file_name:
                 with np.load(file_path, allow_pickle=True) as data:  # Ensure file is closed after reading
 
-                    condition_data[condition].append({
+                    participant_data = {
                         'participant': file_name.replace('.npz', ''),
                         'predictions': data['predictions'],   
                         'labels': data['labels'],
@@ -45,7 +45,25 @@ def load_ann_data(ann_folder):
                         'test_stim': data['test_stim'],
                         'hiddens_post_phase_0': data['hiddens_post_phase_0'],
                         'hiddens_post_phase_1': data['hiddens_post_phase_1'],
-                    })
+                    }
+                    # Add per-module hidden states if available (for two-module networks)
+                    # These are stored as (n_phase, n_samples, dim_hidden_per_module) arrays
+                    if 'hiddens_A' in data:
+                        hiddens_A = data['hiddens_A']
+                        if hiddens_A.ndim == 3:  # (n_phase, n_samples, dim_hidden_per_module)
+                            participant_data['hiddens_A_post_phase_0'] = hiddens_A[0]
+                            participant_data['hiddens_A_post_phase_1'] = hiddens_A[1]
+                        elif hiddens_A.ndim == 2:  # (n_samples, dim_hidden_per_module) - single phase
+                            participant_data['hiddens_A_post_phase_1'] = hiddens_A
+                    if 'hiddens_B' in data:
+                        hiddens_B = data['hiddens_B']
+                        if hiddens_B.ndim == 3:  # (n_phase, n_samples, dim_hidden_per_module)
+                            participant_data['hiddens_B_post_phase_0'] = hiddens_B[0]
+                            participant_data['hiddens_B_post_phase_1'] = hiddens_B[1]
+                        elif hiddens_B.ndim == 2:  # (n_samples, dim_hidden_per_module) - single phase
+                            participant_data['hiddens_B_post_phase_1'] = hiddens_B
+                    
+                    condition_data[condition].append(participant_data)
                 break  
                 
     return condition_data
@@ -289,41 +307,124 @@ def get_principal_angles(ann_data):
         'within_task_A': [],
         'within_task_B': [],
         'average_within_task': [],
-        'across_task': []
+        'across_task': [],
+        'within_task_A_mod_A': [],  # Per-module analysis for two-module networks
+        'within_task_A_mod_B': [],
+        'within_task_B_mod_A': [],
+        'within_task_B_mod_B': [],
+        'across_task_mod_A': [],
+        'across_task_mod_B': []
     }
 
     # Iterate through conditions and participants
     for schedule_name, schedule_data in ann_data.items():
         
         for subj in range(len(schedule_data)):
-
-            # Extract hidden representations – already ordered by A and B task inputs
-            A_hids = schedule_data[subj]['hiddens_post_phase_1'][0:6, :].copy()
-            B_hids = schedule_data[subj]['hiddens_post_phase_1'][6:, :].copy()
+            subj_data = schedule_data[subj]
             
-            # Within-task A: split into two groups of 3 (first 3 vs last 3 stimuli)
-            A_hids_group1 = A_hids[0:3, :]
-            A_hids_group2 = A_hids[3:6, :]
-            within_A, _ = compute_principal_angle(A_hids_group1, A_hids_group2, n_components=2)
+            # Check if this is a two-module network (has per-module hidden states)
+            is_two_module = 'hiddens_A_post_phase_1' in subj_data and 'hiddens_B_post_phase_1' in subj_data
             
-            # Within-task B: split into two groups of 3 (first 3 vs last 3 stimuli)
-            B_hids_group1 = B_hids[0:3, :]
-            B_hids_group2 = B_hids[3:6, :]
-            within_B, _ = compute_principal_angle(B_hids_group1, B_hids_group2, n_components=2)
+            if is_two_module:
+                # Two-module network: use per-module hidden states
+                # Extract per-module hidden representations from post-phase-1 (after B training)
+                # For ordered inputs: first 6 are A stimuli, next 6 are B stimuli
+                h_A_phase1 = subj_data['hiddens_A_post_phase_1']
+                h_B_phase1 = subj_data['hiddens_B_post_phase_1']
+                
+                # Module A for task A stimuli (first 6) and task B stimuli (next 6)
+                A_hids_mod_A = h_A_phase1[0:6, :].copy()  # Module A for task A stimuli
+                B_hids_mod_A = h_A_phase1[6:, :].copy()  # Module A for task B stimuli (should be zeros or small)
+                
+                # Module B for task A stimuli (first 6) and task B stimuli (next 6)
+                A_hids_mod_B = h_B_phase1[0:6, :].copy()  # Module B for task A stimuli (should be zeros or small)
+                B_hids_mod_B = h_B_phase1[6:, :].copy()  # Module B for task B stimuli
+                
+                # Within-task A using Module A
+                A_hids_mod_A_group1 = A_hids_mod_A[0:3, :]
+                A_hids_mod_A_group2 = A_hids_mod_A[3:6, :]
+                within_A_mod_A, _ = compute_principal_angle(A_hids_mod_A_group1, A_hids_mod_A_group2, n_components=2)
+                
+                # Within-task A using Module B (should be small/zero)
+                A_hids_mod_B_group1 = A_hids_mod_B[0:3, :]
+                A_hids_mod_B_group2 = A_hids_mod_B[3:6, :]
+                within_A_mod_B, _ = compute_principal_angle(A_hids_mod_B_group1, A_hids_mod_B_group2, n_components=2)
+                
+                # Within-task B using Module A (should be small/zero)
+                B_hids_mod_A_group1 = B_hids_mod_A[0:3, :]
+                B_hids_mod_A_group2 = B_hids_mod_A[3:6, :]
+                within_B_mod_A, _ = compute_principal_angle(B_hids_mod_A_group1, B_hids_mod_A_group2, n_components=2)
+                
+                # Within-task B using Module B
+                B_hids_mod_B_group1 = B_hids_mod_B[0:3, :]
+                B_hids_mod_B_group2 = B_hids_mod_B[3:6, :]
+                within_B_mod_B, _ = compute_principal_angle(B_hids_mod_B_group1, B_hids_mod_B_group2, n_components=2)
+                
+                # Across-task: Module A (A vs B)
+                across_mod_A, _ = compute_principal_angle(A_hids_mod_A, B_hids_mod_A, n_components=2)
+                
+                # Across-task: Module B (A vs B)
+                across_mod_B, _ = compute_principal_angle(A_hids_mod_B, B_hids_mod_B, n_components=2)
+                
+                # For compatibility, also compute using combined hidden states
+                A_hids_combined = np.concatenate([A_hids_mod_A, A_hids_mod_B], axis=1)
+                B_hids_combined = np.concatenate([B_hids_mod_A, B_hids_mod_B], axis=1)
+                
+                # Within-task A (combined)
+                A_hids_combined_group1 = A_hids_combined[0:3, :]
+                A_hids_combined_group2 = A_hids_combined[3:6, :]
+                within_A, _ = compute_principal_angle(A_hids_combined_group1, A_hids_combined_group2, n_components=2)
+                
+                # Within-task B (combined)
+                B_hids_combined_group1 = B_hids_combined[0:3, :]
+                B_hids_combined_group2 = B_hids_combined[3:6, :]
+                within_B, _ = compute_principal_angle(B_hids_combined_group1, B_hids_combined_group2, n_components=2)
+                
+                # Across-task (combined)
+                across, _ = compute_principal_angle(A_hids_combined, B_hids_combined, n_components=2)
+            else:
+                # Single-module network: use standard approach
+                # Extract hidden representations – already ordered by A and B task inputs
+                A_hids = subj_data['hiddens_post_phase_1'][0:6, :].copy()
+                B_hids = subj_data['hiddens_post_phase_1'][6:, :].copy()
+                
+                # Within-task A: split into two groups of 3 (first 3 vs last 3 stimuli)
+                A_hids_group1 = A_hids[0:3, :]
+                A_hids_group2 = A_hids[3:6, :]
+                within_A, _ = compute_principal_angle(A_hids_group1, A_hids_group2, n_components=2)
+                
+                # Within-task B: split into two groups of 3 (first 3 vs last 3 stimuli)
+                B_hids_group1 = B_hids[0:3, :]
+                B_hids_group2 = B_hids[3:6, :]
+                within_B, _ = compute_principal_angle(B_hids_group1, B_hids_group2, n_components=2)
+                
+                # Across-task (existing computation)
+                across, _ = compute_principal_angle(A_hids, B_hids, n_components=2)
+                
+                # Set per-module values to NaN for single-module networks
+                within_A_mod_A = np.nan
+                within_A_mod_B = np.nan
+                within_B_mod_A = np.nan
+                within_B_mod_B = np.nan
+                across_mod_A = np.nan
+                across_mod_B = np.nan
             
             # Average within-task
             avg_within = (within_A + within_B) / 2
             
-            # Across-task (existing computation)
-            across, _ = compute_principal_angle(A_hids, B_hids, n_components=2)
-            
             # Store results
-            results['participant'].append(str(schedule_data[subj]['participant']))
+            results['participant'].append(str(subj_data['participant']))
             results['condition'].append(schedule_name)
             results['within_task_A'].append(within_A)
             results['within_task_B'].append(within_B)
             results['average_within_task'].append(avg_within)
             results['across_task'].append(across)
+            results['within_task_A_mod_A'].append(within_A_mod_A)
+            results['within_task_A_mod_B'].append(within_A_mod_B)
+            results['within_task_B_mod_A'].append(within_B_mod_A)
+            results['within_task_B_mod_B'].append(within_B_mod_B)
+            results['across_task_mod_A'].append(across_mod_A)
+            results['across_task_mod_B'].append(across_mod_B)
     
     # Create DataFrame from results
     agg_df = pd.DataFrame(results)
