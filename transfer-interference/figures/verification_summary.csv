@@ -1,0 +1,8 @@
+config_name,success,architecture_type,comm_bandwidth,structure_valid,routing_valid,communication_valid,weight_mean_example,weight_std_example,error_count,errors
+two_module_rich_50_none,True,two_module,none,True,True,True,-1.3828414012095891e-05,0.0009711199090816081,0,
+two_module_rich_50_low,True,two_module,low,True,True,True,-3.46759261447005e-05,0.0009805451845750213,0,
+two_module_rich_50_high,True,two_module,high,True,True,True,-1.7745649529388174e-05,0.0009465735056437552,0,
+two_module_lazy_50_none,True,two_module,none,True,True,True,-0.0028639903757721186,2.02260422706604,0,
+two_module_lazy_50_low,True,two_module,low,True,True,True,-0.09247860312461853,1.9812699556350708,0,
+two_module_lazy_50_high,True,two_module,high,True,True,True,0.1155751645565033,1.8665623664855957,0,
+two_module_gamma_e_1_50_high,True,two_module,high,True,True,True,0.003952549304813147,0.09638944268226624,0,

@@ -102,12 +102,39 @@
             }
         },
         {
+            "name": "two_module_lazy_50_low",
+            "gamma": 2,
+            "dim_hidden": 50,
+            "architecture": {
+                "type": "two_module",
+                "comm_bandwidth": "low"
+            }
+        },
+        {
             "name": "two_module_lazy_50_high",
             "gamma": 2,
             "dim_hidden": 50,
             "architecture": {
                 "type": "two_module",
                 "comm_bandwidth": "high"
+            }
+        },
+        {
+            "name": "two_module_gamma_e_1_50_none",
+            "gamma": 1e-1,
+            "dim_hidden": 50,
+            "architecture": {
+                "type": "two_module",
+                "comm_bandwidth": "none"
+            }
+        },
+        {
+            "name": "two_module_gamma_e_1_50_low",
+            "gamma": 1e-1,
+            "dim_hidden": 50,
+            "architecture": {
+                "type": "two_module",
+                "comm_bandwidth": "low"
             }
         },
         {
