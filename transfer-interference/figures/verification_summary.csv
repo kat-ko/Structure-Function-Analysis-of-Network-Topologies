@@ -5,4 +5,6 @@ two_module_rich_50_high,True,two_module,high,True,True,True,-1.7745649529388174e
 two_module_lazy_50_none,True,two_module,none,True,True,True,-0.0028639903757721186,2.02260422706604,0,
 two_module_lazy_50_low,True,two_module,low,True,True,True,-0.09247860312461853,1.9812699556350708,0,
 two_module_lazy_50_high,True,two_module,high,True,True,True,0.1155751645565033,1.8665623664855957,0,
-two_module_gamma_e_1_50_high,True,two_module,high,True,True,True,0.003952549304813147,0.09638944268226624,0,
+two_module_gamma_e_1_50_none,True,two_module,none,True,True,True,-0.0034630417358130217,0.10122564435005188,0,
+two_module_gamma_e_1_50_low,True,two_module,low,True,True,True,-0.009211394004523754,0.10112915933132172,0,
+two_module_gamma_e_1_50_high,True,two_module,high,True,True,True,0.014084851369261742,0.10026239603757858,0,
