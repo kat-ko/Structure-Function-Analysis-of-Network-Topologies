@@ -26,6 +26,11 @@
             "dim_hidden": 50
         },
         {
+            "name": "gamma_75e_2_50",
+            "gamma": 7.5e-2,
+            "dim_hidden": 50
+        },
+        {
             "name": "gamma_e_1_50",
             "gamma": 1e-1,
             "dim_hidden": 50
@@ -38,6 +43,11 @@
         {
             "name": "gamma_1_50",
             "gamma": 1,
+            "dim_hidden": 50
+        },
+        {
+            "name": "gamma_5e_1_50",
+            "gamma": 5e-1,
             "dim_hidden": 50
         },
         {
@@ -54,6 +64,87 @@
             "name": "lazy_200",
             "gamma": 2,
             "dim_hidden": 200
+        },
+        {
+            "name": "two_module_rich_50_none",
+            "gamma": 1e-3,
+            "dim_hidden": 50,
+            "architecture": {
+                "type": "two_module",
+                "comm_bandwidth": "none"
+            }
+        },
+        {
+            "name": "two_module_rich_50_low",
+            "gamma": 1e-3,
+            "dim_hidden": 50,
+            "architecture": {
+                "type": "two_module",
+                "comm_bandwidth": "low"
+            }
+        },
+        {
+            "name": "two_module_rich_50_high",
+            "gamma": 1e-3,
+            "dim_hidden": 50,
+            "architecture": {
+                "type": "two_module",
+                "comm_bandwidth": "high"
+            }
+        },
+        {
+            "name": "two_module_lazy_50_none",
+            "gamma": 2,
+            "dim_hidden": 50,
+            "architecture": {
+                "type": "two_module",
+                "comm_bandwidth": "none"
+            }
+        },
+        {
+            "name": "two_module_lazy_50_low",
+            "gamma": 2,
+            "dim_hidden": 50,
+            "architecture": {
+                "type": "two_module",
+                "comm_bandwidth": "low"
+            }
+        },
+        {
+            "name": "two_module_lazy_50_high",
+            "gamma": 2,
+            "dim_hidden": 50,
+            "architecture": {
+                "type": "two_module",
+                "comm_bandwidth": "high"
+            }
+        },
+        {
+            "name": "two_module_gamma_e_1_50_none",
+            "gamma": 1e-1,
+            "dim_hidden": 50,
+            "architecture": {
+                "type": "two_module",
+                "comm_bandwidth": "none"
+            }
+        },
+        {
+            "name": "two_module_gamma_e_1_50_low",
+            "gamma": 1e-1,
+            "dim_hidden": 50,
+            "architecture": {
+                "type": "two_module",
+                "comm_bandwidth": "low"
+            }
+        },
+        {
+            "name": "two_module_gamma_e_1_50_high",
+            "gamma": 1e-1,
+            "dim_hidden": 50,
+            "architecture": {
+                "type": "two_module",
+                "comm_bandwidth": "high"
+            }
         }
     ],
     "n_epochs": 100,

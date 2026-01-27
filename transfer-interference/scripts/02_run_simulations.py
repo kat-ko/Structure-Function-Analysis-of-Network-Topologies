@@ -59,6 +59,8 @@ def run_experiment(condition_name, base_folder='./'):
     init_type = condition.get('init_type', 'custom')
     # Extract gamma (defaults to 1e-3 if not present, but won't be used for standard init)
     gamma = condition.get('gamma', 1e-3)
+    # Extract architecture configuration if present
+    architecture_config = condition.get('architecture', None)
     
     # Network parameters
     dim_input = task_parameters['nStim_perTask'] * 2
@@ -109,6 +111,10 @@ def run_experiment(condition_name, base_folder='./'):
     print(f"Starting simulation for condition: {condition_name}")
     print(f"Number of participants: {len(participants)}")
     print(f"Network architecture: input={dim_input}, hidden={dim_hidden}, output={dim_output}")
+    if architecture_config:
+        print(f"Architecture type: {architecture_config.get('type', 'single-module')}")
+        if architecture_config.get('type') == 'two_module':
+            print(f"  Communication: {architecture_config.get('comm_bandwidth', 'none')}")
     
     # Run simulation
     net.run_simulation(
@@ -119,7 +125,8 @@ def run_experiment(condition_name, base_folder='./'):
         do_test=1,
         dosave=1,
         sim_folder=sim_folder,
-        init_type=init_type
+        init_type=init_type,
+        architecture_config=architecture_config
     )
 
 
@@ -153,6 +160,8 @@ def run_geometry_experiment(condition_name, participant_to_copy='study1_same_sub
     init_type = condition.get('init_type', 'custom')
     # Extract gamma (defaults to 1e-3 if not present, but won't be used for standard init)
     gamma = condition.get('gamma', 1e-3)
+    # Extract architecture configuration if present
+    architecture_config = condition.get('architecture', None)
     
     # Setup parameters
     task_parameters = ann.setup_task_parameters()
@@ -185,6 +194,10 @@ def run_geometry_experiment(condition_name, participant_to_copy='study1_same_sub
     # Run simulation
     print(f"Starting geometry simulation for condition: {condition_name}")
     print(f"Using participant schedule: {participant_to_copy}")
+    if architecture_config:
+        print(f"Architecture type: {architecture_config.get('type', 'single-module')}")
+        if architecture_config.get('type') == 'two_module':
+            print(f"  Communication: {architecture_config.get('comm_bandwidth', 'none')}")
     
     geom_results = net.train_single_schedule(
         training_params,
@@ -192,7 +205,8 @@ def run_geometry_experiment(condition_name, participant_to_copy='study1_same_sub
         task_parameters,
         geometry_df,
         do_test=0,
-        init_type=init_type
+        init_type=init_type,
+        architecture_config=architecture_config
     )
     
     # Save results

@@ -11,6 +11,7 @@ from torch.utils.data import Dataset, DataLoader
 from src.utils import basic_funcs as basic
 from src.models.network_interface import InterferenceTaskNetwork
 from src.models.rnn_networks import SimpleRNN
+from src.models.two_module_mlp import TwoModuleMLP
 import math
 import copy
 from tqdm.auto import tqdm
@@ -129,10 +130,10 @@ def get_datasets(df, participant, task_parameters):
     raw_inputs[1], raw_labels[1] = process_raw_inputs_and_labels(participant_training_B, task_parameters['nStim_perTask'], 1)
     raw_inputs[2], raw_labels[2] = process_raw_inputs_and_labels(participant_training_A2, task_parameters['nStim_perTask'], 2)
 
-    # Assemble datasets
-    dataset_A1 = assemble_dataset(participant_training_A1, A1_inputs, np.cos(participant_training_A1['feat_val'].values), np.sin(participant_training_A1['feat_val'].values))
-    dataset_B = assemble_dataset(participant_training_B, B_inputs, np.cos(participant_training_B['feat_val'].values), np.sin(participant_training_B['feat_val'].values))
-    dataset_A2 = assemble_dataset(participant_training_A2, A2_inputs, np.cos(participant_training_A2['feat_val'].values), np.sin(participant_training_A2['feat_val'].values))
+    # Assemble datasets with task_id
+    dataset_A1 = assemble_dataset(participant_training_A1, A1_inputs, np.cos(participant_training_A1['feat_val'].values), np.sin(participant_training_A1['feat_val'].values), task_id="A")
+    dataset_B = assemble_dataset(participant_training_B, B_inputs, np.cos(participant_training_B['feat_val'].values), np.sin(participant_training_B['feat_val'].values), task_id="B")
+    dataset_A2 = assemble_dataset(participant_training_A2, A2_inputs, np.cos(participant_training_A2['feat_val'].values), np.sin(participant_training_A2['feat_val'].values), task_id="A")
 
     return dataset_A1, dataset_B, dataset_A2, raw_inputs, raw_labels
 
@@ -191,6 +192,8 @@ def train_participant_schedule(network, trainloader, n_epochs, loss_function, op
         "accuracy": [],
         "predictions": [],
         "hiddens": [],
+        "hiddens_A": [],  # Per-module hidden states for two-module networks
+        "hiddens_B": [],
         "embeddings": [],
         "readouts": [],
         "probes": [],
@@ -221,13 +224,33 @@ def train_participant_schedule(network, trainloader, n_epochs, loss_function, op
             label_y = batch_to_torch(data['label_y'])
             feature_probe = batch_to_torch(data['feature_probe'])
             test_stim = batch_to_torch(data['test_stim'])
+            task_id = data.get('task_id', None)  # Get task_id if available
+            
+            # Handle task_id: if it's a numpy array, get first element; if string, use as-is
+            if task_id is not None:
+                if isinstance(task_id, np.ndarray):
+                    task_id = task_id[0] if task_id.size > 0 else None
+                elif isinstance(task_id, (list, tuple)):
+                    task_id = task_id[0] if len(task_id) > 0 else None
             
                     
             joined_label = torch.cat((label_x.unsqueeze(1), label_y.unsqueeze(1)), dim=1)
             radians_label = torch.atan2(label_x, label_y)
 
-            # Forward pass - use interface method
-            out, hid = network(input)
+            # Forward pass - use interface method with task_id
+            out, hid = network(input, task_id=task_id)
+            
+            # Extract per-module hidden states for two-module networks
+            h_A = None
+            h_B = None
+            if isinstance(network, TwoModuleMLP):
+                try:
+                    h_A, h_B = network.get_module_hidden_states()
+                    h_A = h_A.detach().cpu().numpy()
+                    h_B = h_B.detach().cpu().numpy()
+                except RuntimeError:
+                    # If get_module_hidden_states fails, set to None
+                    pass
 
             # Calculate loss based on feature probe
             # Handle both scalar and batch feature_probe
@@ -287,6 +310,16 @@ def train_participant_schedule(network, trainloader, n_epochs, loss_function, op
                     hid_np = hid_np.reshape(hid_np.shape[0], -1)
             metrics["hiddens"].append(hid_np)
             
+            # Store per-module hidden states if available
+            if h_A is not None:
+                metrics["hiddens_A"].append(h_A)
+            else:
+                metrics["hiddens_A"].append(None)
+            if h_B is not None:
+                metrics["hiddens_B"].append(h_B)
+            else:
+                metrics["hiddens_B"].append(None)
+            
             # Get embeddings and readouts using interface methods (handle None)
             embeddings = network.get_embeddings()
             if embeddings is not None:
@@ -316,6 +349,22 @@ def train_participant_schedule(network, trainloader, n_epochs, loss_function, op
                 metrics[key] = np.array([])
         else:
             metrics[key] = np.squeeze(np.array(metrics[key])) if metrics[key] else np.array([])
+    
+    # Handle per-module hidden states (hiddens_A, hiddens_B)
+    for key in ["hiddens_A", "hiddens_B"]:
+        if metrics[key] and all(x is None for x in metrics[key]):
+            metrics[key] = np.array([])
+        elif metrics[key] and any(x is None for x in metrics[key]):
+            # Filter out None values
+            metrics[key] = [x for x in metrics[key] if x is not None]
+            if metrics[key]:
+                metrics[key] = np.squeeze(np.array(metrics[key]))
+            else:
+                metrics[key] = np.array([])
+        elif metrics[key]:
+            metrics[key] = np.squeeze(np.array(metrics[key]))
+        else:
+            metrics[key] = np.array([])
     
     # Convert other metrics
     for key in ["indexes", "inputs", "labels", "probes", "test_stim", "losses", 
@@ -357,13 +406,14 @@ class simpleLinearNet(InterferenceTaskNetwork):
         self.in_hid = nn.Linear(dim_input, dim_hidden, bias=False)
         self.hid_out = nn.Linear(dim_hidden, dim_output, bias=False)
         
-    def forward(self, x, hidden=None):
+    def forward(self, x, hidden=None, task_id=None):
         """
         Forward pass through the network.
         
         Args:
             x: Input tensor (batch_size, input_dim)
             hidden: Ignored for FFN (kept for interface compatibility)
+            task_id: Ignored for single-module network (kept for interface compatibility)
         
         Returns:
             output: Network output (batch_size, output_dim)
@@ -437,6 +487,12 @@ def ex_initializer_(model, gamma=1e-3, mean=0.0):
                 if any(pattern in name.lower() for pattern in ["out", "output", "readout", "final", "classifier"]):
                     # Output layer weights - smaller initialization
                     std = 1e-3
+                elif any(pattern in name.lower() for pattern in ["comm_ab", "comm_ba"]):
+                    # Inter-module communication layers - smaller initialization
+                    std = 1e-3
+                elif any(pattern in name.lower() for pattern in ["mod_a", "mod_b"]):
+                    # Module input layers - use gamma (symmetric for both modules)
+                    std = gamma
                 elif any(pattern in name.lower() for pattern in ["rnn", "lstm", "gru"]):
                     # RNN weights - use gamma but may need special handling
                     # For RNN, typically use smaller init for recurrent weights
@@ -453,16 +509,20 @@ def ex_initializer_(model, gamma=1e-3, mean=0.0):
                 # 1D parameters (bias, etc.) - skip or use default
                 pass
 
-def ordered_sweep(network, ranked_inputs):
+def ordered_sweep(network, ranked_inputs, n_stim_per_task=6):
     """
     Run network on ordered inputs for interpretable results.
     
     This function now works with any network implementing InterferenceTaskNetwork interface.
     For RNNs, it resets the hidden state before processing.
+    For two-module networks, it routes inputs to appropriate modules based on position.
+    For two-module networks, it routes inputs to appropriate modules based on position.
     
     Args:
         network: Network instance implementing InterferenceTaskNetwork
         ranked_inputs: Input tensor (n_samples, input_dim) or numpy array
+            Expected format: first n_stim_per_task are Task A, next n_stim_per_task are Task B
+        n_stim_per_task: Number of stimuli per task (default 6)
         
     Returns:
         preds: Network predictions (n_samples, output_dim)
@@ -477,8 +537,51 @@ def ordered_sweep(network, ranked_inputs):
         batch_size = ranked_inputs.shape[0]
         network.reset_hidden_state(batch_size=batch_size)
     
-    # Forward pass using interface method
-    preds, hids = network(ranked_inputs)
+    # Check if this is a two-module network
+    is_two_module = isinstance(network, TwoModuleMLP)
+    
+    if is_two_module:
+        # For two-module networks, process with task routing
+        # First n_stim_per_task are Task A, next n_stim_per_task are Task B
+        n_samples = ranked_inputs.shape[0]
+        preds_list = []
+        hids_list = []
+        h_A_list = []
+        h_B_list = []
+        
+        for i in range(n_samples):
+            input_sample = ranked_inputs[i:i+1]  # Keep batch dimension
+            # Determine task_id based on position
+            if i < n_stim_per_task:
+                task_id = "A"
+            else:
+                task_id = "B"
+            
+            # Forward pass with task_id
+            pred, hid = network(input_sample, task_id=task_id)
+            preds_list.append(pred)
+            hids_list.append(hid)
+            
+            # Store per-module hidden states
+            try:
+                h_A, h_B = network.get_module_hidden_states()
+                h_A_list.append(h_A)
+                h_B_list.append(h_B)
+            except RuntimeError:
+                # If get_module_hidden_states fails, append zeros
+                h_A_list.append(torch.zeros(1, network.dim_hidden_per_module, device=pred.device))
+                h_B_list.append(torch.zeros(1, network.dim_hidden_per_module, device=pred.device))
+        
+        # Concatenate results
+        preds = torch.cat(preds_list, dim=0)
+        hids = torch.cat(hids_list, dim=0)
+        
+        # Store per-module hidden states for later access
+        network._ordered_sweep_h_A = torch.cat(h_A_list, dim=0)
+        network._ordered_sweep_h_B = torch.cat(h_B_list, dim=0)
+    else:
+        # For single-module networks, process all at once
+        preds, hids = network(ranked_inputs)
     
     # Convert to numpy
     preds_np = preds.detach().cpu().numpy().copy()
@@ -503,7 +606,7 @@ MAIN FUNCTION
 def main():
     # Set random seed
     set_seed(2024)
-    condition_name = "rich_50" # Condition to run (e.g., rich_10, rich_50, rich_200)
+    condition_name = "two_module_rich_50_none"  # Condition to run (e.g., rich_50, two_module_rich_50_none)
     # Get the directory where this script is located
     script_dir = os.path.dirname(os.path.abspath(__file__))
     base_folder = script_dir
@@ -620,7 +723,7 @@ def main():
     # for each participant
     participant_results = {}
 
-    for idx_p, participant in tqdm(enumerate(participants[0:10])): # test for first participant only
+    for idx_p, participant in tqdm(enumerate(participants[0:1])): # test for first participant only
         print(f'Starting participant {participant}')
 
         # Get participant data
@@ -651,6 +754,10 @@ def main():
         n_phase = 3  # A, B, A
 
         # Preallocate results matrices
+        # Check if this is a two-module network to determine hidden dimensions
+        is_two_module = isinstance(network, TwoModuleMLP) if 'network' in locals() else False
+        dim_hidden_per_module = dim_hidden // 2 if is_two_module else dim_hidden
+        
         results = {
             "indexes": np.full((n_phase, n_train_trials), np.nan, dtype=np.float32),
             "inputs": np.full((n_phase, n_train_trials, dim_input), np.nan, dtype=np.float32),
@@ -661,12 +768,29 @@ def main():
             "accuracy": np.full((n_phase, n_train_trials), np.nan, dtype=np.float32),
             "predictions": np.full((n_phase, n_train_trials, dim_output), np.nan, dtype=np.float32),
             "hiddens": np.full((n_phase, n_train_trials, dim_hidden), np.nan, dtype=np.float32),
+            "hiddens_A": np.full((n_phase, n_train_trials, dim_hidden_per_module), np.nan, dtype=np.float32),
+            "hiddens_B": np.full((n_phase, n_train_trials, dim_hidden_per_module), np.nan, dtype=np.float32),
             "embeddings": np.full((n_phase, n_train_trials, dim_hidden, dim_input), np.nan, dtype=np.float32),
             "readouts": np.full((n_phase, n_train_trials, dim_output, dim_hidden), np.nan, dtype=np.float32),
         }
 
-        # Define the network based on network_type
-        if network_type.lower() == "ffn":
+        # Define the network based on architecture type or network_type
+        # Check if condition specifies two-module architecture
+        architecture_config = condition.get('architecture', {})
+        is_two_module = architecture_config.get('type') == 'two_module'
+        
+        if is_two_module:
+            # Two-module architecture
+            comm_bandwidth = architecture_config.get('comm_bandwidth', 'none')
+            comm_scale = architecture_config.get('comm_scale', None)
+            network = TwoModuleMLP(
+                dim_input=dim_input,
+                dim_hidden=dim_hidden,
+                dim_output=dim_output,
+                comm_bandwidth=comm_bandwidth,
+                comm_scale=comm_scale
+            )
+        elif network_type.lower() == "ffn":
             network = simpleLinearNet(dim_input, dim_hidden, dim_output)
         elif network_type.lower() == "rnn":
             network = SimpleRNN(
@@ -684,14 +808,26 @@ def main():
         # Initialize weights
         ex_initializer_(network, gamma)
 
+        # Add per-module hidden state storage if this is a two-module network
+        is_two_module = isinstance(network, TwoModuleMLP)
+        if is_two_module:
+            dim_hidden_per_module = network.dim_hidden_per_module
+            results["hiddens_A"] = np.full((n_phase, n_train_trials, dim_hidden_per_module), np.nan, dtype=np.float32)
+            results["hiddens_B"] = np.full((n_phase, n_train_trials, dim_hidden_per_module), np.nan, dtype=np.float32)
+
         optimizer = torch.optim.SGD(network.parameters(), lr=lr)
         loss_function = nn.MSELoss()
 
         # Initial pass of the network
-        initial_preds, initial_hiddens = ordered_sweep(network, torch.from_numpy(ordered_inputs).float())
+        initial_preds, initial_hiddens = ordered_sweep(network, torch.from_numpy(ordered_inputs).float(), n_stim_per_task=task_parameters['nStim_perTask'])
 
         results["preds_pre_training"] = initial_preds
         results["hiddens_pre_training"] = initial_hiddens
+        
+        # Store per-module hidden states for pre-training if available
+        if is_two_module and hasattr(network, '_ordered_sweep_h_A') and hasattr(network, '_ordered_sweep_h_B'):
+            results["hiddens_A_pre_training"] = network._ordered_sweep_h_A.detach().cpu().numpy()
+            results["hiddens_B_pre_training"] = network._ordered_sweep_h_B.detach().cpu().numpy()
 
         
         # Training Phases
@@ -706,21 +842,47 @@ def main():
         loader =  trainloader_A1
         do_update = 1 # Controls how updates are applied (0 = no update, 1 = standard, 2 = conditional on feature_probe).
 
-        (
-            results["indexes"][phase, :],
-            results["inputs"][phase, :, :],
-            results["labels"][phase, :, :],
-            results["probes"][phase, :],
-            results["test_stim"][phase, :],
-            results["losses"][phase, :],
-            results["accuracy"][phase, :],
-            results["predictions"][phase, :, :],
-            results["hiddens"][phase, :, :],
-            results["embeddings"][phase, :, :, :],
-            results["readouts"][phase, :, :, :],
-        ) = train_participant_schedule(
+        train_results = train_participant_schedule(
             network, loader, n_epochs, loss_function, optimizer, do_update, do_test
         )
+        # Unpack results (handle both old and new return formats)
+        if len(train_results) >= 13:
+            # New format with hiddens_A and hiddens_B
+            (results["indexes"][phase, :],
+             results["inputs"][phase, :, :],
+             results["labels"][phase, :, :],
+             results["probes"][phase, :],
+             results["test_stim"][phase, :],
+             results["losses"][phase, :],
+             results["accuracy"][phase, :],
+             results["predictions"][phase, :, :],
+             results["hiddens"][phase, :, :],
+             results["embeddings"][phase, :, :, :],
+             results["readouts"][phase, :, :, :],
+             hiddens_A,
+             hiddens_B) = train_results
+            # Store per-module hidden states if available and results dict has the keys
+            if is_two_module and "hiddens_A" in results and len(hiddens_A) > 0:
+                n_samples = min(len(hiddens_A), results["hiddens_A"].shape[1])
+                if n_samples > 0:
+                    results["hiddens_A"][phase, :n_samples, :] = hiddens_A[:n_samples]
+            if is_two_module and "hiddens_B" in results and len(hiddens_B) > 0:
+                n_samples = min(len(hiddens_B), results["hiddens_B"].shape[1])
+                if n_samples > 0:
+                    results["hiddens_B"][phase, :n_samples, :] = hiddens_B[:n_samples]
+        else:
+            # Old format (backward compatibility)
+            (results["indexes"][phase, :],
+             results["inputs"][phase, :, :],
+             results["labels"][phase, :, :],
+             results["probes"][phase, :],
+             results["test_stim"][phase, :],
+             results["losses"][phase, :],
+             results["accuracy"][phase, :],
+             results["predictions"][phase, :, :],
+             results["hiddens"][phase, :, :],
+             results["embeddings"][phase, :, :, :],
+             results["readouts"][phase, :, :, :]) = train_results
 
         # Post-phase ordered sweep
         post_preds, post_hiddens = ordered_sweep(network, torch.from_numpy(ordered_inputs).float())
@@ -731,70 +893,163 @@ def main():
         loader =  trainloader_B
         do_update = 1 # Controls how updates are applied (0 = no update, 1 = standard, 2 = conditional on feature_probe).
 
-        (
-            results["indexes"][phase, :],
-            results["inputs"][phase, :, :],
-            results["labels"][phase, :, :],
-            results["probes"][phase, :],
-            results["test_stim"][phase, :],
-            results["losses"][phase, :],
-            results["accuracy"][phase, :],
-            results["predictions"][phase, :, :],
-            results["hiddens"][phase, :, :],
-            results["embeddings"][phase, :, :, :],
-            results["readouts"][phase, :, :, :],
-        ) = train_participant_schedule(
+        train_results = train_participant_schedule(
             network, loader, n_epochs, loss_function, optimizer, do_update, do_test
         )
+        # Unpack results (handle both old and new return formats)
+        if len(train_results) >= 13:
+            # New format with hiddens_A and hiddens_B
+            (results["indexes"][phase, :],
+             results["inputs"][phase, :, :],
+             results["labels"][phase, :, :],
+             results["probes"][phase, :],
+             results["test_stim"][phase, :],
+             results["losses"][phase, :],
+             results["accuracy"][phase, :],
+             results["predictions"][phase, :, :],
+             results["hiddens"][phase, :, :],
+             results["embeddings"][phase, :, :, :],
+             results["readouts"][phase, :, :, :],
+             hiddens_A,
+             hiddens_B) = train_results
+            # Store per-module hidden states if available and results dict has the keys
+            if is_two_module and "hiddens_A" in results and len(hiddens_A) > 0:
+                n_samples = min(len(hiddens_A), results["hiddens_A"].shape[1])
+                if n_samples > 0:
+                    results["hiddens_A"][phase, :n_samples, :] = hiddens_A[:n_samples]
+            if is_two_module and "hiddens_B" in results and len(hiddens_B) > 0:
+                n_samples = min(len(hiddens_B), results["hiddens_B"].shape[1])
+                if n_samples > 0:
+                    results["hiddens_B"][phase, :n_samples, :] = hiddens_B[:n_samples]
+        else:
+            # Old format (backward compatibility)
+            (results["indexes"][phase, :],
+             results["inputs"][phase, :, :],
+             results["labels"][phase, :, :],
+             results["probes"][phase, :],
+             results["test_stim"][phase, :],
+             results["losses"][phase, :],
+             results["accuracy"][phase, :],
+             results["predictions"][phase, :, :],
+             results["hiddens"][phase, :, :],
+             results["embeddings"][phase, :, :, :],
+             results["readouts"][phase, :, :, :]) = train_results
 
 
         # Post-phase ordered sweep
-        post_preds, post_hiddens = ordered_sweep(network, torch.from_numpy(ordered_inputs).float())
+        post_preds, post_hiddens = ordered_sweep(network, torch.from_numpy(ordered_inputs).float(), n_stim_per_task=task_parameters['nStim_perTask'])
         results[f"preds_post_phase_{phase}"] = post_preds
         results[f"hiddens_post_phase_{phase}"] = post_hiddens
+        
+        # Store per-module hidden states if available
+        if is_two_module and hasattr(network, '_ordered_sweep_h_A') and hasattr(network, '_ordered_sweep_h_B'):
+            h_A_np = network._ordered_sweep_h_A.detach().cpu().numpy()
+            h_B_np = network._ordered_sweep_h_B.detach().cpu().numpy()
+            if "hiddens_A_post_phase" not in results:
+                # Initialize if not exists
+                n_stim_total = task_parameters['nStim_perTask'] * 2
+                results["hiddens_A_post_phase_0"] = np.full((n_stim_total, network.dim_hidden_per_module), np.nan, dtype=np.float32)
+                results["hiddens_A_post_phase_1"] = np.full((n_stim_total, network.dim_hidden_per_module), np.nan, dtype=np.float32)
+                results["hiddens_A_post_phase_2"] = np.full((n_stim_total, network.dim_hidden_per_module), np.nan, dtype=np.float32)
+                results["hiddens_B_post_phase_0"] = np.full((n_stim_total, network.dim_hidden_per_module), np.nan, dtype=np.float32)
+                results["hiddens_B_post_phase_1"] = np.full((n_stim_total, network.dim_hidden_per_module), np.nan, dtype=np.float32)
+                results["hiddens_B_post_phase_2"] = np.full((n_stim_total, network.dim_hidden_per_module), np.nan, dtype=np.float32)
+            results[f"hiddens_A_post_phase_{phase}"] = h_A_np
+            results[f"hiddens_B_post_phase_{phase}"] = h_B_np
 
 
         phase = 2
         loader =  trainloader_A2
         do_update = 2  # Controls how updates are applied (0 = no update, 1 = standard, 2 = conditional on feature_probe).
 
-        (
-            results["indexes"][phase, :],
-            results["inputs"][phase, :, :],
-            results["labels"][phase, :, :],
-            results["probes"][phase, :],
-            results["test_stim"][phase, :],
-            results["losses"][phase, :],
-            results["accuracy"][phase, :],
-            results["predictions"][phase, :, :],
-            results["hiddens"][phase, :, :],
-            results["embeddings"][phase, :, :, :],
-            results["readouts"][phase, :, :, :],
-        ) = train_participant_schedule(
+        train_results = train_participant_schedule(
             network, loader, n_epochs, loss_function, optimizer, do_update, do_test
         )
+        # Unpack results (handle both old and new return formats)
+        if len(train_results) >= 13:
+            # New format with hiddens_A and hiddens_B
+            (results["indexes"][phase, :],
+             results["inputs"][phase, :, :],
+             results["labels"][phase, :, :],
+             results["probes"][phase, :],
+             results["test_stim"][phase, :],
+             results["losses"][phase, :],
+             results["accuracy"][phase, :],
+             results["predictions"][phase, :, :],
+             results["hiddens"][phase, :, :],
+             results["embeddings"][phase, :, :, :],
+             results["readouts"][phase, :, :, :],
+             hiddens_A,
+             hiddens_B) = train_results
+            # Store per-module hidden states if available and results dict has the keys
+            if is_two_module and "hiddens_A" in results and len(hiddens_A) > 0:
+                n_samples = min(len(hiddens_A), results["hiddens_A"].shape[1])
+                if n_samples > 0:
+                    results["hiddens_A"][phase, :n_samples, :] = hiddens_A[:n_samples]
+            if is_two_module and "hiddens_B" in results and len(hiddens_B) > 0:
+                n_samples = min(len(hiddens_B), results["hiddens_B"].shape[1])
+                if n_samples > 0:
+                    results["hiddens_B"][phase, :n_samples, :] = hiddens_B[:n_samples]
+        else:
+            # Old format (backward compatibility)
+            (results["indexes"][phase, :],
+             results["inputs"][phase, :, :],
+             results["labels"][phase, :, :],
+             results["probes"][phase, :],
+             results["test_stim"][phase, :],
+             results["losses"][phase, :],
+             results["accuracy"][phase, :],
+             results["predictions"][phase, :, :],
+             results["hiddens"][phase, :, :],
+             results["embeddings"][phase, :, :, :],
+             results["readouts"][phase, :, :, :]) = train_results
 
         # Post-phase ordered sweep
-        post_preds, post_hiddens = ordered_sweep(network, torch.from_numpy(ordered_inputs).float())
+        post_preds, post_hiddens = ordered_sweep(network, torch.from_numpy(ordered_inputs).float(), n_stim_per_task=task_parameters['nStim_perTask'])
         results[f"preds_post_phase_{phase}"] = post_preds
         results[f"hiddens_post_phase_{phase}"] = post_hiddens
+        
+        # Store per-module hidden states if available
+        if is_two_module and hasattr(network, '_ordered_sweep_h_A') and hasattr(network, '_ordered_sweep_h_B'):
+            h_A_np = network._ordered_sweep_h_A.detach().cpu().numpy()
+            h_B_np = network._ordered_sweep_h_B.detach().cpu().numpy()
+            if "hiddens_A_post_phase" not in results:
+                # Initialize if not exists
+                n_stim_total = task_parameters['nStim_perTask'] * 2
+                results["hiddens_A_post_phase_0"] = np.full((n_stim_total, network.dim_hidden_per_module), np.nan, dtype=np.float32)
+                results["hiddens_A_post_phase_1"] = np.full((n_stim_total, network.dim_hidden_per_module), np.nan, dtype=np.float32)
+                results["hiddens_A_post_phase_2"] = np.full((n_stim_total, network.dim_hidden_per_module), np.nan, dtype=np.float32)
+                results["hiddens_B_post_phase_0"] = np.full((n_stim_total, network.dim_hidden_per_module), np.nan, dtype=np.float32)
+                results["hiddens_B_post_phase_1"] = np.full((n_stim_total, network.dim_hidden_per_module), np.nan, dtype=np.float32)
+                results["hiddens_B_post_phase_2"] = np.full((n_stim_total, network.dim_hidden_per_module), np.nan, dtype=np.float32)
+            results[f"hiddens_A_post_phase_{phase}"] = h_A_np
+            results[f"hiddens_B_post_phase_{phase}"] = h_B_np
 
         # Store participant with the accompanying results
         results['participant'] = participant
 
         participant_results[idx_p] = results
+        
+        # Save results immediately for testing
+        if dosave:
+            file_path = f"{sim_folder}/sim_{participant}.npz"
+            np.savez_compressed(file_path, **results)
+            print(f"Results saved to {file_path}")
 
     """
     SAVE RESULTS 
-    # commented out for now to avoid saving results
+    """
     # Save results if requested
     if dosave:
-        file_path = f"{sim_folder}/sim_{participant}.npz"
-        np.savez_compressed(file_path, **results)
+        for idx_p, participant in enumerate(participants[0:1]):
+            if idx_p in participant_results:
+                file_path = f"{sim_folder}/sim_{participant}.npz"
+                np.savez_compressed(file_path, **participant_results[idx_p])
+                print(f"Results saved to {file_path}")
 
     # Cleanup
-    del participant_results
-    """
+    if 'participant_results' in locals():
+        del participant_results
 
 
 if __name__ == "__main__":
