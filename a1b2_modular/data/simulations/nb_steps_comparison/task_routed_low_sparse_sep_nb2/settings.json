@@ -1,0 +1,49 @@
+{
+  "condition": {
+    "name": "two_module_rnn_50_task_routed_low_sparse_nb2",
+    "arch": "two_module_rnn",
+    "dim_hidden": 50,
+    "sparsity": 0.3,
+    "common_input": false,
+    "common_readout": true,
+    "input_routing": "task_routed",
+    "nb_steps": 2
+  },
+  "training_params": {
+    "participants": [
+      "study1_same_sub35",
+      "study1_same_sub38",
+      "study2_same_sub59",
+      "study2_near_sub17",
+      "study1_near_sub32",
+      "study2_near_sub63",
+      "study2_far_sub4",
+      "study1_far_sub27",
+      "study2_far_sub46"
+    ],
+    "n_phase": 3,
+    "n_epochs": 100,
+    "shuffle": false,
+    "batch_size": 1,
+    "gamma": 0.01,
+    "lr": 0.01
+  },
+  "network_params": [
+    12,
+    100,
+    4
+  ],
+  "task_parameters": {
+    "nStim_perTask": 6,
+    "schedules": [
+      "same",
+      "near",
+      "far"
+    ],
+    "schedule_names": [
+      "same rule",
+      "near rule",
+      "far rule"
+    ]
+  }
+}
