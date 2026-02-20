@@ -29,3 +29,5 @@ There is no single install at the repo root. Install and run from each subprojec
 - Common deps: numpy, pandas, scipy, matplotlib, seaborn, torch, tqdm; a1b2 adds scikit-learn
 
 Each subproject lists its own dependencies in `pyproject.toml` or `setup.py`.
+
+On a new server, install [GitHub CLI](https://github.com/cli/cli#installation) (`gh`) and run `gh auth login` for browser-based Git over HTTPS.
