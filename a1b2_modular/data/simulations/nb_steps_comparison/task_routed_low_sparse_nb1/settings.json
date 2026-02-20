@@ -1,0 +1,69 @@
+{
+  "condition": {
+    "name": "two_module_rnn_50_task_routed_low_sparse",
+    "arch": "two_module_rnn",
+    "dim_hidden": 50,
+    "sparsity": 0.3,
+    "common_input": true,
+    "common_readout": true,
+    "input_routing": "task_routed"
+  },
+  "training_params": {
+    "participants": [
+      "study1_same_sub35",
+      "study1_same_sub38",
+      "study2_same_sub59",
+      "study1_same_sub30",
+      "study1_same_sub31",
+      "study1_same_sub33",
+      "study2_same_sub12",
+      "study2_same_sub52",
+      "study2_same_sub37",
+      "study1_same_sub9",
+      "study2_near_sub17",
+      "study1_near_sub32",
+      "study2_near_sub63",
+      "study2_near_sub46",
+      "study2_near_sub12",
+      "study1_near_sub29",
+      "study1_near_sub8",
+      "study1_near_sub9",
+      "study2_near_sub6",
+      "study1_near_sub47",
+      "study2_far_sub4",
+      "study1_far_sub27",
+      "study2_far_sub46",
+      "study1_far_sub37",
+      "study2_far_sub13",
+      "study1_far_sub39",
+      "study1_far_sub40",
+      "study1_far_sub54",
+      "study1_far_sub49",
+      "study1_far_sub23"
+    ],
+    "n_phase": 3,
+    "n_epochs": 100,
+    "shuffle": false,
+    "batch_size": 1,
+    "gamma": 0.01,
+    "lr": 0.01
+  },
+  "network_params": [
+    12,
+    100,
+    4
+  ],
+  "task_parameters": {
+    "nStim_perTask": 6,
+    "schedules": [
+      "same",
+      "near",
+      "far"
+    ],
+    "schedule_names": [
+      "same rule",
+      "near rule",
+      "far rule"
+    ]
+  }
+}
