@@ -2,11 +2,12 @@
 numpy>=1.21.0,<2.0.0
 torch>=1.9.0,<3.0.0
 pandas>=2.0.0,<3.0.0
+scipy>=1.7.0,<2.0.0
 scikit-learn>=1.2.0,<2.0.0
 
 # Reinforcement learning
 gymnasium>=0.21.0,<1.0.0
-stable-baselines3>=1.5.0,<2.0.0
+stable-baselines3>=2.0.0,<3.0.0
 
 # Network analysis and graph theory
 networkx>=2.6.0,<4.0.0
@@ -27,6 +28,9 @@ Pillow>=8.0.0,<11.0.0
 # Video creation
 imageio>=2.9.0,<3.0.0
 imageio-ffmpeg>=0.4.0,<1.0.0
+
+# Jupyter notebooks (kernel for .ipynb in Cursor/VS Code and Jupyter)
+ipykernel>=6.0.0,<7.0.0
 
 # Additional utilities
 pathlib2>=2.3.0; python_version<"3.4" 
