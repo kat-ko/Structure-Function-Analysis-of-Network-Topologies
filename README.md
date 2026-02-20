@@ -1,22 +1,31 @@
-# Dynamics of Specialization in Neural Modules under Ressource Constraints
+# Structure–Function Analysis of Network Topologies
 
-## Introduction
+This repository contains code and analyses for **modular neural networks**, **transfer and interference** in continual learning, and the **A1–B–A2** paradigm. It brings together three related subprojects.
 
-A self-contained implementation of the code needed to create and train modular neural-networks, with varying levels of structural modularity, to reproduce results and findings from https://arxiv.org/abs/2106.02626.
+## Repository structure
 
-## Installation
-You will need to create a new environement and install the dynspec package locally, which will take care of most requirements
+| Subproject | Description |
+|------------|-------------|
+| **[a1b2_modular/](a1b2_modular/)** | Unified A1–B–A2 transfer–interference task with **feedforward** and **two-module RNN** (dynspec-style). Same schedules as transfer-interference; supports shared/task-routed input, sparse communication, and modular input separation (`common_input=false`). See [a1b2_modular/README.md](a1b2_modular/README.md). |
+| **[transfer-interference/](transfer-interference/)** | Human and ANN transfer/interference (Holton et al.). Scripts and notebooks for figures 2–4, FFN simulations, and two-module RNN comparisons. See [transfer-interference/README.md](transfer-interference/README.md). |
+| **[dynamics_of_specialization/](dynamics_of_specialization/)** | **dynspec**: modular RNNs under resource constraints (Béna et al., [arXiv:2106.02626](https://arxiv.org/abs/2106.02626)). Implements the Community model (core + comms, masked weights). Example: `modular_networks.ipynb`. |
 
-```
-conda create -n dynspec python=3.10
-conda activate dynspec
-pip install -e .
-```
+There is no single install at the repo root. Install and run from each subproject as needed.
 
-You will also need to install the correct pytorch version for your system separately, head over to https://pytorch.org/get-started/locally/
+## Quick start
 
-You're all set !
+- **A1–B–A2 with FFN or two-module RNN (recommended entry point)**  
+  From `a1b2_modular/`: `pip install -e .` then `python scripts/02_run_simulations.py <condition>`. Conditions in `a1b2/models/experiments.json` (e.g. `rich_50`, `two_module_rnn_50`, `two_module_rnn_50_task_routed_low_sparse`).
 
-## Example
-You will find a main example in the notebook modular_networks.ipynb. This notebook shows how to create and train architecture with varying parameters, and their resulting specialization levels and dynamics. It goes over all the main findings of the paper, in a straightforward fashion. 
+- **Transfer/interference (Holton-style)**  
+  From `transfer-interference/`: see [transfer-interference/README.md](transfer-interference/README.md) for setup and scripts.
 
+- **Dynspec (modular RNN only)**  
+  From `dynamics_of_specialization/`: `pip install -e .` (creates the `dynspec` package). Install PyTorch for your system from [pytorch.org](https://pytorch.org/get-started/locally/). Main example: `modular_networks.ipynb`.
+
+## Requirements
+
+- Python ≥3.8 (a1b2_modular), 3.10 suggested for dynspec
+- Common deps: numpy, pandas, scipy, matplotlib, seaborn, torch, tqdm; a1b2 adds scikit-learn
+
+Each subproject lists its own dependencies in `pyproject.toml` or `setup.py`.
