@@ -11,7 +11,8 @@ mpl.rcParams['xtick.major.width'] = 0.5
 mpl.rcParams['ytick.major.width'] = 0.5
 mpl.rcParams['xtick.minor.width'] = 0.25
 mpl.rcParams['ytick.minor.width'] = 0.25
-mpl.rcParams['font.family'] = 'Arial'
+# Arial is often missing on Linux; DejaVu Sans is bundled with matplotlib (works everywhere, no findfont warnings)
+mpl.rcParams['font.family'] = 'DejaVu Sans'
 mpl.rcParams['font.size'] = 8
 mpl.rcParams['axes.titlesize'] = 8
 mpl.rcParams['axes.labelsize'] = 8

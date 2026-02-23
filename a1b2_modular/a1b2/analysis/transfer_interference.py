@@ -168,14 +168,23 @@ def _collapse_repeated_loss(loss_1d, rtol=1e-5, return_start_indices=False):
     return out
 
 
-def analyze_training_loss(ann_data, save_path=None):
+def analyze_training_loss(ann_data, save_path=None, feature_style='winter_everywhere'):
     """Analyze and optionally save training loss curves for all schedules.
 
     Loss is stored as one value per trial with the same batch loss repeated
     for each trial in the batch. We collapse to one value per batch, then
-    filter to winter-only (probe==1) and training-only (test_stim==0) when
-    probes are available to match Holton transfer-interference; otherwise
-    fall back to [1::2]. Returns phase_boundaries (b1, b2) in filtered index space.
+    filter by feature and training-only (test_stim==0) when probes are available.
+
+    feature_style:
+        - 'winter_everywhere': winter probe (probe==1) in all phases. A2 shows
+          untrained feature → flat block. Default for interference interpretation.
+        - 'trained_per_phase': winter in A1/B, summer (probe==0) in A2. A2 shows
+          re-learning → descending (Holton-like).
+        - 'summer_only': summer probe everywhere; matches Holton [1::2] when
+          trial order aligns (A2 descending).
+
+    Without probes, falls back to [1::2]. Returns phase_boundaries (b1, b2) in
+    filtered index space.
     """
     results = {}
 
@@ -193,9 +202,9 @@ def analyze_training_loss(ann_data, save_path=None):
 
             if arr.ndim == 2:
                 if has_probes and probes is not None and probes.ndim >= 2:
-                    # Winter-only + training-only: probe==1 and test_stim==0 at first trial of batch
-                    winter_losses = []
-                    n_winter_train_per_phase = []
+                    # Per-phase feature selection: winter=1, summer=0
+                    phase_losses = []
+                    n_train_per_phase = []
                     for p in range(arr.shape[0]):
                         vals, starts = _collapse_repeated_loss(arr[p, :], return_start_indices=True)
                         prb = probes[0, p, :] if probes.ndim == 3 else probes[p, :]
@@ -203,14 +212,29 @@ def analyze_training_loss(ann_data, save_path=None):
                         if test_stim is not None:
                             tst = test_stim[0, p, :] if test_stim.ndim == 3 else test_stim[p, :]
                             batch_test = np.asarray(tst[starts], dtype=np.float64)
-                            mask = (batch_probe == 1) & (batch_test == 0)
+                            train_mask = (batch_test == 0)
                         else:
-                            mask = (batch_probe == 1)
-                        winter_losses.append(vals[mask])
-                        n_winter_train_per_phase.append(np.sum(mask))
-                    collapsed = np.concatenate(winter_losses, axis=0)
-                    b1 = n_winter_train_per_phase[0]
-                    b2 = n_winter_train_per_phase[0] + n_winter_train_per_phase[1]
+                            train_mask = np.ones(len(starts), dtype=bool)
+                        if feature_style == 'winter_everywhere':
+                            mask = (batch_probe == 1) & train_mask
+                        elif feature_style == 'summer_only':
+                            mask = (batch_probe == 0) & train_mask
+                        elif feature_style == 'trained_per_phase':
+                            # A1 and B: winter; A2: summer (trained in A2)
+                            if p == 2:
+                                mask = (batch_probe == 0) & train_mask
+                            else:
+                                mask = (batch_probe == 1) & train_mask
+                        else:
+                            raise ValueError(
+                                "feature_style must be 'winter_everywhere', "
+                                "'trained_per_phase', or 'summer_only'"
+                            )
+                        phase_losses.append(vals[mask])
+                        n_train_per_phase.append(np.sum(mask))
+                    collapsed = np.concatenate(phase_losses, axis=0)
+                    b1 = n_train_per_phase[0]
+                    b2 = n_train_per_phase[0] + n_train_per_phase[1]
                     phase_boundaries_list.append((b1, b2))
                 else:
                     collapsed_per_phase = [_collapse_repeated_loss(arr[p, :]) for p in range(arr.shape[0])]
