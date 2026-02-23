@@ -57,6 +57,8 @@ def load_ann_data(ann_folder, load_rnn_extra=False):
                         'hiddens_post_phase_0': data['hiddens_post_phase_0'],
                         'hiddens_post_phase_1': data['hiddens_post_phase_1'],
                     }
+                    if 'probes' in data:
+                        entry['probes'] = data['probes']
                     if load_rnn_extra:
                         for key in rnn_extra_keys:
                             if key in data:
@@ -150,32 +152,102 @@ def compute_transfer_anns(ann_data):
     return pd.DataFrame(agg_data)
 
 
+def _collapse_repeated_loss(loss_1d, rtol=1e-5, return_start_indices=False):
+    """Reduce per-trial loss (repeated per batch) to one value per batch.
+
+    If return_start_indices is True, returns (values, start_indices) where
+    start_indices[j] is the trial index of the first element of batch j.
+    """
+    if len(loss_1d) == 0:
+        return (loss_1d, np.array([], dtype=np.intp)) if return_start_indices else loss_1d
+    loss_1d = np.asarray(loss_1d, dtype=np.float64)
+    change = np.r_[True, ~np.isclose(loss_1d[1:], loss_1d[:-1], rtol=rtol, equal_nan=True)]
+    out = loss_1d[change]
+    if return_start_indices:
+        return out, np.nonzero(change)[0]
+    return out
+
+
 def analyze_training_loss(ann_data, save_path=None):
-    """Analyze and optionally save training loss curves for all schedules."""
+    """Analyze and optionally save training loss curves for all schedules.
+
+    Loss is stored as one value per trial with the same batch loss repeated
+    for each trial in the batch. We collapse to one value per batch, then
+    filter to winter-only (probe==1) and training-only (test_stim==0) when
+    probes are available to match Holton transfer-interference; otherwise
+    fall back to [1::2]. Returns phase_boundaries (b1, b2) in filtered index space.
+    """
     results = {}
 
     for schedule_name in ['same', 'near', 'far']:
         schedule_data = ann_data[schedule_name]
+        has_probes = 'probes' in schedule_data[0] and schedule_data[0]['probes'] is not None
 
-        losses_arr = schedule_data[0]['losses']
-        if losses_arr.ndim == 2:
-            flattened_length = losses_arr.shape[0] * losses_arr.shape[1]
-        else:
-            flattened_length = len(losses_arr) * np.asarray(losses_arr[0]).size
-
-        sched_losses = np.zeros((len(schedule_data), flattened_length))
+        per_batch_losses = []
+        phase_boundaries_list = []
 
         for subj in range(len(schedule_data)):
             arr = schedule_data[subj]['losses']
+            probes = schedule_data[subj].get('probes')
+            test_stim = schedule_data[subj].get('test_stim')
+
             if arr.ndim == 2:
-                flat_loss = np.ravel(arr)
+                if has_probes and probes is not None and probes.ndim >= 2:
+                    # Winter-only + training-only: probe==1 and test_stim==0 at first trial of batch
+                    winter_losses = []
+                    n_winter_train_per_phase = []
+                    for p in range(arr.shape[0]):
+                        vals, starts = _collapse_repeated_loss(arr[p, :], return_start_indices=True)
+                        prb = probes[0, p, :] if probes.ndim == 3 else probes[p, :]
+                        batch_probe = prb[starts]
+                        if test_stim is not None:
+                            tst = test_stim[0, p, :] if test_stim.ndim == 3 else test_stim[p, :]
+                            batch_test = np.asarray(tst[starts], dtype=np.float64)
+                            mask = (batch_probe == 1) & (batch_test == 0)
+                        else:
+                            mask = (batch_probe == 1)
+                        winter_losses.append(vals[mask])
+                        n_winter_train_per_phase.append(np.sum(mask))
+                    collapsed = np.concatenate(winter_losses, axis=0)
+                    b1 = n_winter_train_per_phase[0]
+                    b2 = n_winter_train_per_phase[0] + n_winter_train_per_phase[1]
+                    phase_boundaries_list.append((b1, b2))
+                else:
+                    collapsed_per_phase = [_collapse_repeated_loss(arr[p, :]) for p in range(arr.shape[0])]
+                    n_batches = [len(c) for c in collapsed_per_phase]
+                    b1 = n_batches[0]
+                    b2 = n_batches[0] + n_batches[1]
+                    phase_boundaries_list.append((b1, b2))  # full batch space
+                    collapsed = np.concatenate(collapsed_per_phase, axis=0)[1::2]
             else:
                 flat_loss = np.concatenate(arr, axis=0)
-            sched_losses[subj, :] = flat_loss[:flattened_length]
+                collapsed = _collapse_repeated_loss(flat_loss)
+                if not has_probes:
+                    collapsed = collapsed[1::2]
+            per_batch_losses.append(collapsed)
+
+        min_len = min(len(x) for x in per_batch_losses)
+        sched_losses = np.full((len(per_batch_losses), min_len), np.nan)
+        for i, coll in enumerate(per_batch_losses):
+            sched_losses[i, :] = coll[:min_len]
+
+        mean_sub = np.nanmean(sched_losses, axis=0)
+        std_sub = np.nanstd(sched_losses, axis=0)
+        sub_len = len(mean_sub)
+
+        phase_boundaries = None
+        if phase_boundaries_list:
+            b1, b2 = phase_boundaries_list[0]
+            if not has_probes:
+                b1, b2 = b1 // 2, b2 // 2
+            b1 = min(b1, sub_len)
+            b2 = min(b2, sub_len)
+            phase_boundaries = (b1, b2)
 
         results[schedule_name] = {
-            'mean': np.nanmean(sched_losses, axis=0)[1::2],
-            'std': np.nanstd(sched_losses, axis=0)[1::2]
+            'mean': mean_sub,
+            'std': std_sub,
+            'phase_boundaries': phase_boundaries,
         }
 
     return results
