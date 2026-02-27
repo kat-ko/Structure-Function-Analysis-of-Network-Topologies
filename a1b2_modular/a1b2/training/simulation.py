@@ -1,7 +1,9 @@
 """
 Run simulation for participant learning: A1 -> B -> A2, save .npz per participant.
 """
+import os
 import numpy as np
+import torch
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 
@@ -144,6 +146,9 @@ def run_simulation(
             file_path = f"{sim_folder}/sim_{participant}.npz"
             save_dict = {k: v for k, v in participant_results.items() if isinstance(v, np.ndarray)}
             np.savez_compressed(file_path, **save_dict)
+            if arch in ("two_module_rnn", "single_module_rnn") and network is not None:
+                state_path = os.path.join(sim_folder, f"state_{participant}.pt")
+                torch.save(network.state_dict(), state_path)
 
         results.append(participant_results)
 
