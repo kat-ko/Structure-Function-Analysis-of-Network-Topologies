@@ -57,6 +57,8 @@ def load_ann_data(ann_folder, load_rnn_extra=False):
                         'hiddens_post_phase_0': data['hiddens_post_phase_0'],
                         'hiddens_post_phase_1': data['hiddens_post_phase_1'],
                     }
+                    if 'hiddens_post_phase_2' in data:
+                        entry['hiddens_post_phase_2'] = data['hiddens_post_phase_2']
                     if 'probes' in data:
                         entry['probes'] = data['probes']
                     if load_rnn_extra:
@@ -301,6 +303,17 @@ def compute_pca_components(ann_data, variance_threshold=0.99):
             results['condition'].append(schedule_name)
             results['task'].append('post B')
             results['n_pca'].append(n_components_B)
+
+            if 'hiddens_post_phase_2' in schedule_data[subj]:
+                C_hids = schedule_data[subj]['hiddens_post_phase_2']
+                pca_C_full = PCA().fit(C_hids)
+                n_components_C = np.argmax(
+                    np.cumsum(pca_C_full.explained_variance_ratio_) >= variance_threshold
+                ) + 1
+                results['participant'].append(participant_id)
+                results['condition'].append(schedule_name)
+                results['task'].append('post A2')
+                results['n_pca'].append(n_components_C)
 
     return pd.DataFrame(results)
 

@@ -567,6 +567,46 @@
 "nb_steps": 2
 },
 {
+"name": "two_module_rnn_25_sp01_nb2",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.1,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2
+},
+{
+"name": "two_module_rnn_25_task_routed_sp01_nb2",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.1,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2
+},
+{
+"name": "two_module_rnn_25_sp09_nb2",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.9,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2
+},
+{
+"name": "two_module_rnn_25_task_routed_sp09_nb2",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.9,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2
+},
+{
 "name": "two_module_rnn_25_sep_readout_nb2",
 "arch": "two_module_rnn",
 "dim_hidden": 25,

@@ -24,6 +24,15 @@ Requirements: Python ≥3.8, numpy, pandas, scipy, matplotlib, seaborn, torch, t
    Examples: `rich_50`, `two_module_rnn_50`, `single_module_rnn_50`.  
    Results are saved under `data/simulations/<run_id>/`, where **run_id** is built from all varying factors (see Experimental factors below) so that each distinct configuration gets a unique folder.
 
+   **Sparsity 0.1 and 0.9 (25-dim nb2):** To run the additional sparsity levels 0.1 and 0.9 (shared and task_routed input):
+   ```bash
+   python scripts/02_run_simulations.py two_module_rnn_25_sp01_nb2
+   python scripts/02_run_simulations.py two_module_rnn_25_task_routed_sp01_nb2
+   python scripts/02_run_simulations.py two_module_rnn_25_sp09_nb2
+   python scripts/02_run_simulations.py two_module_rnn_25_task_routed_sp09_nb2
+   ```
+   From repo root with explicit base folder: `python a1b2_modular/scripts/02_run_simulations.py two_module_rnn_25_sp01_nb2 --base-folder a1b2_modular`
+
    Optional: geometry run (single participant, same/near/far B)  
    `python scripts/02_run_simulations.py <condition> --geometry [--participant ID]`
 
