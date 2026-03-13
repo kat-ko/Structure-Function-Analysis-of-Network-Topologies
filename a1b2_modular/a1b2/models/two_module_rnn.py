@@ -116,7 +116,7 @@ class TwoModuleRNNWrapper(nn.Module):
         if seed is not None:
             torch.manual_seed(seed)
 
-    def forward(self, x, feature_probe=None, return_trajectory=False):
+    def forward(self, x, feature_probe=None, return_trajectory=False, return_core_comms=False):
         # x: (batch, input_size) or (seq_len, batch, input_size)
         if x.dim() == 2:
             x = x.unsqueeze(0)  # (1, batch, input_size)
@@ -125,7 +125,11 @@ class TwoModuleRNNWrapper(nn.Module):
             x_expanded = self._routed_input(x, feature_probe)
         else:
             x_expanded = x.repeat(1, 1, self.n_modules)
-        outputs, all_states = self.community(x_expanded)
+        if return_core_comms:
+            outputs, all_states, core_final, comms_final = self.community(x_expanded, return_core_comms=True)
+        else:
+            outputs, all_states = self.community(x_expanded)
+            core_final = comms_final = None
         # When common_readout=True: outputs is (seq_len, batch, 4) or (seq_len, batch, 4*n_modules). When common_readout=False: outputs is list of (seq_len, batch, 4) per module.
         if isinstance(outputs, list):
             # Per-module tensors (seq, batch, output_size); sum over modules then take last step -> (batch, output_size)
@@ -142,8 +146,16 @@ class TwoModuleRNNWrapper(nn.Module):
                 out = out.sum(dim=1)  # (batch, output_size)
             else:
                 out = out[-1]  # (seq, batch, output_size) -> (batch, output_size)
-        hid = all_states[-1]  # (batch, hidden_size * n_modules)
-        if return_trajectory and all_states.shape[0] > 1:
+        if isinstance(all_states, tuple):
+            hid = all_states[-1][-1] if all_states[-1].dim() > 1 else all_states[-1]  # (batch, hidden_size * n_modules)
+            seq = all_states[0]
+        else:
+            hid = all_states[-1]
+            seq = all_states
+        if return_core_comms:
+            traj = seq if (return_trajectory and seq.shape[0] > 1) else None
+            return out, hid, traj, core_final, comms_final
+        if return_trajectory and seq.shape[0] > 1:
             return out, hid, all_states
         return out, hid
 

@@ -36,6 +36,10 @@ def load_ann_data(ann_folder, load_rnn_extra=False):
         'hiddens_post_phase_2_trajectory',
         'hiddens_post_phase_0_per_module', 'hiddens_post_phase_1_per_module',
         'hiddens_post_phase_2_per_module',
+        'hiddens_post_phase_0_core_per_module', 'hiddens_post_phase_1_core_per_module',
+        'hiddens_post_phase_2_core_per_module',
+        'hiddens_post_phase_0_comms_per_module', 'hiddens_post_phase_1_comms_per_module',
+        'hiddens_post_phase_2_comms_per_module',
     ]
 
     for file_name in os.listdir(ann_folder):

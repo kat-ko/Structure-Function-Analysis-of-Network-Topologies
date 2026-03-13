@@ -541,21 +541,29 @@ class Community(nn.Module):
         else:
             return isinstance(self.output_size, list)
 
-    def forward(self, input):
+    def forward(self, input, return_core_comms=False):
         if "Cell" in self.cell_type:
-            all_states, states = [], None
+            state_list, core_h, comms_h = [], None, None
             for t, t_input in enumerate(input):
-                states = self.core(t_input, states) + self.comms(t_input, states)
-                all_states.append(states)
-            all_states = torch.stack(all_states)
+                core_h = self.core(t_input, core_h)
+                comms_h = self.comms(t_input, comms_h)
+                states = core_h + comms_h
+                state_list.append(states)
+            sequence = torch.stack(state_list)
+            all_states = sequence
+            core_final = core_h
+            comms_final = comms_h
         else:
             core_out, comms_out = self.core(input), self.comms(input)
-            all_states, final_states = (
-                core_out[0] + comms_out[0],
-                core_out[1] + comms_out[1],
-            )
+            sequence = core_out[0] + comms_out[0]
+            final_states = core_out[1] + comms_out[1]
+            core_final = core_out[1][-1]
+            comms_final = comms_out[1][-1]
+            all_states = (sequence, final_states)
 
-        outputs = self.readout(all_states)
+        outputs = self.readout(sequence)
+        if return_core_comms:
+            return outputs, all_states, core_final, comms_final
         return outputs, all_states
 
 

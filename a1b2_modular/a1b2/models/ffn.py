@@ -65,8 +65,8 @@ def batch_to_torch(numpy_version):
     return numpy_version.type(torch.FloatTensor)
 
 
-def ordered_sweep(network, ranked_inputs, nb_steps=1, return_trajectory=False):
-    """Run network on ordered inputs; return (preds, hids) numpy, optionally (preds, hids, trajectory)."""
+def ordered_sweep(network, ranked_inputs, nb_steps=1, return_trajectory=False, return_core_comms=False):
+    """Run network on ordered inputs; return (preds, hids) numpy, optionally (preds, hids, trajectory) or (preds, hids, trajectory, core_hid, comms_hid) when return_core_comms."""
     try:
         device = next(network.parameters()).device
     except StopIteration:
@@ -78,11 +78,19 @@ def ordered_sweep(network, ranked_inputs, nb_steps=1, return_trajectory=False):
     if nb_steps > 1:
         from a1b2.data.temporal import temporal_data
         x_temporal, _ = temporal_data(x, nb_steps=nb_steps, noise_ratio=None)
-        result = network(x_temporal, return_trajectory=return_trajectory)
+        result = network(x_temporal, return_trajectory=return_trajectory, return_core_comms=return_core_comms)
     else:
-        result = network(x)
+        if return_core_comms:
+            result = network(x, return_core_comms=True)
+        else:
+            result = network(x)
     preds = result[0].detach().cpu().numpy().copy()
     hids = result[1].detach().cpu().numpy().copy()
+    if len(result) == 5:
+        traj = result[2].detach().cpu().numpy().copy() if result[2] is not None else None
+        core_hid = result[3].detach().cpu().numpy().copy()
+        comms_hid = result[4].detach().cpu().numpy().copy()
+        return preds, hids, traj, core_hid, comms_hid
     if len(result) == 3:
         return preds, hids, result[2].detach().cpu().numpy().copy()
     return preds, hids

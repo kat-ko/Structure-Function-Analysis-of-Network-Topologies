@@ -68,7 +68,7 @@ def train_participant_schedule(
             test_stim = batch_to_torch(data['test_stim']).to(device)
 
             joined_label = torch.cat((label_x.unsqueeze(1), label_y.unsqueeze(1)), dim=1)
-            radians_label = math.atan2(label_x.cpu().numpy(), label_y.cpu().numpy())
+            radians_label = np.arctan2(label_x.cpu().numpy(), label_y.cpu().numpy())
 
             forward_kwargs = forward_kwargs_from_batch(data) if forward_kwargs_from_batch else {}
             forward_kwargs = {k: v.to(device) if hasattr(v, 'to') else v for k, v in forward_kwargs.items()}
@@ -80,13 +80,14 @@ def train_participant_schedule(
                 result = network(input_t, **forward_kwargs)
             out, hid = result[0], result[1]
 
-            if feature_probe == 0:
+            probe_val = int(feature_probe.reshape(-1)[0].cpu().numpy())
+            if probe_val == 0:
                 loss = loss_function(out[:, :2], joined_label)
-                pred_rads = math.atan2(out[:, 0].detach().cpu().numpy(), out[:, 1].detach().cpu().numpy())
+                pred_rads = np.arctan2(out[:, 0].detach().cpu().numpy(), out[:, 1].detach().cpu().numpy())
                 accuracy = compute_accuracy(pred_rads, radians_label)
-            elif feature_probe == 1:
+            elif probe_val == 1:
                 loss = loss_function(out[:, 2:4], joined_label)
-                pred_rads = math.atan2(out[:, 2].detach().cpu().numpy(), out[:, 3].detach().cpu().numpy())
+                pred_rads = np.arctan2(out[:, 2].detach().cpu().numpy(), out[:, 3].detach().cpu().numpy())
                 accuracy = compute_accuracy(pred_rads, radians_label)
             else:
                 raise ValueError("Undefined loss setting for feature_probe.")
@@ -98,7 +99,7 @@ def train_participant_schedule(
             elif do_update == 1 and do_test == 0:
                 loss.backward()
                 optimizer.step()
-            elif do_update == 2 and feature_probe == 0:
+            elif do_update == 2 and probe_val == 0:
                 loss.backward()
                 optimizer.step()
 
@@ -218,8 +219,13 @@ def runSchedule(
         network, ordered_inputs,
         nb_steps=nb_steps,
         return_trajectory=return_trajectory and nb_steps > 1 and rnn_extra is not None,
+        return_core_comms=rnn_extra is not None,
     )
-    if len(sweep_result) == 3:
+    if len(sweep_result) == 5:
+        initial_preds, initial_hiddens, initial_trajectory, _, _ = sweep_result
+        if initial_trajectory is not None:
+            results["hiddens_pre_training_trajectory"] = initial_trajectory
+    elif len(sweep_result) == 3:
         initial_preds, initial_hiddens, initial_trajectory = sweep_result
         results["hiddens_pre_training_trajectory"] = initial_trajectory
     else:
@@ -267,8 +273,19 @@ def runSchedule(
             network, ordered_inputs,
             nb_steps=nb_steps,
             return_trajectory=return_trajectory and nb_steps > 1 and rnn_extra is not None,
+            return_core_comms=rnn_extra is not None,
         )
-        if len(sweep_result) == 3:
+        if len(sweep_result) == 5:
+            post_preds, post_hiddens, post_trajectory, core_hid, comms_hid = sweep_result
+            if post_trajectory is not None:
+                results[f"hiddens_post_phase_{phase}_trajectory"] = post_trajectory
+            results[f"hiddens_post_phase_{phase}_core_per_module"] = _split_hiddens_by_module(
+                core_hid, rnn_extra["n_modules"], rnn_extra["hidden_size"]
+            )
+            results[f"hiddens_post_phase_{phase}_comms_per_module"] = _split_hiddens_by_module(
+                comms_hid, rnn_extra["n_modules"], rnn_extra["hidden_size"]
+            )
+        elif len(sweep_result) == 3:
             post_preds, post_hiddens, post_trajectory = sweep_result
             results[f"hiddens_post_phase_{phase}_trajectory"] = post_trajectory
         else:
