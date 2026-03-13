@@ -53,6 +53,10 @@ def run_experiment(condition_name, base_folder="./"):
 
     dim_input = task_parameters["nStim_perTask"] * 2
     arch = condition.get("arch", "ffn")
+
+    # Default for recurrent architectures: run with nb_steps = 2 unless explicitly overridden.
+    if arch in ("two_module_rnn", "single_module_rnn") and "nb_steps" not in condition:
+        condition["nb_steps"] = 2
     if arch in ("two_module_rnn", "single_module_rnn"):
         n_modules = condition.get("n_modules", 2 if arch == "two_module_rnn" else 1)
         dim_hidden = n_modules * condition.get("dim_hidden", 50)

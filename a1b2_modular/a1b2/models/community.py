@@ -497,12 +497,23 @@ class Community(nn.Module):
         for n, m in self.masks.items():
             self.register_buffer(n, m)
 
+        # what does this do?
+        # it applies the masks to the weights of the core and comms modules
+        # it does this by iterating over the named parameters of the core and comms modules
+        # per layer of the core and comms modules, it applies the mask to the weight_hh parameter
+
+        # for the first layer of the core and comms modules, it applies the input_mask to the weight_ih parameter
+        # for the other layers of the core and comms modules, it applies the state_mask to the weight_ih parameter
+        # for the last layer of the comms module, it applies the comms_mask to the weight_hh parameter
+
+        # for the other layers of the comms module, it applies a zero mask to the weight_hh parameter
+        # this is done to ensure that the core and comms modules only have recurrent connections within the module and inter-module connections between the modules
         for n in dict(self.core.named_parameters()).copy().keys():
             if "weight_hh" in n:
                 rpm(self.core, n, Masked_weight(self.rec_mask))
             #     if n[-1] == str(self.n_layers - 1):
             #         rpm(self.core, n, Masked_weight(self.comms_mask + self.rec_mask))
-            #     else:
+            #     else:+
             #         rpm(self.core, n, Masked_weight(self.rec_mask))
             elif "weight_ih" in n and n[-1] == "0":
                 rpm(self.core, n, Masked_weight(self.input_mask))
