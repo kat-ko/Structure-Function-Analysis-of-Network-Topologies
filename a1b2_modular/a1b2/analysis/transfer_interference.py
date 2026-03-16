@@ -421,3 +421,231 @@ def add_ann_metrics(rich_data, lazy_data, rich_group_params, lazy_group_params):
             })
 
     return pd.DataFrame(ann_behav_data)
+
+
+def compute_hidden_drift(pre_hids, post_hids, metric="l2"):
+    """
+    Compute a simple hidden-state drift metric between two phases.
+
+    Parameters
+    ----------
+    pre_hids : array-like, shape (n_samples, dim)
+        Hidden activations before a phase (e.g. hiddens_pre_training).
+    post_hids : array-like, shape (n_samples, dim)
+        Hidden activations after a phase (e.g. hiddens_post_phase_0 for A1).
+    metric : {"l2"}, optional
+        Drift metric to compute. Currently only mean L2 distance is supported.
+
+    Returns
+    -------
+    float
+        Scalar drift value (e.g. mean L2 distance across samples).
+    """
+    pre = np.asarray(pre_hids)
+    post = np.asarray(post_hids)
+    if pre.shape != post.shape:
+        raise ValueError(f"pre_hids and post_hids must have same shape; got {pre.shape} vs {post.shape}")
+
+    if metric == "l2":
+        diffs = post - pre
+        return float(np.mean(np.linalg.norm(diffs, axis=-1)))
+    else:
+        raise ValueError(f"Unsupported metric {metric!r}; currently only 'l2' is implemented")
+
+
+def compute_state_representation_metrics(hids, variance_thresholds=(0.9, 0.99), top_k=2):
+    """
+    Compute simple PCA-based state representation metrics on last-step hidden states.
+
+    Parameters
+    ----------
+    hids : array-like, shape (n_samples, dim)
+        Hidden activations for a single phase (e.g. 12 geometry stimuli × hidden dim).
+    variance_thresholds : tuple of float, optional
+        Cumulative variance thresholds for which to return minimal component counts.
+    top_k : int, optional
+        Number of leading principal components to aggregate variance over.
+
+    Returns
+    -------
+    dict
+        {
+            "var_topk": float,
+            "n_components": {threshold: int, ...},
+            "explained_variance_ratio": np.ndarray
+        }
+    """
+    hids = np.asarray(hids)
+    if hids.ndim != 2:
+        raise ValueError(f"hids must be 2D (n_samples, dim); got shape {hids.shape}")
+    if hids.shape[0] == 0:
+        return {
+            "var_topk": np.nan,
+            "n_components": {thr: 0 for thr in variance_thresholds},
+            "explained_variance_ratio": np.array([], dtype=float),
+        }
+
+    pca = PCA().fit(hids)
+    evr = pca.explained_variance_ratio_
+    cum = np.cumsum(evr)
+
+    k = min(top_k, len(evr))
+    var_topk = float(np.sum(evr[:k]))
+
+    n_components = {}
+    for thr in variance_thresholds:
+        idx = np.argmax(cum >= thr) if np.any(cum >= thr) else len(evr) - 1
+        n_components[thr] = int(idx + 1)
+
+    return {
+        "var_topk": var_topk,
+        "n_components": n_components,
+        "explained_variance_ratio": evr,
+    }
+
+
+def compute_participation_ratio(hids):
+    """
+    Compute participation ratio (PR) of hidden representations.
+
+    PR = (sum_i lambda_i)^2 / sum_i lambda_i^2, where lambda_i are eigenvalues
+    of the covariance of hids. Larger PR indicates higher effective dimensionality.
+
+    Parameters
+    ----------
+    hids : array-like, shape (n_samples, dim)
+        Hidden activations for a single phase.
+
+    Returns
+    -------
+    float
+        Participation ratio of the representation.
+    """
+    hids = np.asarray(hids)
+    if hids.ndim != 2:
+        raise ValueError(f"hids must be 2D (n_samples, dim); got shape {hids.shape}")
+    if hids.shape[0] == 0:
+        return np.nan
+    # Center across samples
+    x = hids - np.mean(hids, axis=0, keepdims=True)
+    cov = np.cov(x, rowvar=False)
+    evals = np.linalg.eigvalsh(cov)
+    evals = np.asarray(evals, dtype=float)
+    evals = evals[evals > 0]
+    if evals.size == 0:
+        return 0.0
+    s1 = np.sum(evals)
+    s2 = np.sum(evals ** 2)
+    return float((s1 ** 2) / s2)
+
+
+def _get_last_step_geometry_hids(entry, phase_idx, path="combined"):
+    """
+    Extract last-step geometry hiddens for a given phase and pathway.
+
+    Parameters
+    ----------
+    entry : dict
+        One participant entry from load_ann_data (possibly with RNN extras).
+    phase_idx : int
+        Phase index: 0 (post A1), 1 (post B), 2 (post A2).
+    path : {"combined", "core", "comms"}
+        Which hidden pathway to return.
+
+    Returns
+    -------
+    np.ndarray
+        Array of shape (n_stim, dim_pathway) for the requested pathway.
+    """
+    phase_key = f"hiddens_post_phase_{phase_idx}"
+    if path == "combined":
+        return np.asarray(entry[phase_key])
+
+    core_key = f"hiddens_post_phase_{phase_idx}_core_per_module"
+    comms_key = f"hiddens_post_phase_{phase_idx}_comms_per_module"
+
+    if path == "core":
+        if core_key not in entry:
+            raise KeyError(f"{core_key} not present in entry; did you save core_per_module?")
+        arr = np.asarray(entry[core_key])
+    elif path == "comms":
+        if comms_key not in entry:
+            raise KeyError(f"{comms_key} not present in entry; did you save comms_per_module?")
+        arr = np.asarray(entry[comms_key])
+    else:
+        raise ValueError(f"path must be 'combined', 'core', or 'comms'; got {path!r}")
+
+    # Expected shape: (n_stim, n_modules, hidden_size) → flatten modules axis
+    if arr.ndim != 3:
+        raise ValueError(f"Expected {path}_per_module to have 3 dims; got shape {arr.shape}")
+    n_stim, n_mod, h_size = arr.shape
+    return arr.reshape(n_stim, n_mod * h_size)
+
+
+def compute_pca_representation_metrics(
+    ann_data,
+    variance_thresholds=(0.9, 0.99),
+    top_k=2,
+    include_paths=("combined", "core", "comms"),
+):
+    """
+    Compute PCA-based representation metrics for combined/core/comms pathways.
+
+    This operates on last-step hidden states for each phase (0=A1, 1=B, 2=A2),
+    treating each phase separately and keeping "state dimensionality" distinct
+    from any trajectory-based analysis.
+
+    Parameters
+    ----------
+    ann_data : dict
+        Output of load_ann_data(sim_folder, load_rnn_extra=True).
+    variance_thresholds : tuple of float, optional
+        Cumulative variance thresholds (e.g. (0.9, 0.99)).
+    top_k : int, optional
+        Number of leading PCs to summarize variance over.
+    include_paths : iterable of str, optional
+        Any subset of {"combined", "core", "comms"} to compute metrics for.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Columns: participant, condition, phase, pathway, var_topk, n_pcs_<thr>
+    """
+    records = []
+    phases = [(0, "post_A"), (1, "post_B"), (2, "post_A2")]
+
+    for schedule_name, schedule_data in ann_data.items():
+        for subj in range(len(schedule_data)):
+            entry = schedule_data[subj]
+            participant_id = str(entry["participant"])
+
+            for phase_idx, phase_name in phases:
+                phase_key = f"hiddens_post_phase_{phase_idx}"
+                if phase_key not in entry:
+                    continue
+
+                for path in include_paths:
+                    # Skip core/comms if keys not present for this entry
+                    try:
+                        hids = _get_last_step_geometry_hids(entry, phase_idx, path=path)
+                    except KeyError:
+                        continue
+
+                    metrics = compute_state_representation_metrics(
+                        hids,
+                        variance_thresholds=variance_thresholds,
+                        top_k=top_k,
+                    )
+                    row = {
+                        "participant": participant_id,
+                        "condition": schedule_name,
+                        "phase": phase_name,
+                        "pathway": path,
+                        "var_topk": metrics["var_topk"],
+                    }
+                    for thr, n_comp in metrics["n_components"].items():
+                        key = f"n_pcs_{int(thr * 100)}"
+                        row[key] = n_comp
+                    records.append(row)
+
+    return pd.DataFrame.from_records(records)

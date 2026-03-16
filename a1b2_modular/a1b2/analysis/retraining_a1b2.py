@@ -9,6 +9,10 @@ import torch.nn as nn
 
 from a1b2.models.ffn import batch_to_torch
 
+# Expected accuracy of a random predictor for circular regression (1 - min(angular_error/pi, 1)).
+# Used for chance correction so the specialization scalar is "above chance" and in [0, 1].
+REGRESSION_CHANCE = 0.5
+
 
 def readout_mask(n_modules, n_in, n_out, ag_to_mask=None):
     """
@@ -256,8 +260,19 @@ def eval_probe_readout_a1b2(wrapper, loader, device=None):
 
 
 def metric_norm_acc(acc, chance=0.0):
-    """Chance-correct and clip for stability."""
-    return float(np.clip(acc - chance, 1e-5, 1.0))
+    """
+    Chance-correct and clip for stability.
+    For chance < 1: returns (acc - chance) / (1 - chance) clipped to [1e-5, 1], or 1e-5 if acc <= chance.
+    For chance >= 1: no correction, returns clip(acc, 1e-5, 1).
+    """
+    acc = float(acc)
+    if chance >= 1.0:
+        return float(np.clip(acc, 1e-5, 1.0))
+    if acc <= chance:
+        return 1e-5
+    denom = 1.0 - chance
+    m = (acc - chance) / denom
+    return float(np.clip(m, 1e-5, 1.0))
 
 
 def diff_metric(pair):
@@ -274,11 +289,14 @@ def global_diff_metric(metric_task0, metric_task1):
     return abs(diff_metric(metric_task0) - diff_metric(metric_task1)) / 2
 
 
-def retraining_specialization_scalar(acc_M0_f0, acc_M1_f0, acc_M0_f1, acc_M1_f1, chance=0.0):
+def retraining_specialization_scalar(acc_M0_f0, acc_M1_f0, acc_M0_f1, acc_M1_f1, chance=None):
     """
     From probe 0 and 1 accs per feature, compute Bená-style specialization scalar.
     acc_M0_f0 = accuracy when using only module 0 for feature 0, etc.
+    chance : expected accuracy of random predictor; default REGRESSION_CHANCE (0.5) for circular regression.
     """
+    if chance is None:
+        chance = REGRESSION_CHANCE
     m0_f0 = metric_norm_acc(acc_M0_f0, chance)
     m1_f0 = metric_norm_acc(acc_M1_f0, chance)
     m0_f1 = metric_norm_acc(acc_M0_f1, chance)
@@ -286,19 +304,20 @@ def retraining_specialization_scalar(acc_M0_f0, acc_M1_f0, acc_M0_f1, acc_M1_f1,
     return global_diff_metric((m0_f0, m1_f0), (m0_f1, m1_f1))
 
 
-def compute_ablations_metric_a1b2(wrapper_with_probe_readout, loader, device=None):
+def compute_ablations_metric_a1b2(wrapper_with_probe_readout, loader, device=None, chance=None):
     """
     Evaluate 3 heads (only M0, only M1, both) on loader; same regression acc as retraining.
     Returns acc[probe_idx, feature_idx] shape (3, 2) and the specialization scalar.
+    chance : passed to retraining_specialization_scalar; default REGRESSION_CHANCE.
     """
     acc = eval_probe_readout_a1b2(wrapper_with_probe_readout, loader, device)
     # Probes 0 and 1 are only M0 and only M1
     scalar = retraining_specialization_scalar(
-        acc[0, 0], acc[1, 0], acc[0, 1], acc[1, 1]
+        acc[0, 0], acc[1, 0], acc[0, 1], acc[1, 1], chance=chance
     )
     return {"acc": acc, "ablation_specialization": scalar}
 
 
-def ablation_specialization_scalar(acc_M0_f0, acc_M1_f0, acc_M0_f1, acc_M1_f1, chance=0.0):
+def ablation_specialization_scalar(acc_M0_f0, acc_M1_f0, acc_M0_f1, acc_M1_f1, chance=None):
     """Same formula as retraining_specialization_scalar."""
-    return retraining_specialization_scalar(acc_M0_f0, acc_M1_f0, acc_M0_f1, acc_M1_f1, chance)
+    return retraining_specialization_scalar(acc_M0_f0, acc_M1_f0, acc_M0_f1, acc_M1_f1, chance=chance)

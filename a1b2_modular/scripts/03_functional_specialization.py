@@ -22,6 +22,7 @@ from torch.utils.data import ConcatDataset, DataLoader
 from a1b2.analysis import run_loader
 from a1b2.analysis import transfer_interference as ann
 from a1b2.analysis.retraining_a1b2 import (
+    REGRESSION_CHANCE,
     create_retraining_model_a1b2,
     train_probe_readout_a1b2,
     eval_probe_readout_a1b2,
@@ -97,6 +98,12 @@ def main():
         default=5,
         help="Epochs for probe readout training (default: 5).",
     )
+    parser.add_argument(
+        "--regression-chance",
+        type=float,
+        default=REGRESSION_CHANCE,
+        help="Expected accuracy of random predictor for chance correction (default: %.2f)." % REGRESSION_CHANCE,
+    )
     args = parser.parse_args()
 
     root = _project_root(args.base_folder)
@@ -156,7 +163,7 @@ def main():
             )
             acc = eval_probe_readout_a1b2(wrapper, loader, device)
             row["retraining_specialization"] = float(retraining_specialization_scalar(
-                acc[0, 0], acc[1, 0], acc[0, 1], acc[1, 1]
+                acc[0, 0], acc[1, 0], acc[0, 1], acc[1, 1], chance=args.regression_chance
             ))
 
         if not args.no_correlation:
@@ -181,7 +188,7 @@ def main():
                     wrapper, loader, settings.get("condition", {}),
                     n_epochs=args.n_epochs, lr=1e-3, device=device,
                 )
-            ab = compute_ablations_metric_a1b2(wrapper, loader, device)
+            ab = compute_ablations_metric_a1b2(wrapper, loader, device, chance=args.regression_chance)
             row["ablation_specialization"] = float(ab["ablation_specialization"])
 
         results.append(row)

@@ -144,6 +144,8 @@ def compute_correlation_metric_a1b2(participant_data, n_samples=10, fixed_factor
     denom[denom <= 0] = 1e-8
     norm0 = (corr0 - base) / denom
     norm1 = (corr1 - base) / denom
+    norm0 = np.clip(norm0, 0.0, 1.0)
+    norm1 = np.clip(norm1, 0.0, 1.0)
     scalar = correlation_specialization_scalar(norm0, norm1)
     return {
         "base_correlations": base,
