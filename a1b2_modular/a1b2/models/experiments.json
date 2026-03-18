@@ -517,6 +517,46 @@
 "init_scale": 0.1
 },
 {
+"name": "two_module_rnn_25_nb2_init0.5",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 1.0,
+"common_input": false,
+"common_readout": true,
+"nb_steps": 2,
+"init_scale": 0.5
+},
+{
+"name": "two_module_rnn_25_nb2_init0.3",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 1.0,
+"common_input": false,
+"common_readout": true,
+"nb_steps": 2,
+"init_scale": 0.3
+},
+{
+"name": "two_module_rnn_25_nb2_init0.7",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 1.0,
+"common_input": false,
+"common_readout": true,
+"nb_steps": 2,
+"init_scale": 0.7
+},
+{
+"name": "two_module_rnn_25_nb2_init0.9",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 1.0,
+"common_input": false,
+"common_readout": true,
+"nb_steps": 2,
+"init_scale": 0.9
+},
+{
 "name": "two_module_rnn_25_nb2_init0.01",
 "arch": "two_module_rnn",
 "dim_hidden": 25,
@@ -732,6 +772,46 @@
 "init_scale": 0.1
 },
 {
+"name": "two_module_rnn_25_low_sparse_nb2_init0.5",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.3,
+"common_input": false,
+"common_readout": true,
+"nb_steps": 2,
+"init_scale": 0.5
+},
+{
+"name": "two_module_rnn_25_low_sparse_nb2_init0.3",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.3,
+"common_input": false,
+"common_readout": true,
+"nb_steps": 2,
+"init_scale": 0.3
+},
+{
+"name": "two_module_rnn_25_low_sparse_nb2_init0.7",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.3,
+"common_input": false,
+"common_readout": true,
+"nb_steps": 2,
+"init_scale": 0.7
+},
+{
+"name": "two_module_rnn_25_low_sparse_nb2_init0.9",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.3,
+"common_input": false,
+"common_readout": true,
+"nb_steps": 2,
+"init_scale": 0.9
+},
+{
 "name": "two_module_rnn_25_low_sparse_nb2_init0.01",
 "arch": "two_module_rnn",
 "dim_hidden": 25,
@@ -751,6 +831,50 @@
 "input_routing": "task_routed",
 "nb_steps": 2,
 "init_scale": 0.1
+},
+{
+"name": "two_module_rnn_25_task_routed_nb2_init0.5",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 1,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.5
+},
+{
+"name": "two_module_rnn_25_task_routed_nb2_init0.3",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 1,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.3
+},
+{
+"name": "two_module_rnn_25_task_routed_nb2_init0.7",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 1,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.7
+},
+{
+"name": "two_module_rnn_25_task_routed_nb2_init0.9",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 1,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.9
 },
 {
 "name": "two_module_rnn_25_task_routed_nb2_init0.01",
@@ -775,6 +899,50 @@
 "init_scale": 0.1
 },
 {
+"name": "two_module_rnn_25_task_routed_low_sparse_nb2_init0.5",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.3,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.5
+},
+{
+"name": "two_module_rnn_25_task_routed_low_sparse_nb2_init0.3",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.3,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.3
+},
+{
+"name": "two_module_rnn_25_task_routed_low_sparse_nb2_init0.7",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.3,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.7
+},
+{
+"name": "two_module_rnn_25_task_routed_low_sparse_nb2_init0.9",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.3,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.9
+},
+{
 "name": "two_module_rnn_25_task_routed_low_sparse_nb2_init0.01",
 "arch": "two_module_rnn",
 "dim_hidden": 25,
@@ -795,6 +963,50 @@
 "input_routing": "shared",
 "nb_steps": 2,
 "init_scale": 0.1
+},
+{
+"name": "two_module_rnn_25_sp05_nb2_init0.5",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.5,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2,
+"init_scale": 0.5
+},
+{
+"name": "two_module_rnn_25_sp05_nb2_init0.3",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.5,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2,
+"init_scale": 0.3
+},
+{
+"name": "two_module_rnn_25_sp05_nb2_init0.7",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.5,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2,
+"init_scale": 0.7
+},
+{
+"name": "two_module_rnn_25_sp05_nb2_init0.9",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.5,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2,
+"init_scale": 0.9
 },
 {
 "name": "two_module_rnn_25_sp05_nb2_init0.01",
@@ -819,6 +1031,50 @@
 "init_scale": 0.1
 },
 {
+"name": "two_module_rnn_25_sp07_nb2_init0.5",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.7,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2,
+"init_scale": 0.5
+},
+{
+"name": "two_module_rnn_25_sp07_nb2_init0.3",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.7,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2,
+"init_scale": 0.3
+},
+{
+"name": "two_module_rnn_25_sp07_nb2_init0.7",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.7,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2,
+"init_scale": 0.7
+},
+{
+"name": "two_module_rnn_25_sp07_nb2_init0.9",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.7,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2,
+"init_scale": 0.9
+},
+{
 "name": "two_module_rnn_25_sp07_nb2_init0.01",
 "arch": "two_module_rnn",
 "dim_hidden": 25,
@@ -839,6 +1095,50 @@
 "input_routing": "task_routed",
 "nb_steps": 2,
 "init_scale": 0.1
+},
+{
+"name": "two_module_rnn_25_task_routed_sp05_nb2_init0.5",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.5,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.5
+},
+{
+"name": "two_module_rnn_25_task_routed_sp05_nb2_init0.3",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.5,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.3
+},
+{
+"name": "two_module_rnn_25_task_routed_sp05_nb2_init0.7",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.5,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.7
+},
+{
+"name": "two_module_rnn_25_task_routed_sp05_nb2_init0.9",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.5,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.9
 },
 {
 "name": "two_module_rnn_25_task_routed_sp05_nb2_init0.01",
@@ -863,6 +1163,50 @@
 "init_scale": 0.1
 },
 {
+"name": "two_module_rnn_25_task_routed_sp07_nb2_init0.5",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.7,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.5
+},
+{
+"name": "two_module_rnn_25_task_routed_sp07_nb2_init0.3",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.7,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.3
+},
+{
+"name": "two_module_rnn_25_task_routed_sp07_nb2_init0.7",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.7,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.7
+},
+{
+"name": "two_module_rnn_25_task_routed_sp07_nb2_init0.9",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.7,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.9
+},
+{
 "name": "two_module_rnn_25_task_routed_sp07_nb2_init0.01",
 "arch": "two_module_rnn",
 "dim_hidden": 25,
@@ -883,6 +1227,50 @@
 "input_routing": "shared",
 "nb_steps": 2,
 "init_scale": 0.1
+},
+{
+"name": "two_module_rnn_25_sp01_nb2_init0.5",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.1,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2,
+"init_scale": 0.5
+},
+{
+"name": "two_module_rnn_25_sp01_nb2_init0.3",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.1,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2,
+"init_scale": 0.3
+},
+{
+"name": "two_module_rnn_25_sp01_nb2_init0.7",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.1,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2,
+"init_scale": 0.7
+},
+{
+"name": "two_module_rnn_25_sp01_nb2_init0.9",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.1,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2,
+"init_scale": 0.9
 },
 {
 "name": "two_module_rnn_25_sp01_nb2_init0.01",
@@ -907,6 +1295,50 @@
 "init_scale": 0.1
 },
 {
+"name": "two_module_rnn_25_task_routed_sp01_nb2_init0.5",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.1,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.5
+},
+{
+"name": "two_module_rnn_25_task_routed_sp01_nb2_init0.3",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.1,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.3
+},
+{
+"name": "two_module_rnn_25_task_routed_sp01_nb2_init0.7",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.1,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.7
+},
+{
+"name": "two_module_rnn_25_task_routed_sp01_nb2_init0.9",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.1,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.9
+},
+{
 "name": "two_module_rnn_25_task_routed_sp01_nb2_init0.01",
 "arch": "two_module_rnn",
 "dim_hidden": 25,
@@ -927,6 +1359,50 @@
 "input_routing": "shared",
 "nb_steps": 2,
 "init_scale": 0.1
+},
+{
+"name": "two_module_rnn_25_sp09_nb2_init0.5",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.9,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2,
+"init_scale": 0.5
+},
+{
+"name": "two_module_rnn_25_sp09_nb2_init0.3",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.9,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2,
+"init_scale": 0.3
+},
+{
+"name": "two_module_rnn_25_sp09_nb2_init0.7",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.9,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2,
+"init_scale": 0.7
+},
+{
+"name": "two_module_rnn_25_sp09_nb2_init0.9",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.9,
+"common_input": false,
+"common_readout": true,
+"input_routing": "shared",
+"nb_steps": 2,
+"init_scale": 0.9
 },
 {
 "name": "two_module_rnn_25_sp09_nb2_init0.01",
@@ -951,6 +1427,50 @@
 "init_scale": 0.1
 },
 {
+"name": "two_module_rnn_25_task_routed_sp09_nb2_init0.5",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.9,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.5
+},
+{
+"name": "two_module_rnn_25_task_routed_sp09_nb2_init0.3",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.9,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.3
+},
+{
+"name": "two_module_rnn_25_task_routed_sp09_nb2_init0.7",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.9,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.7
+},
+{
+"name": "two_module_rnn_25_task_routed_sp09_nb2_init0.9",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0.9,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.9
+},
+{
 "name": "two_module_rnn_25_task_routed_sp09_nb2_init0.01",
 "arch": "two_module_rnn",
 "dim_hidden": 25,
@@ -972,6 +1492,46 @@
 "init_scale": 0.1
 },
 {
+"name": "two_module_rnn_25_no_comms_nb2_init0.5",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0,
+"common_input": false,
+"common_readout": true,
+"nb_steps": 2,
+"init_scale": 0.5
+},
+{
+"name": "two_module_rnn_25_no_comms_nb2_init0.3",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0,
+"common_input": false,
+"common_readout": true,
+"nb_steps": 2,
+"init_scale": 0.3
+},
+{
+"name": "two_module_rnn_25_no_comms_nb2_init0.7",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0,
+"common_input": false,
+"common_readout": true,
+"nb_steps": 2,
+"init_scale": 0.7
+},
+{
+"name": "two_module_rnn_25_no_comms_nb2_init0.9",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0,
+"common_input": false,
+"common_readout": true,
+"nb_steps": 2,
+"init_scale": 0.9
+},
+{
 "name": "two_module_rnn_25_no_comms_nb2_init0.01",
 "arch": "two_module_rnn",
 "dim_hidden": 25,
@@ -991,6 +1551,50 @@
 "input_routing": "task_routed",
 "nb_steps": 2,
 "init_scale": 0.1
+},
+{
+"name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.5",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.5
+},
+{
+"name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.3",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.3
+},
+{
+"name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.7",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.7
+},
+{
+"name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.9",
+"arch": "two_module_rnn",
+"dim_hidden": 25,
+"sparsity": 0,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"nb_steps": 2,
+"init_scale": 0.9
 },
 {
 "name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.01",
