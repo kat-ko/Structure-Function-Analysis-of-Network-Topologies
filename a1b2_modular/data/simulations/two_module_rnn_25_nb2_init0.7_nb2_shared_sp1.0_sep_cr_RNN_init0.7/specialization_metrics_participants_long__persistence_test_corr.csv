@@ -1,0 +1,4 @@
+run_id,participant,similarity,metric,value
+two_module_rnn_25_nb2_init0.7_nb2_shared_sp1.0_sep_cr_RNN_init0.7,study1_same_sub9,same,retraining_specialization,
+two_module_rnn_25_nb2_init0.7_nb2_shared_sp1.0_sep_cr_RNN_init0.7,study1_same_sub9,same,correlation_specialization,0.0
+two_module_rnn_25_nb2_init0.7_nb2_shared_sp1.0_sep_cr_RNN_init0.7,study1_same_sub9,same,ablation_specialization,

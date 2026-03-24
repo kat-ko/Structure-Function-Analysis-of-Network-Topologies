@@ -1619,6 +1619,50 @@
 "init_scale": 0.1
 },
 {
+"name": "single_module_rnn_25_nb2_init0.3",
+"arch": "single_module_rnn",
+"dim_hidden": 25,
+"n_modules": 1,
+"sparsity": 1,
+"common_input": false,
+"common_readout": true,
+"nb_steps": 2,
+"init_scale": 0.3
+},
+{
+"name": "single_module_rnn_25_nb2_init0.5",
+"arch": "single_module_rnn",
+"dim_hidden": 25,
+"n_modules": 1,
+"sparsity": 1,
+"common_input": false,
+"common_readout": true,
+"nb_steps": 2,
+"init_scale": 0.5
+},
+{
+"name": "single_module_rnn_25_nb2_init0.7",
+"arch": "single_module_rnn",
+"dim_hidden": 25,
+"n_modules": 1,
+"sparsity": 1,
+"common_input": false,
+"common_readout": true,
+"nb_steps": 2,
+"init_scale": 0.7
+},
+{
+"name": "single_module_rnn_25_nb2_init0.9",
+"arch": "single_module_rnn",
+"dim_hidden": 25,
+"n_modules": 1,
+"sparsity": 1,
+"common_input": false,
+"common_readout": true,
+"nb_steps": 2,
+"init_scale": 0.9
+},
+{
 "name": "single_module_rnn_25_nb2_init0.01",
 "arch": "single_module_rnn",
 "dim_hidden": 25,

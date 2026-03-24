@@ -1,0 +1,4 @@
+run_id,metric,mean,sem,n
+two_module_rnn_25_nb2_init0.7_nb2_shared_sp1.0_sep_cr_RNN_init0.7,retraining_specialization,,,0
+two_module_rnn_25_nb2_init0.7_nb2_shared_sp1.0_sep_cr_RNN_init0.7,correlation_specialization,0.0,0.0,1
+two_module_rnn_25_nb2_init0.7_nb2_shared_sp1.0_sep_cr_RNN_init0.7,ablation_specialization,,,0

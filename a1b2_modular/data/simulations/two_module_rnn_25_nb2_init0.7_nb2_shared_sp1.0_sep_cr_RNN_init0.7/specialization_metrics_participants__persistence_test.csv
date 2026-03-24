@@ -1,0 +1,2 @@
+run_id,participant,similarity,retraining_specialization,correlation_specialization,ablation_specialization,cached,warnings
+two_module_rnn_25_nb2_init0.7_nb2_shared_sp1.0_sep_cr_RNN_init0.7,study1_same_sub9,same,0.08943197816769688,0.0,,False,
