@@ -1689,6 +1689,17 @@
 "common_input": true,
 "common_readout": true,
 "input_routing": "task_routed"
+},
+{
+"name": "two_module_rnn_50_task_routed_trainlog_s2",
+"arch": "two_module_rnn",
+"dim_hidden": 50,
+"sparsity": 1,
+"common_input": false,
+"common_readout": true,
+"input_routing": "task_routed",
+"log_during_training": true,
+"sim_schema_version": 2
 }
 ],
 "n_epochs": 100,
