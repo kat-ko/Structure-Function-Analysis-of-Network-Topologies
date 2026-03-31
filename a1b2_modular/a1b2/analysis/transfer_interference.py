@@ -342,14 +342,31 @@ def get_principal_angles(ann_data):
 
 def compute_principal_angle(A_hids, B_hids, n_components=2):
     """Compute principal angles between subspaces spanned by A_hids and B_hids."""
-    pca_A = PCA(n_components=n_components)
-    pca_B = PCA(n_components=n_components)
+    A = np.asarray(A_hids, dtype=float)
+    B = np.asarray(B_hids, dtype=float)
+    nan_vec = np.full(shape=(n_components,), fill_value=np.nan, dtype=float)
 
-    V_A = pca_A.fit_transform(A_hids)
-    V_B = pca_B.fit_transform(B_hids)
+    if A.ndim != 2 or B.ndim != 2 or A.shape[1] != B.shape[1]:
+        return np.nan, nan_vec
+
+    A = A[np.all(np.isfinite(A), axis=1)]
+    B = B[np.all(np.isfinite(B), axis=1)]
+    if A.shape[0] == 0 or B.shape[0] == 0 or A.shape[1] == 0:
+        return np.nan, nan_vec
+
+    n_feat = A.shape[1]
+    n_a = int(min(n_components, A.shape[0], n_feat))
+    n_b = int(min(n_components, B.shape[0], n_feat))
+    if n_a < 1 or n_b < 1:
+        return np.nan, nan_vec
+
+    pca_A = PCA(n_components=n_a)
+    pca_B = PCA(n_components=n_b)
+    pca_A.fit(A)
+    pca_B.fit(B)
 
     inner_product_matrix = np.dot(pca_A.components_, pca_B.components_.T)
-    _, singular_values, _ = np.linalg.svd(inner_product_matrix)
+    _, singular_values, _ = np.linalg.svd(inner_product_matrix, full_matrices=False)
     principal_angles = np.arccos(np.clip(singular_values, -1.0, 1.0))
     principal_angles_degrees = np.degrees(principal_angles)
 
@@ -362,6 +379,27 @@ def prepare_pca_single_task(hids):
     pca.fit(hids)
     task_transformed = pca.transform(hids)
     return pca, task_transformed
+
+
+def prepare_pca_shared_two_phase(hids_B, hids_A2, n_components=2):
+    """Fit one PCA on vstack(Post B, Post A2) hiddens; return projections for each phase."""
+    h_B = np.asarray(hids_B)
+    h_A2 = np.asarray(hids_A2)
+    stacked = np.vstack([h_B, h_A2])
+    pca = PCA(n_components=n_components)
+    pca.fit(stacked)
+    return pca, pca.transform(h_B), pca.transform(h_A2)
+
+
+def prepare_pca_shared_three_phase(hids_A, hids_B, hids_A2, n_components=2):
+    """Fit one PCA on vstack(Post A, Post B, Post A2); return projections for each phase."""
+    h_A = np.asarray(hids_A)
+    h_B = np.asarray(hids_B)
+    h_A2 = np.asarray(hids_A2)
+    stacked = np.vstack([h_A, h_B, h_A2])
+    pca = PCA(n_components=n_components)
+    pca.fit(stacked)
+    return pca, pca.transform(h_A), pca.transform(h_B), pca.transform(h_A2)
 
 
 def project_onto_pca(pca, data):
@@ -475,10 +513,12 @@ def compute_state_representation_metrics(hids, variance_thresholds=(0.9, 0.99), 
             "explained_variance_ratio": np.ndarray
         }
     """
-    hids = np.asarray(hids)
+    hids = np.asarray(hids, dtype=float)
     if hids.ndim != 2:
         raise ValueError(f"hids must be 2D (n_samples, dim); got shape {hids.shape}")
-    if hids.shape[0] == 0:
+    # Drop invalid rows to make PCA robust to divergent / partial runs.
+    hids = hids[np.all(np.isfinite(hids), axis=1)]
+    if hids.shape[0] == 0 or hids.shape[1] == 0:
         return {
             "var_topk": np.nan,
             "n_components": {thr: 0 for thr in variance_thresholds},

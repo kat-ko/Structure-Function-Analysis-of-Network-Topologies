@@ -148,6 +148,16 @@ def get_axis_limits(data):
     return {'xmin': data[:, 0].min(), 'xmax': data[:, 0].max(), 'ymin': data[:, 1].min(), 'ymax': data[:, 1].max()}
 
 
+# Post A + Post B + Post A2 PCA geometry: Task A yellow → orange → red by phase;
+# Task B light blue → dark blue → purple by phase.
+POST_A_TASK_A_COLOUR = "#FDE047"
+POST_B_TASK_A_COLOUR = "#F97316"
+POST_A2_TASK_A_COLOUR = "#DC2626"
+POST_A_TASK_B_COLOUR = "#7DD3FC"
+POST_B_TASK_B_COLOUR = "#1D4ED8"
+POST_A2_TASK_B_COLOUR = "#6D28D9"
+
+
 def plot_2d_pca(ax, data, color, label):
     ax.plot(data[:, 0], data[:, 1], c=color, label=label, linestyle='-', marker='o', linewidth=1, markersize=6, markeredgewidth=0)
     ax.plot([data[-1, 0], data[0, 0]], [data[-1, 1], data[0, 1]], c=color, linewidth=1)
@@ -164,6 +174,61 @@ def plot_split_stim(ax, hiddens_pca, task_colours, lims):
     ax.set_ylim(lims['ymin'] - .5, lims['ymax'] + .5)
     ax.set_xticks([-1, 0, 1], [-1, 0, 1])
     ax.set_yticks([-1, 0, 1], [-1, 0, 1])
+
+
+def plot_split_stim_postA_postB_postA2(ax, X2_A, X2_B, X2_A2, lims):
+    """Six stimulus loops on shared 2D PCA axes (Post A, Post B, Post A2 × Task A/B)."""
+    X2_A = np.asarray(X2_A)
+    X2_B = np.asarray(X2_B)
+    X2_A2 = np.asarray(X2_A2)
+    plot_2d_pca(ax, X2_A[:6], POST_A_TASK_A_COLOUR, 'Post A — Task A')
+    plot_2d_pca(ax, X2_A[6:], POST_A_TASK_B_COLOUR, 'Post A — Task B')
+    plot_2d_pca(ax, X2_B[:6], POST_B_TASK_A_COLOUR, 'Post B — Task A')
+    plot_2d_pca(ax, X2_B[6:], POST_B_TASK_B_COLOUR, 'Post B — Task B')
+    plot_2d_pca(ax, X2_A2[:6], POST_A2_TASK_A_COLOUR, 'Post A2 — Task A')
+    plot_2d_pca(ax, X2_A2[6:], POST_A2_TASK_B_COLOUR, 'Post A2 — Task B')
+    ax.set_xlabel('PC 1')
+    ax.set_ylabel('PC 2')
+    ax.set_xlim(lims['xmin'] - .5, lims['xmax'] + .5)
+    ax.set_ylim(lims['ymin'] - .5, lims['ymax'] + .5)
+    ax.set_xticks([-1, 0, 1], [-1, 0, 1])
+    ax.set_yticks([-1, 0, 1], [-1, 0, 1])
+
+
+def _plot_3d_stim_loop(ax, pts, colour, label=None, linewidth=1.2, alpha_line=0.55, scatter_s=28, scatter_alpha=0.9):
+    pts = np.asarray(pts)
+    if pts.shape[0] < 2:
+        return None
+    closed = np.vstack([pts, pts[0]])
+    (line,) = ax.plot(
+        closed[:, 0], closed[:, 1], closed[:, 2],
+        color=colour, alpha=alpha_line, linewidth=linewidth, label=label,
+    )
+    ax.scatter(pts[:, 0], pts[:, 1], pts[:, 2], s=scatter_s, alpha=scatter_alpha,
+               color=colour, edgecolors="none")
+    return line
+
+
+def plot_split_stim_postA_postB_postA2_3d(ax, X3_A, X3_B, X3_A2, labels_for_legend=False):
+    """Six closed stimulus trajectories in 3D PCA space (shared axes per subplot)."""
+    X3_A = np.asarray(X3_A)
+    X3_B = np.asarray(X3_B)
+    X3_A2 = np.asarray(X3_A2)
+    handles = []
+    specs = [
+        (X3_A[:6], POST_A_TASK_A_COLOUR, 'Post A — Task A'),
+        (X3_A[6:], POST_A_TASK_B_COLOUR, 'Post A — Task B'),
+        (X3_B[:6], POST_B_TASK_A_COLOUR, 'Post B — Task A'),
+        (X3_B[6:], POST_B_TASK_B_COLOUR, 'Post B — Task B'),
+        (X3_A2[:6], POST_A2_TASK_A_COLOUR, 'Post A2 — Task A'),
+        (X3_A2[6:], POST_A2_TASK_B_COLOUR, 'Post A2 — Task B'),
+    ]
+    for pts, colour, lab in specs:
+        label = lab if labels_for_legend else None
+        line = _plot_3d_stim_loop(ax, pts, colour, label=label)
+        if line is not None and labels_for_legend:
+            handles.append(line)
+    return handles
 
 
 def plot_near_hist(data, schedule_colours, figsize=[4.5 / 2.54, 3 / 2.54]):

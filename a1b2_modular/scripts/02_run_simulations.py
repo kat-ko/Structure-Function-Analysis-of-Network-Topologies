@@ -24,7 +24,7 @@ from a1b2.data.basic_funcs import set_seed
 from a1b2.training.simulation import run_simulation
 from a1b2.training.schedule import train_single_schedule
 from a1b2.analysis import transfer_interference as ann
-from a1b2.utils.run_config import build_run_id, effective_sim_schema_version
+from a1b2.utils.run_config import build_run_id
 
 
 def _project_root(base_folder):
@@ -80,14 +80,8 @@ def run_experiment(condition_name, base_folder="./"):
     sim_folder = os.path.join(data_folder, "simulations", run_id)
     os.makedirs(sim_folder, exist_ok=True)
 
-    dataloader_num_workers = int(settings.get("dataloader_num_workers", 0))
-
     settings_to_save = {
         "condition": condition,
-        "sim_schema_version": effective_sim_schema_version(condition),
-        "log_during_training": bool(condition.get("log_during_training", False)),
-        "during_log_post_step": bool(condition.get("during_log_post_step", True)),
-        "dataloader_num_workers": dataloader_num_workers,
         "training_params": {
             "participants": [str(p) for p in participants],
             "n_phase": settings["n_phase"],
@@ -119,7 +113,6 @@ def run_experiment(condition_name, base_folder="./"):
         sim_folder=sim_folder,
         arch=arch,
         condition=condition if arch in ("two_module_rnn", "single_module_rnn") else None,
-        dataloader_num_workers=dataloader_num_workers,
     )
 
 

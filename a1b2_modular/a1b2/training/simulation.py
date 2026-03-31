@@ -97,7 +97,8 @@ def run_simulation(
             init_scale = condition.get("init_scale")
             if init_scale is not None:
                 from a1b2.models.rnn_init import apply_init_scale
-                init_weights_fn = lambda net: apply_init_scale(net, init_scale)
+                init_scope = condition.get("init_scope", condition.get("init_policy", "global"))
+                init_weights_fn = lambda net: apply_init_scale(net, init_scale, scope=init_scope)
             rnn_extra = {"n_modules": n_modules, "hidden_size": hidden_size}
             forward_kwargs_from_batch = None
             if condition.get("input_routing") == "task_routed":
