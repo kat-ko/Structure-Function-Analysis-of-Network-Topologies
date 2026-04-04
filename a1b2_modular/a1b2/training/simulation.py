@@ -82,12 +82,22 @@ def run_simulation(
             from a1b2.models.two_module_rnn import TwoModuleRNNWrapper
             hidden_size = condition.get("dim_hidden", 50)
             n_modules = condition.get("n_modules", 2 if arch == "two_module_rnn" else 1)
+            # Per-layer width for last-layer state (n_modules * hidden_size). Do not multiply by n_layers:
+            # runSchedule buffers match PyTorch RNN final hidden shape per timestep.
             dim_hidden_rnn = n_modules * hidden_size
+            n_layers = int(condition.get("n_layers", 1))
+            dropout = float(condition.get("dropout", 0.0))
+            if n_layers < 1:
+                raise ValueError(f"condition n_layers must be >= 1, got {n_layers}")
+            if not 0.0 <= dropout <= 1.0:
+                raise ValueError(f"condition dropout must be in [0, 1], got {dropout}")
             network = TwoModuleRNNWrapper(
                 input_size=dim_input,
                 output_size=dim_output,
                 hidden_size=hidden_size,
                 n_modules=n_modules,
+                n_layers=n_layers,
+                dropout=dropout,
                 sparsity=condition.get("sparsity", 1.0),
                 common_input=condition.get("common_input", False),
                 common_readout=condition.get("common_readout", True),

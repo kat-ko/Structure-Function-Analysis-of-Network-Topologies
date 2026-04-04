@@ -147,6 +147,7 @@ class TwoModuleRNNWrapper(nn.Module):
             else:
                 out = out[-1]  # (seq, batch, output_size) -> (batch, output_size)
         if isinstance(all_states, tuple):
+            # final_states: (num_layers, batch, hidden_size * n_modules) — log last layer only for 2D PCA/analysis
             hid = all_states[-1][-1] if all_states[-1].dim() > 1 else all_states[-1]  # (batch, hidden_size * n_modules)
             seq = all_states[0]
         else:
