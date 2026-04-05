@@ -568,6 +568,28 @@
       "nb_steps": 2
     },
     {
+      "name": "single_module_rnn_50_nb2_nl2",
+      "arch": "single_module_rnn",
+      "dim_hidden": 50,
+      "n_modules": 1,
+      "sparsity": 1,
+      "common_input": false,
+      "common_readout": true,
+      "nb_steps": 2,
+      "n_layers": 2
+    },
+    {
+      "name": "single_module_rnn_50_nb2_nl3",
+      "arch": "single_module_rnn",
+      "dim_hidden": 50,
+      "n_modules": 1,
+      "sparsity": 1,
+      "common_input": false,
+      "common_readout": true,
+      "nb_steps": 2,
+      "n_layers": 3
+    },
+    {
       "name": "single_module_rnn_50_nb2_init0.1",
       "arch": "single_module_rnn",
       "dim_hidden": 50,
@@ -577,6 +599,30 @@
       "common_readout": true,
       "nb_steps": 2,
       "init_scale": 0.1
+    },
+    {
+      "name": "single_module_rnn_50_nb2_init0.1_nl2",
+      "arch": "single_module_rnn",
+      "dim_hidden": 50,
+      "n_modules": 1,
+      "sparsity": 1,
+      "common_input": false,
+      "common_readout": true,
+      "nb_steps": 2,
+      "init_scale": 0.1,
+      "n_layers": 2
+    },
+    {
+      "name": "single_module_rnn_50_nb2_init0.1_nl3",
+      "arch": "single_module_rnn",
+      "dim_hidden": 50,
+      "n_modules": 1,
+      "sparsity": 1,
+      "common_input": false,
+      "common_readout": true,
+      "nb_steps": 2,
+      "init_scale": 0.1,
+      "n_layers": 3
     },
     {
       "name": "single_module_rnn_50_nb2_init0.01",
@@ -590,6 +636,30 @@
       "init_scale": 0.01
     },
     {
+      "name": "single_module_rnn_50_nb2_init0.01_nl2",
+      "arch": "single_module_rnn",
+      "dim_hidden": 50,
+      "n_modules": 1,
+      "sparsity": 1,
+      "common_input": false,
+      "common_readout": true,
+      "nb_steps": 2,
+      "init_scale": 0.01,
+      "n_layers": 2
+    },
+    {
+      "name": "single_module_rnn_50_nb2_init0.01_nl3",
+      "arch": "single_module_rnn",
+      "dim_hidden": 50,
+      "n_modules": 1,
+      "sparsity": 1,
+      "common_input": false,
+      "common_readout": true,
+      "nb_steps": 2,
+      "init_scale": 0.01,
+      "n_layers": 3
+    },
+    {
       "name": "single_module_rnn_50_nb2_init0.001",
       "arch": "single_module_rnn",
       "dim_hidden": 50,
@@ -599,6 +669,18 @@
       "common_readout": true,
       "nb_steps": 2,
       "init_scale": 0.001
+    },
+    {
+      "name": "single_module_rnn_50_nb2_init0.001_gru",
+      "arch": "single_module_rnn",
+      "dim_hidden": 50,
+      "n_modules": 1,
+      "sparsity": 1,
+      "common_input": false,
+      "common_readout": true,
+      "nb_steps": 2,
+      "init_scale": 0.001,
+      "cell_type": "GRU"
     },
     {
       "name": "single_module_rnn_50_nb2_init0.001_nl2",
@@ -623,6 +705,32 @@
       "nb_steps": 2,
       "init_scale": 0.001,
       "n_layers": 3
+    },
+    {
+      "name": "single_module_rnn_50_nb2_init0.001_nl2_drop0.1",
+      "arch": "single_module_rnn",
+      "dim_hidden": 50,
+      "n_modules": 1,
+      "sparsity": 1,
+      "common_input": false,
+      "common_readout": true,
+      "nb_steps": 2,
+      "init_scale": 0.001,
+      "n_layers": 2,
+      "dropout": 0.1
+    },
+    {
+      "name": "single_module_rnn_50_nb2_init0.001_nl3_drop0.1",
+      "arch": "single_module_rnn",
+      "dim_hidden": 50,
+      "n_modules": 1,
+      "sparsity": 1,
+      "common_input": false,
+      "common_readout": true,
+      "nb_steps": 2,
+      "init_scale": 0.001,
+      "n_layers": 3,
+      "dropout": 0.1
     },
     {
       "name": "single_module_rnn_50_nb2_init0.0001",
@@ -1032,6 +1140,28 @@
       "common_readout": true,
       "input_routing": "task_routed",
       "nb_steps": 2
+    },
+    {
+      "name": "two_module_rnn_25_task_routed_no_comms_nb2_nl2",
+      "arch": "two_module_rnn",
+      "dim_hidden": 25,
+      "sparsity": 0,
+      "common_input": false,
+      "common_readout": true,
+      "input_routing": "task_routed",
+      "nb_steps": 2,
+      "n_layers": 2
+    },
+    {
+      "name": "two_module_rnn_25_task_routed_no_comms_nb2_nl3",
+      "arch": "two_module_rnn",
+      "dim_hidden": 25,
+      "sparsity": 0,
+      "common_input": false,
+      "common_readout": true,
+      "input_routing": "task_routed",
+      "nb_steps": 2,
+      "n_layers": 3
     },
     {
       "name": "single_module_rnn_25_nb2",
@@ -1607,6 +1737,16 @@
       "init_scale": 0.001
     },
     {
+      "name": "two_module_rnn_25_no_comms_nb2_init0.001_pr",
+      "arch": "two_module_rnn",
+      "dim_hidden": 25,
+      "sparsity": 0,
+      "common_input": false,
+      "common_readout": false,
+      "nb_steps": 2,
+      "init_scale": 0.001
+    },
+    {
       "name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.1",
       "arch": "two_module_rnn",
       "dim_hidden": 25,
@@ -1616,6 +1756,30 @@
       "input_routing": "task_routed",
       "nb_steps": 2,
       "init_scale": 0.1
+    },
+    {
+      "name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.1_nl2",
+      "arch": "two_module_rnn",
+      "dim_hidden": 25,
+      "sparsity": 0,
+      "common_input": false,
+      "common_readout": true,
+      "input_routing": "task_routed",
+      "nb_steps": 2,
+      "init_scale": 0.1,
+      "n_layers": 2
+    },
+    {
+      "name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.1_nl3",
+      "arch": "two_module_rnn",
+      "dim_hidden": 25,
+      "sparsity": 0,
+      "common_input": false,
+      "common_readout": true,
+      "input_routing": "task_routed",
+      "nb_steps": 2,
+      "init_scale": 0.1,
+      "n_layers": 3
     },
     {
       "name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.5",
@@ -1651,6 +1815,30 @@
       "init_scale": 0.01
     },
     {
+      "name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.01_nl2",
+      "arch": "two_module_rnn",
+      "dim_hidden": 25,
+      "sparsity": 0,
+      "common_input": false,
+      "common_readout": true,
+      "input_routing": "task_routed",
+      "nb_steps": 2,
+      "init_scale": 0.01,
+      "n_layers": 2
+    },
+    {
+      "name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.01_nl3",
+      "arch": "two_module_rnn",
+      "dim_hidden": 25,
+      "sparsity": 0,
+      "common_input": false,
+      "common_readout": true,
+      "input_routing": "task_routed",
+      "nb_steps": 2,
+      "init_scale": 0.01,
+      "n_layers": 3
+    },
+    {
       "name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.001",
       "arch": "two_module_rnn",
       "dim_hidden": 25,
@@ -1660,6 +1848,29 @@
       "input_routing": "task_routed",
       "nb_steps": 2,
       "init_scale": 0.001
+    },
+    {
+      "name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.001_pr",
+      "arch": "two_module_rnn",
+      "dim_hidden": 25,
+      "sparsity": 0,
+      "common_input": false,
+      "common_readout": false,
+      "input_routing": "task_routed",
+      "nb_steps": 2,
+      "init_scale": 0.001
+    },
+    {
+      "name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.001_gru",
+      "arch": "two_module_rnn",
+      "dim_hidden": 25,
+      "sparsity": 0,
+      "common_input": false,
+      "common_readout": true,
+      "input_routing": "task_routed",
+      "nb_steps": 2,
+      "init_scale": 0.001,
+      "cell_type": "GRU"
     },
     {
       "name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.001_nl2",
@@ -1684,6 +1895,32 @@
       "nb_steps": 2,
       "init_scale": 0.001,
       "n_layers": 3
+    },
+    {
+      "name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.001_nl2_drop0.1",
+      "arch": "two_module_rnn",
+      "dim_hidden": 25,
+      "sparsity": 0,
+      "common_input": false,
+      "common_readout": true,
+      "input_routing": "task_routed",
+      "nb_steps": 2,
+      "init_scale": 0.001,
+      "n_layers": 2,
+      "dropout": 0.1
+    },
+    {
+      "name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.001_nl3_drop0.1",
+      "arch": "two_module_rnn",
+      "dim_hidden": 25,
+      "sparsity": 0,
+      "common_input": false,
+      "common_readout": true,
+      "input_routing": "task_routed",
+      "nb_steps": 2,
+      "init_scale": 0.001,
+      "n_layers": 3,
+      "dropout": 0.1
     },
     {
       "name": "two_module_rnn_25_task_routed_no_comms_nb2_init0.0001",
@@ -3756,9 +3993,111 @@
       "init_scale": 2
     },
     {
+      "name": "two_module_rnn_25_task_routed_no_comms_nb2_init2_nl2",
+      "arch": "two_module_rnn",
+      "dim_hidden": 25,
+      "sparsity": 0,
+      "common_input": false,
+      "common_readout": true,
+      "input_routing": "task_routed",
+      "nb_steps": 2,
+      "init_scale": 2,
+      "n_layers": 2
+    },
+    {
+      "name": "two_module_rnn_25_task_routed_no_comms_nb2_init2_nl3",
+      "arch": "two_module_rnn",
+      "dim_hidden": 25,
+      "sparsity": 0,
+      "common_input": false,
+      "common_readout": true,
+      "input_routing": "task_routed",
+      "nb_steps": 2,
+      "init_scale": 2,
+      "n_layers": 3
+    },
+    {
       "name": "single_module_rnn_50_nb2_init2",
       "arch": "single_module_rnn",
       "dim_hidden": 50,
+      "n_modules": 1,
+      "sparsity": 1,
+      "common_input": false,
+      "common_readout": true,
+      "nb_steps": 2,
+      "init_scale": 2
+    },
+    {
+      "name": "single_module_rnn_50_nb2_init2_nl2",
+      "arch": "single_module_rnn",
+      "dim_hidden": 50,
+      "n_modules": 1,
+      "sparsity": 1,
+      "common_input": false,
+      "common_readout": true,
+      "nb_steps": 2,
+      "init_scale": 2,
+      "n_layers": 2
+    },
+    {
+      "name": "single_module_rnn_50_nb2_init2_nl3",
+      "arch": "single_module_rnn",
+      "dim_hidden": 50,
+      "n_modules": 1,
+      "sparsity": 1,
+      "common_input": false,
+      "common_readout": true,
+      "nb_steps": 2,
+      "init_scale": 2,
+      "n_layers": 3
+    },
+    {
+      "name": "single_module_rnn_100_nb2",
+      "arch": "single_module_rnn",
+      "dim_hidden": 100,
+      "n_modules": 1,
+      "sparsity": 1,
+      "common_input": false,
+      "common_readout": true,
+      "nb_steps": 2
+    },
+    {
+      "name": "single_module_rnn_100_nb2_init0.1",
+      "arch": "single_module_rnn",
+      "dim_hidden": 100,
+      "n_modules": 1,
+      "sparsity": 1,
+      "common_input": false,
+      "common_readout": true,
+      "nb_steps": 2,
+      "init_scale": 0.1
+    },
+    {
+      "name": "single_module_rnn_100_nb2_init0.01",
+      "arch": "single_module_rnn",
+      "dim_hidden": 100,
+      "n_modules": 1,
+      "sparsity": 1,
+      "common_input": false,
+      "common_readout": true,
+      "nb_steps": 2,
+      "init_scale": 0.01
+    },
+    {
+      "name": "single_module_rnn_100_nb2_init0.001",
+      "arch": "single_module_rnn",
+      "dim_hidden": 100,
+      "n_modules": 1,
+      "sparsity": 1,
+      "common_input": false,
+      "common_readout": true,
+      "nb_steps": 2,
+      "init_scale": 0.001
+    },
+    {
+      "name": "single_module_rnn_100_nb2_init2",
+      "arch": "single_module_rnn",
+      "dim_hidden": 100,
       "n_modules": 1,
       "sparsity": 1,
       "common_input": false,

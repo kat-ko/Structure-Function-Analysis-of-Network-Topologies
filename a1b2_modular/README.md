@@ -40,6 +40,13 @@ Requirements: Python ≥3.8, numpy, pandas, scipy, matplotlib, seaborn, torch, t
    `python scripts/03_fit_vonmises.py participants`  
    `python scripts/03_fit_vonmises.py simulations --sim-name <condition>`
 
+## Documentation (ablations and handoff)
+
+- **Canonical checklist** (depth, dropout, GRU, LSTM, `build_run_id`): `docs/PLAN_rnn_depth_and_celltype_ablations.md`
+- **Continuation + operational TODOs** (validation, readout ablation, optional phases — checklist separate from plan “Phase” numbering): `docs/ABLATION_CONTINUATION_AND_TODOS.md`
+
+**Config validation (ablation handoff):** From `a1b2_modular/`, run `python scripts/validate_ablation_continuation.py` (JSON uniqueness, `build_run_id` for depth/dropout/GRU/readout pilots). Add `--forward` if PyTorch is installed for forward smokes.
+
 ## Analyses
 
 - **Transfer / interference / von Mises**: same methodology as transfer-interference (figures 2–4, `a1b2.analysis.transfer_interference`, `stats`, `participant`).
@@ -55,12 +62,12 @@ The primary RNN comparison is **no-module (single-module) vs two-module** archit
 - **Architecture**: `single_module_rnn` (n_modules=1) vs `two_module_rnn` (n_modules=2).
 - **Input routing**: `shared` (both modules get same input) vs `task_routed` (A → module 1, B → module 2 by feature_probe).
 - **nb_steps**: sequence length (1 = single step; >1 = temporal input and optional trajectory logging). Each RNN condition has an optional **\_nb2** variant (e.g. `two_module_rnn_50_nb2`) with `nb_steps=2`; run folder names then include `nb2` so they stay distinct from nb_steps=1 runs.
-- **Communication**: sparsity, common_readout, cell_type (RNN/GRU). **Input separation**: `common_input` (default **false**). With `common_input=false`, each module's first layer only receives its own input chunk (true modular input separation). **common_input=true** is for **ablation only** (to validate main results); use conditions such as `two_module_rnn_50_ablation_common_input` or `two_module_rnn_50_task_routed_ablation_common_input`.
+- **Communication**: sparsity, common_readout, cell_type (RNN/GRU). **Per-module readout** conditions use `common_readout: false`; matched **no_comms** pilots are named with suffix **`_pr`** on the shared-readout anchor (e.g. `..._init0.001` → `..._init0.001_pr`); `build_run_id` uses **`sep_pr`** instead of **`sep_cr`**. **Input separation**: `common_input` (default **false**). With `common_input=false`, each module's first layer only receives its own input chunk (true modular input separation). **common_input=true** is for **ablation only** (to validate main results); use conditions such as `two_module_rnn_50_ablation_common_input` or `two_module_rnn_50_task_routed_ablation_common_input`.
 - **Init scale**: optional `init_scale` for RNN weights (experimental lever; regime labels are not assigned by init—see Rich/lazy below).
 
 **Run names:** New RNN runs use a **full run_id** (e.g. `two_module_rnn_50_nb1_shared_sp1_sep_cr_RNN`) so they do not overwrite legacy result folders. The run_id includes **sep** (separate input per module, `common_input=false`) or **ci** (common input, `common_input=true`, ablation).
 
-**Analysis factors:** **Input scenario** = `input_routing`: `"shared"` means both modules receive the same input; `"task_routed"` means task A→module 1, task B→module 2 (different inputs per module). **Communication** = `sparsity` (inter-module connection strength, 0–1) and optionally `common_readout` (shared vs per-module readout). Example conditions for communication × input-scenario runs: `two_module_rnn_50`, `two_module_rnn_50_low_sparse`, `two_module_rnn_50_task_routed`, `two_module_rnn_50_task_routed_low_sparse`, `two_module_rnn_50_sp05`, `two_module_rnn_50_task_routed_sp05`, `two_module_rnn_50_sep_readout`.
+**Analysis factors:** **Input scenario** = `input_routing`: `"shared"` means both modules receive the same input; `"task_routed"` means task A→module 1, task B→module 2 (different inputs per module). **Communication** = `sparsity` (inter-module connection strength, 0–1) and optionally `common_readout` (shared vs per-module readout). Example conditions for communication × input-scenario runs: `two_module_rnn_50`, `two_module_rnn_50_low_sparse`, `two_module_rnn_50_task_routed`, `two_module_rnn_50_task_routed_low_sparse`, `two_module_rnn_50_sp05`, `two_module_rnn_50_task_routed_sp05`, `two_module_rnn_50_sep_readout`, and no_comms readout pilots `two_module_rnn_25_no_comms_nb2_init0.001_pr`, `two_module_rnn_25_task_routed_no_comms_nb2_init0.001_pr`.
 
 What is held fixed (e.g. n_epochs, learning_rate, batch_size) is in `experiments.json` and the script.
 

@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gecco"
+version = "0.1.0"
+description = "GECCO LBA: evolved input routing on Holton-style continual data (standalone; no a1b2_modular dependency)"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  "numpy>=1.20",
+  "pandas>=1.3",
+  "torch>=2.0",
+  "matplotlib>=3.7",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gecco*"]

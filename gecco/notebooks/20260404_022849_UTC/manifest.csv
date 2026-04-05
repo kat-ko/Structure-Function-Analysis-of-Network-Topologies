@@ -1,0 +1,1 @@
+run_id,status,error,duration_s,utc_finished,condition,seed,init_scale,cyclic_pattern,participants_per_condition,population,generations,train_steps,participants_json,pareto_n,pop_n,best_mse_pareto,worst_mse_pareto,max_routing_sep_pareto,baseline_low_sigma_mse,baseline_high_sigma_mse

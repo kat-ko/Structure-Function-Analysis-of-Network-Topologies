@@ -2,6 +2,8 @@
 
 This document is the **canonical checklist** for agents implementing modular/single-module RNN ablations in `a1b2_modular`. Work through items **in order** unless a step is explicitly parallelizable. After each phase, run the verification commands in §6.
 
+**Handoff / remaining operational TODOs** (validation runs, readout ablation rollout) live in a **separate** file so “Phase 1–6” is not confused with day-to-day checkboxes: [`ABLATION_CONTINUATION_AND_TODOS.md`](ABLATION_CONTINUATION_AND_TODOS.md).
+
 ---
 
 ## Goals
@@ -52,6 +54,8 @@ This document is the **canonical checklist** for agents implementing modular/sin
 ### 1.2 Run ID / folder collision
 
 - Today, **`build_run_id` does not encode `n_layers` or `dropout`**. Collisions are avoided if every distinct setup has a **distinct `name`** in `experiments.json`.
+
+**Dropout rows:** Use a **unique `name`** that encodes dropout in the string (e.g. `_nl2_drop0.1`), not only the JSON field. Inter-layer `dropout` in PyTorch RNN/GRU applies **between stacked layers** when `n_layers > 1`; for `n_layers == 1` it has no effect.
 
 **Agent rule:** Every new ablation condition MUST use a **unique `name`** (e.g. suffix `_nl2`, `_nl3`, `_drop01`).
 
@@ -104,8 +108,11 @@ Training stores `hiddens` from whatever `TwoModuleRNNWrapper.forward` returns as
 
 ### 3.3 Acceptance criteria (Phase 3)
 
-- [ ] Training completes for at least one `two_module_rnn` and one `single_module_rnn` GRU condition.
-- [ ] No mask-related runtime errors from `Community` (`gru=True` branch in `comms_mask` / `state_mask`).
+- [x] Pilot rows in `experiments.json` with unique `_gru` names; `build_run_id` differs from RNN parent (includes `GRU` token).
+- [ ] Training completes for at least one `two_module_rnn` and one `single_module_rnn` GRU condition (`scripts/02_run_simulations.py` with PyTorch).
+- [ ] No mask-related runtime errors from `Community` (`gru=True` branch in `comms_mask` / `state_mask`) — confirm during training forward.
+
+**Pilot condition names:** `single_module_rnn_50_nb2_init0.001_gru`, `two_module_rnn_25_task_routed_no_comms_nb2_init0.001_gru`.
 
 ---
 
@@ -189,6 +196,107 @@ print(build_run_id(c))
 
 # Short simulation (if 02_run_simulations supports your condition name)
 python3 scripts/02_run_simulations.py YOUR_CONDITION_NAME
+```
+
+### Depth + dropout expansion batch (wave 2)
+
+After adding the 16 depth clones and 4 `dropout: 0.1` pilots, from `a1b2_modular`:
+
+```bash
+# Unique condition names (entire file)
+python3 -c "
+import json
+from collections import Counter
+s=json.load(open('a1b2/models/experiments.json'))
+names=[c['name'] for c in s['conditions']]
+assert not [n for n,k in Counter(names).items() if k>1]
+print('ok', len(names))
+"
+
+# build_run_id distinct for all newly added depth/dropout conditions
+python3 -c "
+import json
+from a1b2.utils.run_config import build_run_id
+NEW = [
+  'single_module_rnn_50_nb2_nl2','single_module_rnn_50_nb2_nl3',
+  'single_module_rnn_50_nb2_init0.1_nl2','single_module_rnn_50_nb2_init0.1_nl3',
+  'single_module_rnn_50_nb2_init0.01_nl2','single_module_rnn_50_nb2_init0.01_nl3',
+  'single_module_rnn_50_nb2_init2_nl2','single_module_rnn_50_nb2_init2_nl3',
+  'two_module_rnn_25_task_routed_no_comms_nb2_nl2','two_module_rnn_25_task_routed_no_comms_nb2_nl3',
+  'two_module_rnn_25_task_routed_no_comms_nb2_init0.1_nl2','two_module_rnn_25_task_routed_no_comms_nb2_init0.1_nl3',
+  'two_module_rnn_25_task_routed_no_comms_nb2_init0.01_nl2','two_module_rnn_25_task_routed_no_comms_nb2_init0.01_nl3',
+  'two_module_rnn_25_task_routed_no_comms_nb2_init2_nl2','two_module_rnn_25_task_routed_no_comms_nb2_init2_nl3',
+  'single_module_rnn_50_nb2_init0.001_nl2_drop0.1','single_module_rnn_50_nb2_init0.001_nl3_drop0.1',
+  'two_module_rnn_25_task_routed_no_comms_nb2_init0.001_nl2_drop0.1','two_module_rnn_25_task_routed_no_comms_nb2_init0.001_nl3_drop0.1',
+]
+s=json.load(open('a1b2/models/experiments.json'))
+by={c['name']:c for c in s['conditions']}
+rids=[build_run_id(by[n]) for n in NEW]
+assert len(rids)==len(set(rids)), sorted(rids)
+for n in NEW:
+    print(n, '->', build_run_id(by[n]))
+"
+
+# Forward smoke (requires torch): example task_routed + dropout
+python3 -c "
+import json, torch
+from a1b2.models.two_module_rnn import TwoModuleRNNWrapper
+s=json.load(open('a1b2/models/experiments.json'))
+name='two_module_rnn_25_task_routed_no_comms_nb2_init0.001_nl2_drop0.1'
+c=next(x for x in s['conditions'] if x['name']==name)
+net=TwoModuleRNNWrapper(
+  input_size=12, output_size=4, hidden_size=c['dim_hidden'],
+  n_modules=c.get('n_modules', 2 if c['arch']=='two_module_rnn' else 1),
+  n_layers=int(c.get('n_layers',1)), dropout=float(c.get('dropout',0.0)),
+  sparsity=c.get('sparsity',1.0), common_input=c.get('common_input',False),
+  common_readout=c.get('common_readout',True), input_routing=c.get('input_routing','shared'),
+)
+x=torch.randn(4,12)
+out,hid=net(x, feature_probe=torch.tensor([0,1,0,1]))
+print(out.shape, hid.shape)
+"
+
+# Simulation smokes (pick any three)
+python3 scripts/02_run_simulations.py single_module_rnn_50_nb2_init0.01_nl2 --base-folder .
+python3 scripts/02_run_simulations.py two_module_rnn_25_task_routed_no_comms_nb2_init2_nl3 --base-folder .
+python3 scripts/02_run_simulations.py two_module_rnn_25_task_routed_no_comms_nb2_init0.001_nl2_drop0.1 --base-folder .
+```
+
+### GRU Phase 3 pilot
+
+```bash
+# build_run_id (from a1b2_modular)
+python3 -c "
+import json
+from a1b2.utils.run_config import build_run_id
+s=json.load(open('a1b2/models/experiments.json'))
+by={c['name']:c for c in s['conditions']}
+for n in ['single_module_rnn_50_nb2_init0.001_gru','two_module_rnn_25_task_routed_no_comms_nb2_init0.001_gru']:
+    print(n, '->', build_run_id(by[n]))
+"
+
+# Forward smoke (requires torch); pass cell_type from JSON
+python3 -c "
+import json, torch
+from a1b2.models.two_module_rnn import TwoModuleRNNWrapper
+s=json.load(open('a1b2/models/experiments.json'))
+name='two_module_rnn_25_task_routed_no_comms_nb2_init0.001_gru'
+c=next(x for x in s['conditions'] if x['name']==name)
+net=TwoModuleRNNWrapper(
+  input_size=12, output_size=4, hidden_size=c['dim_hidden'],
+  n_modules=c.get('n_modules', 2 if c['arch']=='two_module_rnn' else 1),
+  n_layers=int(c.get('n_layers',1)), dropout=float(c.get('dropout',0.0)),
+  sparsity=c.get('sparsity',1.0), common_input=c.get('common_input',False),
+  common_readout=c.get('common_readout',True), cell_type=c.get('cell_type','RNN'),
+  input_routing=c.get('input_routing','shared'),
+)
+x=torch.randn(4,12)
+out,hid=net(x, feature_probe=torch.tensor([0,1,0,1]))
+print(out.shape, hid.shape)
+"
+
+python3 scripts/02_run_simulations.py single_module_rnn_50_nb2_init0.001_gru --base-folder .
+python3 scripts/02_run_simulations.py two_module_rnn_25_task_routed_no_comms_nb2_init0.001_gru --base-folder .
 ```
 
 ---

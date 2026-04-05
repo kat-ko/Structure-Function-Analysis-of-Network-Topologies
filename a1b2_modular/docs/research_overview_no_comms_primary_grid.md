@@ -33,7 +33,7 @@ This asymmetry is important methodologically: **A2** can show **selective recove
 
 ### 3.2 Single-module baseline
 
-- **One module** (`n_modules = 1`) with the same output head and training loop, serving as a **capacity-matched or protocol-matched** baseline (in many comparisons, **two modules × hidden size 25** vs **one module × hidden size 50**).
+- **One module** (`n_modules = 1`) with the same output head and training loop, serving as a **capacity-matched** baseline relative to the two-module grid: total recurrent width is matched to **two modules × per-module `dim_hidden`** (e.g. **two × 50** vs **one × 100**). Condition names follow `single_module_rnn_<hidden>_nb2…` in `experiments.json` (e.g. `single_module_rnn_100_nb2_init0.001` for the size-50 two-module row).
 - Same loss, schedule, and A2 update rule as the modular model, so differences isolate **routing and modularity** rather than task definition.
 
 ### 3.3 What we deliberately omit in this summary
@@ -55,7 +55,20 @@ After construction, weights are **rescaled** by a condition-specific **`init_sca
 
 ### 4.3 Model size (hidden width)
 
-**Hidden size** (e.g., 6, 12, 25) varies across conditions as an **additional axis**. Early aggregates suggest **many behavioral summaries are not dominated by width** within the explored range, but **geometry** (variance captured by leading PCs, subspace overlap) has not yet been exhaustively decomposed by size × scale × similarity; this remains an **open analysis item**.
+**Per-module hidden size** for the two-module RNN (e.g. **6, 12, 25, 50**) varies as an **additional axis**. The single-module baseline at each size uses the **matched total width** (see table below). Early aggregates suggest **many behavioral summaries are not dominated by width** within the explored range, but **geometry** (variance captured by leading PCs, subspace overlap) has not yet been exhaustively decomposed by size × scale × similarity; this remains an **open analysis item**.
+
+### 4.4 Primary grid overview (architecture × width)
+
+The **paper primary grid** (see also `PRIMARY_GRID_RUN_INVENTORY.md`) pairs each two-module **`dim_hidden`** with routing (`task_routed`, `shared`), sparsity (`no_comms`, `0.5`, `1.0`), and `init_scale` tiers, plus the capacity-matched single-module row:
+
+| Two-module `dim_hidden` (per module) | Single-module `dim_hidden` (matched total width) | Example single-module condition stem |
+| ---: | ---: | --- |
+| 6 | 12 | `single_module_rnn_12_nb2` |
+| 12 | 25 | `single_module_rnn_25_nb2` |
+| 25 | 50 | `single_module_rnn_50_nb2` |
+| 50 | 100 | `single_module_rnn_100_nb2` |
+
+All of these use **`nb_steps = 2`**, **`common_input = false`**, **`common_readout = true`**, and full within-module connectivity for the single baseline (**`sparsity = 1`**).
 
 ---
 

@@ -46,7 +46,8 @@ Minimum core grid for paper-faithful comparisons:
 - `arch`: `single_module_rnn`, `two_module_rnn`
 - `routing` (for two-module): `shared`, `task_routed`
 - `sparsity`: at least `no_comms` (plus optional `0.5`, `1.0` for robustness)
-- `dim_hidden`: `6`, `12`, `25`, `50`
+- `dim_hidden` (two-module **per-module** width): `6`, `12`, `25`, `50`
+- **Capacity-matched single-module baseline** (same total recurrent width as 2× per-module): per-module `6→12`, `12→25`, `25→50`, `50→100` — use `single_module_rnn_<width>_nb2…` in `experiments.json` (e.g. `single_module_rnn_100_nb2_init0.001` when comparing to `two_module_rnn_50…`).
 - `conditions`: `same`, `near`, `far`
 - `phases`: `post_A`, `post_B`, `post_A2`
 
