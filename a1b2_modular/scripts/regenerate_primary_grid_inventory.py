@@ -30,8 +30,9 @@ def sparsity_label(c: dict) -> str:
 
 
 def init_scale(c: dict) -> float:
-    v = c.get("init_scale")
-    return float(1.0 if v is None else v)
+    from a1b2.utils.sim_storage import normalized_init_scale
+
+    return normalized_init_scale(c)
 
 
 def row_for_condition(
@@ -65,8 +66,8 @@ def row_for_condition(
 
 
 def collect_rows(settings: dict, sim_folder: Path, build_run_id) -> list[tuple]:
-    paper_init_scales = {0.001, 0.01, 0.1, 1.0, 2.0}
-    paper_sparsities = {"no_comms", "0.5", "1.0"}
+    from a1b2.utils.sim_storage import is_primary_grid_condition
+
     size_grid = [6, 12, 25, 50]
     baseline_single_hidden = {6: 12, 12: 25, 25: 50, 50: 100}
 
@@ -88,8 +89,7 @@ def collect_rows(settings: dict, sim_folder: Path, build_run_id) -> list[tuple]:
                     continue
                 if c.get("init_scope") == "input_only":
                     continue
-                sp, ini = sparsity_label(c), init_scale(c)
-                if sp not in paper_sparsities or ini not in paper_init_scales:
+                if not is_primary_grid_condition(c):
                     continue
                 rows.append(
                     row_for_condition(c, routing, h, build_run_id=build_run_id, sim_folder=sim_folder)
@@ -111,8 +111,7 @@ def collect_rows(settings: dict, sim_folder: Path, build_run_id) -> list[tuple]:
                 continue
             if abs(float(c.get("sparsity", 1.0)) - 1.0) > 1e-9:
                 continue
-            sp, ini = sparsity_label(c), init_scale(c)
-            if sp not in paper_sparsities or ini not in paper_init_scales:
+            if not is_primary_grid_condition(c):
                 continue
             rows.append(
                 row_for_condition(c, "single_module", h, build_run_id=build_run_id, sim_folder=sim_folder)
@@ -132,10 +131,9 @@ def render_markdown(rows: list[tuple], ts: str) -> str:
         "",
         f"*Last refreshed: {ts}*",
         "",
-        "All `experiments.json` conditions matching the paper comparison grid "
-        "(`nb_steps=2`, `common_input=False`, `common_readout=True`, "
-        "sparsity ∈ {no_comms, 0.5, 1.0}, init ∈ {0.001, 0.01, 0.1, 1, 2}, "
-        "excluding `init_scope=input_only`).",
+        "All `experiments.json` conditions matching the primary comparison grid "
+        "(`nb_steps=2`, `common_input=False`, `common_readout=True`, init ∈ {0.001, 0.01, 0.1, 1, 2}); "
+        "for `two_module_rnn`, the primary grid uses **no_comms only** (`sparsity=0`).",
         "",
         "- **Folder:** `data/simulations/<run_id>/` (folder name equals `run_id`).",
         "- **Von Mises companion (name-matched):** `state_<participant_id>.pt` for each "

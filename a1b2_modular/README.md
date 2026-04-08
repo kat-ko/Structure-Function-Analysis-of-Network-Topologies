@@ -22,7 +22,11 @@ Requirements: Python ≥3.8, numpy, pandas, scipy, matplotlib, seaborn, torch, t
    `python scripts/02_run_simulations.py <condition>`  
    Conditions are defined in `a1b2/models/experiments.json`. Each condition has `arch`: `"ffn"`, `"single_module_rnn"`, or `"two_module_rnn"`.  
    Examples: `rich_50`, `two_module_rnn_50`, `single_module_rnn_50`.  
-   Results are saved under `data/simulations/<run_id>/`, where **run_id** is built from all varying factors (see Experimental factors below) so that each distinct configuration gets a unique folder.
+   Results are saved under a policy-based root:
+   - **Primary grid:** `data/simulations/<run_id>/`
+   - **Ablations:** `data/simulations/primary_grid_ablations/<run_id>/`
+   Routing is automatic with `--storage-mode auto` (default), and can be overridden with `--storage-mode primary|ablation`.
+   Use `--print-output-path` to preview destination without training.
 
    **Sparsity 0.1 and 0.9 (25-dim nb2):** To run the additional sparsity levels 0.1 and 0.9 (shared and task_routed input):
    ```bash
@@ -38,12 +42,14 @@ Requirements: Python ≥3.8, numpy, pandas, scipy, matplotlib, seaborn, torch, t
 
 3. **Fit von Mises**  
    `python scripts/03_fit_vonmises.py participants`  
-   `python scripts/03_fit_vonmises.py simulations --sim-name <condition>`
+   `python scripts/03_fit_vonmises.py simulations --sim-name <run_id>`  
+   Ablation root example: `python scripts/03_fit_vonmises.py simulations --sim-name <run_id> --simulations-subdir simulations/primary_grid_ablations`
 
 ## Documentation (ablations and handoff)
 
 - **Canonical checklist** (depth, dropout, GRU, LSTM, `build_run_id`): `docs/PLAN_rnn_depth_and_celltype_ablations.md`
 - **Continuation + operational TODOs** (validation, readout ablation, optional phases — checklist separate from plan “Phase” numbering): `docs/ABLATION_CONTINUATION_AND_TODOS.md`
+- **Storage policy + migration SOP** (primary grid vs ablations): `docs/PRIMARY_GRID_STORAGE_POLICY.md`
 
 **Config validation (ablation handoff):** From `a1b2_modular/`, run `python scripts/validate_ablation_continuation.py` (JSON uniqueness, `build_run_id` for depth/dropout/GRU/readout pilots). Add `--forward` if PyTorch is installed for forward smokes.
 
@@ -84,7 +90,8 @@ We do **not** assign "rich" or "lazy" by initialization scale. Init scale (and o
 ## Data layout
 
 - `data/participants/`: `raw/`, `trial_df.csv`, `human_vonmises_fits.csv` (after 01 and 03).
-- `data/simulations/<run_id>/`: `sim_<participant>.npz`, `settings.json`, optional `*_vonmises_fits.csv`.
+- `data/simulations/<run_id>/`: primary-grid simulations.
+- `data/simulations/primary_grid_ablations/<run_id>/`: ablation simulations.
 
 ## Package layout (`a1b2`)
 

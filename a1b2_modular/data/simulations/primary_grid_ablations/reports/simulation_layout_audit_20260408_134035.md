@@ -1,0 +1,520 @@
+# Simulation layout audit
+
+- Total conditions: 509
+- move_to_ablation: 0
+- keep_primary: 100
+- keep_ablation: 157
+- missing: 252
+- conflict: 0
+
+| condition_name | run_id | classification | in_primary | in_ablation | action | reason |
+| --- | --- | --- | :---: | :---: | --- | --- |
+| rich_10 | `rich_10` | ablation | No | No | missing | no folder found in either root |
+| rich_50 | `rich_50` | ablation | No | No | missing | no folder found in either root |
+| rich_200 | `rich_200` | ablation | No | No | missing | no folder found in either root |
+| gamma_e_2_50 | `gamma_e_2_50` | ablation | No | No | missing | no folder found in either root |
+| gamma_e_1_50 | `gamma_e_1_50` | ablation | No | No | missing | no folder found in either root |
+| gamma_1_50 | `gamma_1_50` | ablation | No | No | missing | no folder found in either root |
+| lazy_50 | `lazy_50` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50 | `two_module_rnn_50_nb1_shared_sp1.0_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_low_sparse | `two_module_rnn_50_low_sparse_nb1_shared_sp0.3_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_task_routed | `two_module_rnn_50_task_routed_nb1_task_routed_sp1_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_task_routed_low_sparse | `two_module_rnn_50_task_routed_low_sparse_nb1_task_routed_sp0.3_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_sp05 | `two_module_rnn_50_sp05_nb1_shared_sp0.5_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_sp07 | `two_module_rnn_50_sp07_nb1_shared_sp0.7_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_sp05 | `two_module_rnn_50_task_routed_sp05_nb1_task_routed_sp0.5_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_sp07 | `two_module_rnn_50_task_routed_sp07_nb1_task_routed_sp0.7_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_sep_readout | `two_module_rnn_50_sep_readout_nb1_shared_sp1_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_low_sparse_sep_readout | `two_module_rnn_50_low_sparse_sep_readout_nb1_shared_sp0.3_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_sp05_sep_readout | `two_module_rnn_50_sp05_sep_readout_nb1_shared_sp0.5_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_sp07_sep_readout | `two_module_rnn_50_sp07_sep_readout_nb1_shared_sp0.7_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_no_comms | `two_module_rnn_50_no_comms_nb1_shared_sp0_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_task_routed_no_comms | `two_module_rnn_50_task_routed_no_comms_nb1_task_routed_sp0_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| single_module_rnn_50 | `single_module_rnn_50_nb1_shared_sp1_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_nb2 | `two_module_rnn_50_nb2_nb2_shared_sp1.0_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_nb2_init0.1 | `two_module_rnn_50_nb2_init0.1_nb2_shared_sp1.0_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_nb2_init0.01 | `two_module_rnn_50_nb2_init0.01_nb2_shared_sp1.0_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_nb2_init0.001 | `two_module_rnn_50_nb2_init0.001_nb2_shared_sp1.0_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_nb2_init10 | `two_module_rnn_50_nb2_init10_nb2_shared_sp1.0_sep_cr_RNN_init10` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_low_sparse_nb2 | `two_module_rnn_50_low_sparse_nb2_nb2_shared_sp0.3_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_task_routed_nb2 | `two_module_rnn_50_task_routed_nb2_nb2_task_routed_sp1_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_task_routed_nb2_init0.1 | `two_module_rnn_50_task_routed_nb2_init0.1_nb2_task_routed_sp1_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_task_routed_nb2_init0.01 | `two_module_rnn_50_task_routed_nb2_init0.01_nb2_task_routed_sp1_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_task_routed_nb2_init0.001 | `two_module_rnn_50_task_routed_nb2_init0.001_nb2_task_routed_sp1_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_task_routed_nb2_init10 | `two_module_rnn_50_task_routed_nb2_init10_nb2_task_routed_sp1_sep_cr_RNN_init10` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_task_routed_low_sparse_nb2 | `two_module_rnn_50_task_routed_low_sparse_nb2_nb2_task_routed_sp0.3_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_sp05_nb2 | `two_module_rnn_50_sp05_nb2_nb2_shared_sp0.5_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_sp05_nb2_init0.1 | `two_module_rnn_50_sp05_nb2_init0.1_nb2_shared_sp0.5_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_sp05_nb2_init0.01 | `two_module_rnn_50_sp05_nb2_init0.01_nb2_shared_sp0.5_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_sp05_nb2_init0.001 | `two_module_rnn_50_sp05_nb2_init0.001_nb2_shared_sp0.5_sep_cr_RNN_init0.001` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_sp05_nb2 | `two_module_rnn_50_task_routed_sp05_nb2_nb2_task_routed_sp0.5_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_task_routed_sp05_nb2_init0.1 | `two_module_rnn_50_task_routed_sp05_nb2_init0.1_nb2_task_routed_sp0.5_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_task_routed_sp05_nb2_init0.01 | `two_module_rnn_50_task_routed_sp05_nb2_init0.01_nb2_task_routed_sp0.5_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_task_routed_sp05_nb2_init0.001 | `two_module_rnn_50_task_routed_sp05_nb2_init0.001_nb2_task_routed_sp0.5_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_task_routed_sp05_nb2_init10 | `two_module_rnn_50_task_routed_sp05_nb2_init10_nb2_task_routed_sp0.5_sep_cr_RNN_init10` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_sp07_nb2 | `two_module_rnn_50_sp07_nb2_nb2_shared_sp0.7_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_sp07_nb2 | `two_module_rnn_50_task_routed_sp07_nb2_nb2_task_routed_sp0.7_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_sep_readout_nb2 | `two_module_rnn_50_sep_readout_nb2_nb2_shared_sp1_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_low_sparse_sep_readout_nb2 | `two_module_rnn_50_low_sparse_sep_readout_nb2_nb2_shared_sp0.3_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_sp05_sep_readout_nb2 | `two_module_rnn_50_sp05_sep_readout_nb2_nb2_shared_sp0.5_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_sp07_sep_readout_nb2 | `two_module_rnn_50_sp07_sep_readout_nb2_nb2_shared_sp0.7_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_sep_readout_nb2 | `two_module_rnn_50_task_routed_sep_readout_nb2_nb2_task_routed_sp1_sep_pr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_task_routed_low_sparse_sep_readout_nb2 | `two_module_rnn_50_task_routed_low_sparse_sep_readout_nb2_nb2_task_routed_sp0.3_sep_pr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_task_routed_sp07_sep_readout_nb2 | `two_module_rnn_50_task_routed_sp07_sep_readout_nb2_nb2_task_routed_sp0.7_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_no_comms_nb2 | `two_module_rnn_50_no_comms_nb2_nb2_shared_sp0_sep_cr_RNN` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_no_comms_nb2_init0.1 | `two_module_rnn_50_no_comms_nb2_init0.1_nb2_shared_sp0_sep_cr_RNN_init0.1` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_no_comms_nb2_init0.01 | `two_module_rnn_50_no_comms_nb2_init0.01_nb2_shared_sp0_sep_cr_RNN_init0.01` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_no_comms_nb2_init0.001 | `two_module_rnn_50_no_comms_nb2_init0.001_nb2_shared_sp0_sep_cr_RNN_init0.001` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_task_routed_no_comms_nb2 | `two_module_rnn_50_task_routed_no_comms_nb2_nb2_task_routed_sp0_sep_cr_RNN` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_task_routed_no_comms_nb2_init0.1 | `two_module_rnn_50_task_routed_no_comms_nb2_init0.1_nb2_task_routed_sp0_sep_cr_RNN_init0.1` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_task_routed_no_comms_nb2_init0.01 | `two_module_rnn_50_task_routed_no_comms_nb2_init0.01_nb2_task_routed_sp0_sep_cr_RNN_init0.01` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_task_routed_no_comms_nb2_init0.001 | `two_module_rnn_50_task_routed_no_comms_nb2_init0.001_nb2_task_routed_sp0_sep_cr_RNN_init0.001` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_50_nb2 | `single_module_rnn_50_nb2_nb2_shared_sp1_sep_cr_RNN` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_50_nb2_nl2 | `single_module_rnn_50_nb2_nl2_nb2_shared_sp1_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| single_module_rnn_50_nb2_nl3 | `single_module_rnn_50_nb2_nl3_nb2_shared_sp1_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| single_module_rnn_50_nb2_init0.1 | `single_module_rnn_50_nb2_init0.1_nb2_shared_sp1_sep_cr_RNN_init0.1` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_50_nb2_init0.1_nl2 | `single_module_rnn_50_nb2_init0.1_nl2_nb2_shared_sp1_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| single_module_rnn_50_nb2_init0.1_nl3 | `single_module_rnn_50_nb2_init0.1_nl3_nb2_shared_sp1_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| single_module_rnn_50_nb2_init0.01 | `single_module_rnn_50_nb2_init0.01_nb2_shared_sp1_sep_cr_RNN_init0.01` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_50_nb2_init0.01_nl2 | `single_module_rnn_50_nb2_init0.01_nl2_nb2_shared_sp1_sep_cr_RNN_init0.01` | ablation | No | No | missing | no folder found in either root |
+| single_module_rnn_50_nb2_init0.01_nl3 | `single_module_rnn_50_nb2_init0.01_nl3_nb2_shared_sp1_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| single_module_rnn_50_nb2_init0.001 | `single_module_rnn_50_nb2_init0.001_nb2_shared_sp1_sep_cr_RNN_init0.001` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_50_nb2_init0.001_gru | `single_module_rnn_50_nb2_init0.001_gru_nb2_shared_sp1_sep_cr_GRU_init0.001` | ablation | No | No | missing | no folder found in either root |
+| single_module_rnn_50_nb2_init0.001_nl2 | `single_module_rnn_50_nb2_init0.001_nl2_nb2_shared_sp1_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| single_module_rnn_50_nb2_init0.001_nl3 | `single_module_rnn_50_nb2_init0.001_nl3_nb2_shared_sp1_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| single_module_rnn_50_nb2_init0.001_nl2_drop0.1 | `single_module_rnn_50_nb2_init0.001_nl2_drop0.1_nb2_shared_sp1_sep_cr_RNN_init0.001` | ablation | No | No | missing | no folder found in either root |
+| single_module_rnn_50_nb2_init0.001_nl3_drop0.1 | `single_module_rnn_50_nb2_init0.001_nl3_drop0.1_nb2_shared_sp1_sep_cr_RNN_init0.001` | ablation | No | No | missing | no folder found in either root |
+| single_module_rnn_50_nb2_init0.0001 | `single_module_rnn_50_nb2_init0.0001_nb2_shared_sp1_sep_cr_RNN_init0.0001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_ablation_common_input | `two_module_rnn_50_ablation_common_input` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_ablation_common_input | `two_module_rnn_50_task_routed_ablation_common_input_nb1_task_routed_sp1_ci_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25 | `two_module_rnn_25_nb1_shared_sp1.0_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_low_sparse | `two_module_rnn_25_low_sparse_nb1_shared_sp0.3_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed | `two_module_rnn_25_task_routed_nb1_task_routed_sp1_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_low_sparse | `two_module_rnn_25_task_routed_low_sparse_nb1_task_routed_sp0.3_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_sp05 | `two_module_rnn_25_sp05_nb1_shared_sp0.5_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_sp07 | `two_module_rnn_25_sp07_nb1_shared_sp0.7_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp05 | `two_module_rnn_25_task_routed_sp05_nb1_task_routed_sp0.5_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_sp07 | `two_module_rnn_25_task_routed_sp07_nb1_task_routed_sp0.7_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sep_readout | `two_module_rnn_25_sep_readout_nb1_shared_sp1_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_low_sparse_sep_readout | `two_module_rnn_25_low_sparse_sep_readout_nb1_shared_sp0.3_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_sp05_sep_readout | `two_module_rnn_25_sp05_sep_readout_nb1_shared_sp0.5_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_sp07_sep_readout | `two_module_rnn_25_sp07_sep_readout_nb1_shared_sp0.7_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_no_comms | `two_module_rnn_25_no_comms_nb1_shared_sp0_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_no_comms | `two_module_rnn_25_task_routed_no_comms_nb1_task_routed_sp0_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| single_module_rnn_25 | `single_module_rnn_25_nb1_shared_sp1_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_nb2 | `two_module_rnn_25_nb2_nb2_shared_sp1.0_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_low_sparse_nb2 | `two_module_rnn_25_low_sparse_nb2_nb2_shared_sp0.3_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_nb2_init0.1 | `two_module_rnn_25_nb2_init0.1_nb2_shared_sp1.0_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_nb2_init0.5 | `two_module_rnn_25_nb2_init0.5_nb2_shared_sp1.0_sep_cr_RNN_init0.5` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_nb2_init0.7 | `two_module_rnn_25_nb2_init0.7_nb2_shared_sp1.0_sep_cr_RNN_init0.7` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_nb2_init0.01 | `two_module_rnn_25_nb2_init0.01_nb2_shared_sp1.0_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_nb2_init0.001 | `two_module_rnn_25_nb2_init0.001_nb2_shared_sp1.0_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_nb2 | `two_module_rnn_25_task_routed_nb2_nb2_task_routed_sp1_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_low_sparse_nb2 | `two_module_rnn_25_task_routed_low_sparse_nb2_nb2_task_routed_sp0.3_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp05_nb2 | `two_module_rnn_25_sp05_nb2_nb2_shared_sp0.5_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp07_nb2 | `two_module_rnn_25_sp07_nb2_nb2_shared_sp0.7_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp05_nb2 | `two_module_rnn_25_task_routed_sp05_nb2_nb2_task_routed_sp0.5_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp07_nb2 | `two_module_rnn_25_task_routed_sp07_nb2_nb2_task_routed_sp0.7_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp01_nb2 | `two_module_rnn_25_sp01_nb2_nb2_shared_sp0.1_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp01_nb2 | `two_module_rnn_25_task_routed_sp01_nb2_nb2_task_routed_sp0.1_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp09_nb2 | `two_module_rnn_25_sp09_nb2_nb2_shared_sp0.9_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp09_nb2 | `two_module_rnn_25_task_routed_sp09_nb2_nb2_task_routed_sp0.9_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sep_readout_nb2 | `two_module_rnn_25_sep_readout_nb2_nb2_shared_sp1_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_low_sparse_sep_readout_nb2 | `two_module_rnn_25_low_sparse_sep_readout_nb2_nb2_shared_sp0.3_sep_pr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp05_sep_readout_nb2 | `two_module_rnn_25_sp05_sep_readout_nb2_nb2_shared_sp0.5_sep_pr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp07_sep_readout_nb2 | `two_module_rnn_25_sp07_sep_readout_nb2_nb2_shared_sp0.7_sep_pr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sep_readout_nb2 | `two_module_rnn_25_task_routed_sep_readout_nb2_nb2_task_routed_sp1_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_low_sparse_sep_readout_nb2 | `two_module_rnn_25_task_routed_low_sparse_sep_readout_nb2_nb2_task_routed_sp0.3_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_sp07_sep_readout_nb2 | `two_module_rnn_25_task_routed_sp07_sep_readout_nb2_nb2_task_routed_sp0.7_sep_pr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_no_comms_nb2 | `two_module_rnn_25_no_comms_nb2_nb2_shared_sp0_sep_cr_RNN` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_task_routed_no_comms_nb2 | `two_module_rnn_25_task_routed_no_comms_nb2_nb2_task_routed_sp0_sep_cr_RNN` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_task_routed_no_comms_nb2_nl2 | `two_module_rnn_25_task_routed_no_comms_nb2_nl2_nb2_task_routed_sp0_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_no_comms_nb2_nl3 | `two_module_rnn_25_task_routed_no_comms_nb2_nl3_nb2_task_routed_sp0_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| single_module_rnn_25_nb2 | `single_module_rnn_25_nb2_nb2_shared_sp1_sep_cr_RNN` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_low_sparse_nb2_init0.1 | `two_module_rnn_25_low_sparse_nb2_init0.1_nb2_shared_sp0.3_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_low_sparse_nb2_init0.5 | `two_module_rnn_25_low_sparse_nb2_init0.5_nb2_shared_sp0.3_sep_cr_RNN_init0.5` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_low_sparse_nb2_init0.7 | `two_module_rnn_25_low_sparse_nb2_init0.7_nb2_shared_sp0.3_sep_cr_RNN_init0.7` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_low_sparse_nb2_init0.01 | `two_module_rnn_25_low_sparse_nb2_init0.01_nb2_shared_sp0.3_sep_cr_RNN_init0.01` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_nb2_init0.1 | `two_module_rnn_25_task_routed_nb2_init0.1_nb2_task_routed_sp1_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_nb2_init0.5 | `two_module_rnn_25_task_routed_nb2_init0.5_nb2_task_routed_sp1_sep_cr_RNN_init0.5` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_nb2_init0.7 | `two_module_rnn_25_task_routed_nb2_init0.7_nb2_task_routed_sp1_sep_cr_RNN_init0.7` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_nb2_init0.01 | `two_module_rnn_25_task_routed_nb2_init0.01_nb2_task_routed_sp1_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_nb2_init0.001 | `two_module_rnn_25_task_routed_nb2_init0.001_nb2_task_routed_sp1_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_low_sparse_nb2_init0.1 | `two_module_rnn_25_task_routed_low_sparse_nb2_init0.1_nb2_task_routed_sp0.3_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_low_sparse_nb2_init0.5 | `two_module_rnn_25_task_routed_low_sparse_nb2_init0.5_nb2_task_routed_sp0.3_sep_cr_RNN_init0.5` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_low_sparse_nb2_init0.7 | `two_module_rnn_25_task_routed_low_sparse_nb2_init0.7_nb2_task_routed_sp0.3_sep_cr_RNN_init0.7` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_low_sparse_nb2_init0.01 | `two_module_rnn_25_task_routed_low_sparse_nb2_init0.01_nb2_task_routed_sp0.3_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp05_nb2_init0.1 | `two_module_rnn_25_sp05_nb2_init0.1_nb2_shared_sp0.5_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp05_nb2_init0.5 | `two_module_rnn_25_sp05_nb2_init0.5_nb2_shared_sp0.5_sep_cr_RNN_init0.5` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp05_nb2_init0.7 | `two_module_rnn_25_sp05_nb2_init0.7_nb2_shared_sp0.5_sep_cr_RNN_init0.7` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp05_nb2_init0.01 | `two_module_rnn_25_sp05_nb2_init0.01_nb2_shared_sp0.5_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp05_nb2_init0.001 | `two_module_rnn_25_sp05_nb2_init0.001_nb2_shared_sp0.5_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp07_nb2_init0.1 | `two_module_rnn_25_sp07_nb2_init0.1_nb2_shared_sp0.7_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp07_nb2_init0.5 | `two_module_rnn_25_sp07_nb2_init0.5_nb2_shared_sp0.7_sep_cr_RNN_init0.5` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp07_nb2_init0.7 | `two_module_rnn_25_sp07_nb2_init0.7_nb2_shared_sp0.7_sep_cr_RNN_init0.7` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp07_nb2_init0.01 | `two_module_rnn_25_sp07_nb2_init0.01_nb2_shared_sp0.7_sep_cr_RNN_init0.01` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_sp05_nb2_init0.1 | `two_module_rnn_25_task_routed_sp05_nb2_init0.1_nb2_task_routed_sp0.5_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp05_nb2_init0.5 | `two_module_rnn_25_task_routed_sp05_nb2_init0.5_nb2_task_routed_sp0.5_sep_cr_RNN_init0.5` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp05_nb2_init0.7 | `two_module_rnn_25_task_routed_sp05_nb2_init0.7_nb2_task_routed_sp0.5_sep_cr_RNN_init0.7` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp05_nb2_init0.01 | `two_module_rnn_25_task_routed_sp05_nb2_init0.01_nb2_task_routed_sp0.5_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp05_nb2_init0.001 | `two_module_rnn_25_task_routed_sp05_nb2_init0.001_nb2_task_routed_sp0.5_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp07_nb2_init0.1 | `two_module_rnn_25_task_routed_sp07_nb2_init0.1_nb2_task_routed_sp0.7_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp07_nb2_init0.5 | `two_module_rnn_25_task_routed_sp07_nb2_init0.5_nb2_task_routed_sp0.7_sep_cr_RNN_init0.5` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp07_nb2_init0.7 | `two_module_rnn_25_task_routed_sp07_nb2_init0.7_nb2_task_routed_sp0.7_sep_cr_RNN_init0.7` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp07_nb2_init0.01 | `two_module_rnn_25_task_routed_sp07_nb2_init0.01_nb2_task_routed_sp0.7_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp01_nb2_init0.1 | `two_module_rnn_25_sp01_nb2_init0.1_nb2_shared_sp0.1_sep_cr_RNN_init0.1` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_sp01_nb2_init0.5 | `two_module_rnn_25_sp01_nb2_init0.5_nb2_shared_sp0.1_sep_cr_RNN_init0.5` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_sp01_nb2_init0.7 | `two_module_rnn_25_sp01_nb2_init0.7_nb2_shared_sp0.1_sep_cr_RNN_init0.7` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_sp01_nb2_init0.01 | `two_module_rnn_25_sp01_nb2_init0.01_nb2_shared_sp0.1_sep_cr_RNN_init0.01` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_sp01_nb2_init0.1 | `two_module_rnn_25_task_routed_sp01_nb2_init0.1_nb2_task_routed_sp0.1_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp01_nb2_init0.5 | `two_module_rnn_25_task_routed_sp01_nb2_init0.5_nb2_task_routed_sp0.1_sep_cr_RNN_init0.5` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp01_nb2_init0.7 | `two_module_rnn_25_task_routed_sp01_nb2_init0.7_nb2_task_routed_sp0.1_sep_cr_RNN_init0.7` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_sp01_nb2_init0.01 | `two_module_rnn_25_task_routed_sp01_nb2_init0.01_nb2_task_routed_sp0.1_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp09_nb2_init0.1 | `two_module_rnn_25_sp09_nb2_init0.1_nb2_shared_sp0.9_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp09_nb2_init0.5 | `two_module_rnn_25_sp09_nb2_init0.5_nb2_shared_sp0.9_sep_cr_RNN_init0.5` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp09_nb2_init0.7 | `two_module_rnn_25_sp09_nb2_init0.7_nb2_shared_sp0.9_sep_cr_RNN_init0.7` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp09_nb2_init0.01 | `two_module_rnn_25_sp09_nb2_init0.01_nb2_shared_sp0.9_sep_cr_RNN_init0.01` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_sp09_nb2_init0.1 | `two_module_rnn_25_task_routed_sp09_nb2_init0.1_nb2_task_routed_sp0.9_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp09_nb2_init0.5 | `two_module_rnn_25_task_routed_sp09_nb2_init0.5_nb2_task_routed_sp0.9_sep_cr_RNN_init0.5` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp09_nb2_init0.7 | `two_module_rnn_25_task_routed_sp09_nb2_init0.7_nb2_task_routed_sp0.9_sep_cr_RNN_init0.7` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp09_nb2_init0.01 | `two_module_rnn_25_task_routed_sp09_nb2_init0.01_nb2_task_routed_sp0.9_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_no_comms_nb2_init0.1 | `two_module_rnn_25_no_comms_nb2_init0.1_nb2_shared_sp0_sep_cr_RNN_init0.1` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_no_comms_nb2_init0.5 | `two_module_rnn_25_no_comms_nb2_init0.5_nb2_shared_sp0_sep_cr_RNN_init0.5` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_no_comms_nb2_init0.7 | `two_module_rnn_25_no_comms_nb2_init0.7_nb2_shared_sp0_sep_cr_RNN_init0.7` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_no_comms_nb2_init0.01 | `two_module_rnn_25_no_comms_nb2_init0.01_nb2_shared_sp0_sep_cr_RNN_init0.01` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_no_comms_nb2_init0.001 | `two_module_rnn_25_no_comms_nb2_init0.001_nb2_shared_sp0_sep_cr_RNN_init0.001` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_no_comms_nb2_init0.001_pr | `two_module_rnn_25_no_comms_nb2_init0.001_pr_nb2_shared_sp0_sep_pr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.1 | `two_module_rnn_25_task_routed_no_comms_nb2_init0.1_nb2_task_routed_sp0_sep_cr_RNN_init0.1` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.1_nl2 | `two_module_rnn_25_task_routed_no_comms_nb2_init0.1_nl2_nb2_task_routed_sp0_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.1_nl3 | `two_module_rnn_25_task_routed_no_comms_nb2_init0.1_nl3_nb2_task_routed_sp0_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.5 | `two_module_rnn_25_task_routed_no_comms_nb2_init0.5_nb2_task_routed_sp0_sep_cr_RNN_init0.5` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.7 | `two_module_rnn_25_task_routed_no_comms_nb2_init0.7_nb2_task_routed_sp0_sep_cr_RNN_init0.7` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.01 | `two_module_rnn_25_task_routed_no_comms_nb2_init0.01_nb2_task_routed_sp0_sep_cr_RNN_init0.01` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.01_nl2 | `two_module_rnn_25_task_routed_no_comms_nb2_init0.01_nl2_nb2_task_routed_sp0_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.01_nl3 | `two_module_rnn_25_task_routed_no_comms_nb2_init0.01_nl3_nb2_task_routed_sp0_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.001 | `two_module_rnn_25_task_routed_no_comms_nb2_init0.001_nb2_task_routed_sp0_sep_cr_RNN_init0.001` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.001_pr | `two_module_rnn_25_task_routed_no_comms_nb2_init0.001_pr_nb2_task_routed_sp0_sep_pr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.001_gru | `two_module_rnn_25_task_routed_no_comms_nb2_init0.001_gru_nb2_task_routed_sp0_sep_cr_GRU_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.001_nl2 | `two_module_rnn_25_task_routed_no_comms_nb2_init0.001_nl2_nb2_task_routed_sp0_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.001_nl3 | `two_module_rnn_25_task_routed_no_comms_nb2_init0.001_nl3_nb2_task_routed_sp0_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.001_nl2_drop0.1 | `two_module_rnn_25_task_routed_no_comms_nb2_init0.001_nl2_drop0.1_nb2_task_routed_sp0_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.001_nl3_drop0.1 | `two_module_rnn_25_task_routed_no_comms_nb2_init0.001_nl3_drop0.1_nb2_task_routed_sp0_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.0001 | `two_module_rnn_25_task_routed_no_comms_nb2_init0.0001_nb2_task_routed_sp0_sep_cr_RNN_init0.0001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_no_comms_nb2_input_only | `two_module_rnn_25_no_comms_nb2_input_only_nb2_shared_sp0.0_sep_cr_RNN_init1.0_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_no_comms_nb2_init0.1_input_only | `two_module_rnn_25_no_comms_nb2_init0.1_input_only_nb2_shared_sp0.0_sep_cr_RNN_init0.1_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_no_comms_nb2_init0.01_input_only | `two_module_rnn_25_no_comms_nb2_init0.01_input_only_nb2_shared_sp0.0_sep_cr_RNN_init0.01_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_sp05_nb2_input_only | `two_module_rnn_25_sp05_nb2_input_only_nb2_shared_sp0.5_sep_cr_RNN_init1.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_sp05_nb2_init0.1_input_only | `two_module_rnn_25_sp05_nb2_init0.1_input_only_nb2_shared_sp0.5_sep_cr_RNN_init0.1_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_sp05_nb2_init0.01_input_only | `two_module_rnn_25_sp05_nb2_init0.01_input_only_nb2_shared_sp0.5_sep_cr_RNN_init0.01_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_nb2_input_only | `two_module_rnn_25_nb2_input_only_nb2_shared_sp1.0_sep_cr_RNN_init1.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_nb2_init0.1_input_only | `two_module_rnn_25_nb2_init0.1_input_only_nb2_shared_sp1.0_sep_cr_RNN_init0.1_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_nb2_init0.01_input_only | `two_module_rnn_25_nb2_init0.01_input_only_nb2_shared_sp1.0_sep_cr_RNN_init0.01_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_no_comms_nb2_input_only | `two_module_rnn_25_task_routed_no_comms_nb2_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init1.0_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.1_input_only | `two_module_rnn_25_task_routed_no_comms_nb2_init0.1_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init0.1_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.01_input_only | `two_module_rnn_25_task_routed_no_comms_nb2_init0.01_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init0.01_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_task_routed_sp05_nb2_input_only | `two_module_rnn_25_task_routed_sp05_nb2_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init1.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_sp05_nb2_init0.1_input_only | `two_module_rnn_25_task_routed_sp05_nb2_init0.1_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init0.1_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_sp05_nb2_init0.01_input_only | `two_module_rnn_25_task_routed_sp05_nb2_init0.01_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init0.01_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_nb2_input_only | `two_module_rnn_25_task_routed_nb2_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init1.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_nb2_init0.1_input_only | `two_module_rnn_25_task_routed_nb2_init0.1_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init0.1_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_nb2_init0.01_input_only | `two_module_rnn_25_task_routed_nb2_init0.01_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init0.01_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| single_module_rnn_25_nb2_init0.1 | `single_module_rnn_25_nb2_init0.1_nb2_shared_sp1_sep_cr_RNN_init0.1` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_25_nb2_init0.01 | `single_module_rnn_25_nb2_init0.01_nb2_shared_sp1_sep_cr_RNN_init0.01` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_25_nb2_init0.001 | `single_module_rnn_25_nb2_init0.001_nb2_shared_sp1_sep_cr_RNN_init0.001` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_nb2 | `two_module_rnn_12_nb2_nb2_shared_sp1.0_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_nb2_init0.1 | `two_module_rnn_12_nb2_init0.1_nb2_shared_sp1.0_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_nb2_init0.01 | `two_module_rnn_12_nb2_init0.01_nb2_shared_sp1.0_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_nb2_init0.001 | `two_module_rnn_12_nb2_init0.001_nb2_shared_sp1.0_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_task_routed_nb2 | `two_module_rnn_12_task_routed_nb2_nb2_task_routed_sp1_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_task_routed_nb2_init0.1 | `two_module_rnn_12_task_routed_nb2_init0.1_nb2_task_routed_sp1_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_task_routed_nb2_init0.01 | `two_module_rnn_12_task_routed_nb2_init0.01_nb2_task_routed_sp1_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_task_routed_nb2_init0.001 | `two_module_rnn_12_task_routed_nb2_init0.001_nb2_task_routed_sp1_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_sp05_nb2 | `two_module_rnn_12_sp05_nb2_nb2_shared_sp0.5_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_sp05_nb2_init0.1 | `two_module_rnn_12_sp05_nb2_init0.1_nb2_shared_sp0.5_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_sp05_nb2_init0.01 | `two_module_rnn_12_sp05_nb2_init0.01_nb2_shared_sp0.5_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_sp05_nb2_init0.001 | `two_module_rnn_12_sp05_nb2_init0.001_nb2_shared_sp0.5_sep_cr_RNN_init0.001` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_task_routed_sp05_nb2 | `two_module_rnn_12_task_routed_sp05_nb2_nb2_task_routed_sp0.5_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_task_routed_sp05_nb2_init0.1 | `two_module_rnn_12_task_routed_sp05_nb2_init0.1_nb2_task_routed_sp0.5_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_task_routed_sp05_nb2_init0.01 | `two_module_rnn_12_task_routed_sp05_nb2_init0.01_nb2_task_routed_sp0.5_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_task_routed_sp05_nb2_init0.001 | `two_module_rnn_12_task_routed_sp05_nb2_init0.001_nb2_task_routed_sp0.5_sep_cr_RNN_init0.001` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_no_comms_nb2 | `two_module_rnn_12_no_comms_nb2_nb2_shared_sp0_sep_cr_RNN` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_no_comms_nb2_init0.1 | `two_module_rnn_12_no_comms_nb2_init0.1_nb2_shared_sp0_sep_cr_RNN_init0.1` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_no_comms_nb2_init0.01 | `two_module_rnn_12_no_comms_nb2_init0.01_nb2_shared_sp0_sep_cr_RNN_init0.01` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_no_comms_nb2_init0.001 | `two_module_rnn_12_no_comms_nb2_init0.001_nb2_shared_sp0_sep_cr_RNN_init0.001` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_task_routed_no_comms_nb2 | `two_module_rnn_12_task_routed_no_comms_nb2_nb2_task_routed_sp0_sep_cr_RNN` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_task_routed_no_comms_nb2_init0.1 | `two_module_rnn_12_task_routed_no_comms_nb2_init0.1_nb2_task_routed_sp0_sep_cr_RNN_init0.1` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_task_routed_no_comms_nb2_init0.01 | `two_module_rnn_12_task_routed_no_comms_nb2_init0.01_nb2_task_routed_sp0_sep_cr_RNN_init0.01` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_task_routed_no_comms_nb2_init0.001 | `two_module_rnn_12_task_routed_no_comms_nb2_init0.001_nb2_task_routed_sp0_sep_cr_RNN_init0.001` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_12_nb2_init0.001 | `single_module_rnn_12_nb2_init0.001_nb2_shared_sp1_sep_cr_RNN_init0.001` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_12_nb2_init0.01 | `single_module_rnn_12_nb2_init0.01_nb2_shared_sp1_sep_cr_RNN_init0.01` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_12_nb2_init0.1 | `single_module_rnn_12_nb2_init0.1_nb2_shared_sp1_sep_cr_RNN_init0.1` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_12_nb2 | `single_module_rnn_12_nb2_nb2_shared_sp1_sep_cr_RNN` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_no_comms_nb2_input_only | `two_module_rnn_12_no_comms_nb2_input_only_nb2_shared_sp0.0_sep_cr_RNN_init1.0_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_no_comms_nb2_init0.1_input_only | `two_module_rnn_12_no_comms_nb2_init0.1_input_only_nb2_shared_sp0.0_sep_cr_RNN_init0.1_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_no_comms_nb2_init0.01_input_only | `two_module_rnn_12_no_comms_nb2_init0.01_input_only_nb2_shared_sp0.0_sep_cr_RNN_init0.01_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_sp05_nb2_input_only | `two_module_rnn_12_sp05_nb2_input_only_nb2_shared_sp0.5_sep_cr_RNN_init1.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_sp05_nb2_init0.1_input_only | `two_module_rnn_12_sp05_nb2_init0.1_input_only_nb2_shared_sp0.5_sep_cr_RNN_init0.1_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_sp05_nb2_init0.01_input_only | `two_module_rnn_12_sp05_nb2_init0.01_input_only_nb2_shared_sp0.5_sep_cr_RNN_init0.01_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_nb2_input_only | `two_module_rnn_12_nb2_input_only_nb2_shared_sp1.0_sep_cr_RNN_init1.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_nb2_init0.1_input_only | `two_module_rnn_12_nb2_init0.1_input_only_nb2_shared_sp1.0_sep_cr_RNN_init0.1_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_nb2_init0.01_input_only | `two_module_rnn_12_nb2_init0.01_input_only_nb2_shared_sp1.0_sep_cr_RNN_init0.01_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_task_routed_no_comms_nb2_input_only | `two_module_rnn_12_task_routed_no_comms_nb2_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init1.0_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_task_routed_no_comms_nb2_init0.1_input_only | `two_module_rnn_12_task_routed_no_comms_nb2_init0.1_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init0.1_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_task_routed_no_comms_nb2_init0.01_input_only | `two_module_rnn_12_task_routed_no_comms_nb2_init0.01_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init0.01_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_task_routed_sp05_nb2_input_only | `two_module_rnn_12_task_routed_sp05_nb2_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init1.0_initscopeinput_only` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_task_routed_sp05_nb2_init0.1_input_only | `two_module_rnn_12_task_routed_sp05_nb2_init0.1_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init0.1_initscopeinput_only` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_task_routed_sp05_nb2_init0.01_input_only | `two_module_rnn_12_task_routed_sp05_nb2_init0.01_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init0.01_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_task_routed_nb2_input_only | `two_module_rnn_12_task_routed_nb2_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init1.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_task_routed_nb2_init0.1_input_only | `two_module_rnn_12_task_routed_nb2_init0.1_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init0.1_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_task_routed_nb2_init0.01_input_only | `two_module_rnn_12_task_routed_nb2_init0.01_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init0.01_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_ablation_common_input | `two_module_rnn_25_ablation_common_input` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_ablation_common_input | `two_module_rnn_25_task_routed_ablation_common_input_nb1_task_routed_sp1_ci_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6 | `two_module_rnn_6_nb1_shared_sp1.0_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_low_sparse | `two_module_rnn_6_low_sparse_nb1_shared_sp0.3_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed | `two_module_rnn_6_task_routed_nb1_task_routed_sp1_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_low_sparse | `two_module_rnn_6_task_routed_low_sparse_nb1_task_routed_sp0.3_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp05 | `two_module_rnn_6_sp05_nb1_shared_sp0.5_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp07 | `two_module_rnn_6_sp07_nb1_shared_sp0.7_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp05 | `two_module_rnn_6_task_routed_sp05_nb1_task_routed_sp0.5_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp07 | `two_module_rnn_6_task_routed_sp07_nb1_task_routed_sp0.7_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sep_readout | `two_module_rnn_6_sep_readout_nb1_shared_sp1_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_low_sparse_sep_readout | `two_module_rnn_6_low_sparse_sep_readout_nb1_shared_sp0.3_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp05_sep_readout | `two_module_rnn_6_sp05_sep_readout_nb1_shared_sp0.5_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp07_sep_readout | `two_module_rnn_6_sp07_sep_readout_nb1_shared_sp0.7_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_no_comms | `two_module_rnn_6_no_comms_nb1_shared_sp0_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_no_comms | `two_module_rnn_6_task_routed_no_comms_nb1_task_routed_sp0_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| single_module_rnn_6 | `single_module_rnn_6_nb1_shared_sp1_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_nb2 | `two_module_rnn_6_nb2_nb2_shared_sp1.0_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_6_low_sparse_nb2 | `two_module_rnn_6_low_sparse_nb2_nb2_shared_sp0.3_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_nb2_init0.1 | `two_module_rnn_6_nb2_init0.1_nb2_shared_sp1.0_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_6_nb2_init0.5 | `two_module_rnn_6_nb2_init0.5_nb2_shared_sp1.0_sep_cr_RNN_init0.5` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_nb2_init0.7 | `two_module_rnn_6_nb2_init0.7_nb2_shared_sp1.0_sep_cr_RNN_init0.7` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_nb2_init0.01 | `two_module_rnn_6_nb2_init0.01_nb2_shared_sp1.0_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_6_nb2_init0.001 | `two_module_rnn_6_nb2_init0.001_nb2_shared_sp1.0_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_6_task_routed_nb2 | `two_module_rnn_6_task_routed_nb2_nb2_task_routed_sp1_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_6_task_routed_low_sparse_nb2 | `two_module_rnn_6_task_routed_low_sparse_nb2_nb2_task_routed_sp0.3_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp05_nb2 | `two_module_rnn_6_sp05_nb2_nb2_shared_sp0.5_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_6_sp07_nb2 | `two_module_rnn_6_sp07_nb2_nb2_shared_sp0.7_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp05_nb2 | `two_module_rnn_6_task_routed_sp05_nb2_nb2_task_routed_sp0.5_sep_cr_RNN` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_6_task_routed_sp07_nb2 | `two_module_rnn_6_task_routed_sp07_nb2_nb2_task_routed_sp0.7_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp01_nb2 | `two_module_rnn_6_sp01_nb2_nb2_shared_sp0.1_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp01_nb2 | `two_module_rnn_6_task_routed_sp01_nb2_nb2_task_routed_sp0.1_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp09_nb2 | `two_module_rnn_6_sp09_nb2_nb2_shared_sp0.9_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp09_nb2 | `two_module_rnn_6_task_routed_sp09_nb2_nb2_task_routed_sp0.9_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sep_readout_nb2 | `two_module_rnn_6_sep_readout_nb2_nb2_shared_sp1_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_low_sparse_sep_readout_nb2 | `two_module_rnn_6_low_sparse_sep_readout_nb2_nb2_shared_sp0.3_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp05_sep_readout_nb2 | `two_module_rnn_6_sp05_sep_readout_nb2_nb2_shared_sp0.5_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp07_sep_readout_nb2 | `two_module_rnn_6_sp07_sep_readout_nb2_nb2_shared_sp0.7_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sep_readout_nb2 | `two_module_rnn_6_task_routed_sep_readout_nb2_nb2_task_routed_sp1_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_low_sparse_sep_readout_nb2 | `two_module_rnn_6_task_routed_low_sparse_sep_readout_nb2_nb2_task_routed_sp0.3_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp07_sep_readout_nb2 | `two_module_rnn_6_task_routed_sp07_sep_readout_nb2_nb2_task_routed_sp0.7_sep_pr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_no_comms_nb2 | `two_module_rnn_6_no_comms_nb2_nb2_shared_sp0_sep_cr_RNN` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_task_routed_no_comms_nb2 | `two_module_rnn_6_task_routed_no_comms_nb2_nb2_task_routed_sp0_sep_cr_RNN` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_6_nb2 | `single_module_rnn_6_nb2_nb2_shared_sp1_sep_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_low_sparse_nb2_init0.1 | `two_module_rnn_6_low_sparse_nb2_init0.1_nb2_shared_sp0.3_sep_cr_RNN_init0.1` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_low_sparse_nb2_init0.5 | `two_module_rnn_6_low_sparse_nb2_init0.5_nb2_shared_sp0.3_sep_cr_RNN_init0.5` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_low_sparse_nb2_init0.7 | `two_module_rnn_6_low_sparse_nb2_init0.7_nb2_shared_sp0.3_sep_cr_RNN_init0.7` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_low_sparse_nb2_init0.01 | `two_module_rnn_6_low_sparse_nb2_init0.01_nb2_shared_sp0.3_sep_cr_RNN_init0.01` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_nb2_init0.1 | `two_module_rnn_6_task_routed_nb2_init0.1_nb2_task_routed_sp1_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_6_task_routed_nb2_init0.5 | `two_module_rnn_6_task_routed_nb2_init0.5_nb2_task_routed_sp1_sep_cr_RNN_init0.5` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_nb2_init0.7 | `two_module_rnn_6_task_routed_nb2_init0.7_nb2_task_routed_sp1_sep_cr_RNN_init0.7` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_nb2_init0.01 | `two_module_rnn_6_task_routed_nb2_init0.01_nb2_task_routed_sp1_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_6_task_routed_nb2_init0.001 | `two_module_rnn_6_task_routed_nb2_init0.001_nb2_task_routed_sp1_sep_cr_RNN_init0.001` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_6_task_routed_low_sparse_nb2_init0.1 | `two_module_rnn_6_task_routed_low_sparse_nb2_init0.1_nb2_task_routed_sp0.3_sep_cr_RNN_init0.1` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_low_sparse_nb2_init0.5 | `two_module_rnn_6_task_routed_low_sparse_nb2_init0.5_nb2_task_routed_sp0.3_sep_cr_RNN_init0.5` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_low_sparse_nb2_init0.7 | `two_module_rnn_6_task_routed_low_sparse_nb2_init0.7_nb2_task_routed_sp0.3_sep_cr_RNN_init0.7` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_low_sparse_nb2_init0.01 | `two_module_rnn_6_task_routed_low_sparse_nb2_init0.01_nb2_task_routed_sp0.3_sep_cr_RNN_init0.01` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp05_nb2_init0.1 | `two_module_rnn_6_sp05_nb2_init0.1_nb2_shared_sp0.5_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_6_sp05_nb2_init0.5 | `two_module_rnn_6_sp05_nb2_init0.5_nb2_shared_sp0.5_sep_cr_RNN_init0.5` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp05_nb2_init0.7 | `two_module_rnn_6_sp05_nb2_init0.7_nb2_shared_sp0.5_sep_cr_RNN_init0.7` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp05_nb2_init0.01 | `two_module_rnn_6_sp05_nb2_init0.01_nb2_shared_sp0.5_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_6_sp05_nb2_init0.001 | `two_module_rnn_6_sp05_nb2_init0.001_nb2_shared_sp0.5_sep_cr_RNN_init0.001` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp07_nb2_init0.1 | `two_module_rnn_6_sp07_nb2_init0.1_nb2_shared_sp0.7_sep_cr_RNN_init0.1` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp07_nb2_init0.5 | `two_module_rnn_6_sp07_nb2_init0.5_nb2_shared_sp0.7_sep_cr_RNN_init0.5` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp07_nb2_init0.7 | `two_module_rnn_6_sp07_nb2_init0.7_nb2_shared_sp0.7_sep_cr_RNN_init0.7` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp07_nb2_init0.01 | `two_module_rnn_6_sp07_nb2_init0.01_nb2_shared_sp0.7_sep_cr_RNN_init0.01` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp05_nb2_init0.1 | `two_module_rnn_6_task_routed_sp05_nb2_init0.1_nb2_task_routed_sp0.5_sep_cr_RNN_init0.1` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_6_task_routed_sp05_nb2_init0.5 | `two_module_rnn_6_task_routed_sp05_nb2_init0.5_nb2_task_routed_sp0.5_sep_cr_RNN_init0.5` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp05_nb2_init0.7 | `two_module_rnn_6_task_routed_sp05_nb2_init0.7_nb2_task_routed_sp0.5_sep_cr_RNN_init0.7` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp05_nb2_init0.01 | `two_module_rnn_6_task_routed_sp05_nb2_init0.01_nb2_task_routed_sp0.5_sep_cr_RNN_init0.01` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_6_task_routed_sp05_nb2_init0.001 | `two_module_rnn_6_task_routed_sp05_nb2_init0.001_nb2_task_routed_sp0.5_sep_cr_RNN_init0.001` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp07_nb2_init0.1 | `two_module_rnn_6_task_routed_sp07_nb2_init0.1_nb2_task_routed_sp0.7_sep_cr_RNN_init0.1` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp07_nb2_init0.5 | `two_module_rnn_6_task_routed_sp07_nb2_init0.5_nb2_task_routed_sp0.7_sep_cr_RNN_init0.5` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp07_nb2_init0.7 | `two_module_rnn_6_task_routed_sp07_nb2_init0.7_nb2_task_routed_sp0.7_sep_cr_RNN_init0.7` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp07_nb2_init0.01 | `two_module_rnn_6_task_routed_sp07_nb2_init0.01_nb2_task_routed_sp0.7_sep_cr_RNN_init0.01` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp01_nb2_init0.1 | `two_module_rnn_6_sp01_nb2_init0.1_nb2_shared_sp0.1_sep_cr_RNN_init0.1` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp01_nb2_init0.5 | `two_module_rnn_6_sp01_nb2_init0.5_nb2_shared_sp0.1_sep_cr_RNN_init0.5` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp01_nb2_init0.7 | `two_module_rnn_6_sp01_nb2_init0.7_nb2_shared_sp0.1_sep_cr_RNN_init0.7` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp01_nb2_init0.01 | `two_module_rnn_6_sp01_nb2_init0.01_nb2_shared_sp0.1_sep_cr_RNN_init0.01` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp01_nb2_init0.1 | `two_module_rnn_6_task_routed_sp01_nb2_init0.1_nb2_task_routed_sp0.1_sep_cr_RNN_init0.1` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp01_nb2_init0.5 | `two_module_rnn_6_task_routed_sp01_nb2_init0.5_nb2_task_routed_sp0.1_sep_cr_RNN_init0.5` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp01_nb2_init0.7 | `two_module_rnn_6_task_routed_sp01_nb2_init0.7_nb2_task_routed_sp0.1_sep_cr_RNN_init0.7` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp01_nb2_init0.01 | `two_module_rnn_6_task_routed_sp01_nb2_init0.01_nb2_task_routed_sp0.1_sep_cr_RNN_init0.01` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp09_nb2_init0.1 | `two_module_rnn_6_sp09_nb2_init0.1_nb2_shared_sp0.9_sep_cr_RNN_init0.1` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp09_nb2_init0.5 | `two_module_rnn_6_sp09_nb2_init0.5_nb2_shared_sp0.9_sep_cr_RNN_init0.5` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp09_nb2_init0.7 | `two_module_rnn_6_sp09_nb2_init0.7_nb2_shared_sp0.9_sep_cr_RNN_init0.7` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp09_nb2_init0.01 | `two_module_rnn_6_sp09_nb2_init0.01_nb2_shared_sp0.9_sep_cr_RNN_init0.01` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp09_nb2_init0.1 | `two_module_rnn_6_task_routed_sp09_nb2_init0.1_nb2_task_routed_sp0.9_sep_cr_RNN_init0.1` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp09_nb2_init0.5 | `two_module_rnn_6_task_routed_sp09_nb2_init0.5_nb2_task_routed_sp0.9_sep_cr_RNN_init0.5` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp09_nb2_init0.7 | `two_module_rnn_6_task_routed_sp09_nb2_init0.7_nb2_task_routed_sp0.9_sep_cr_RNN_init0.7` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp09_nb2_init0.01 | `two_module_rnn_6_task_routed_sp09_nb2_init0.01_nb2_task_routed_sp0.9_sep_cr_RNN_init0.01` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_no_comms_nb2_init0.1 | `two_module_rnn_6_no_comms_nb2_init0.1_nb2_shared_sp0_sep_cr_RNN_init0.1` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_no_comms_nb2_init0.5 | `two_module_rnn_6_no_comms_nb2_init0.5_nb2_shared_sp0_sep_cr_RNN_init0.5` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_no_comms_nb2_init0.7 | `two_module_rnn_6_no_comms_nb2_init0.7_nb2_shared_sp0_sep_cr_RNN_init0.7` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_no_comms_nb2_init0.01 | `two_module_rnn_6_no_comms_nb2_init0.01_nb2_shared_sp0_sep_cr_RNN_init0.01` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_no_comms_nb2_init0.001 | `two_module_rnn_6_no_comms_nb2_init0.001_nb2_shared_sp0_sep_cr_RNN_init0.001` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_task_routed_no_comms_nb2_init0.1 | `two_module_rnn_6_task_routed_no_comms_nb2_init0.1_nb2_task_routed_sp0_sep_cr_RNN_init0.1` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_task_routed_no_comms_nb2_init0.5 | `two_module_rnn_6_task_routed_no_comms_nb2_init0.5_nb2_task_routed_sp0_sep_cr_RNN_init0.5` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_no_comms_nb2_init0.7 | `two_module_rnn_6_task_routed_no_comms_nb2_init0.7_nb2_task_routed_sp0_sep_cr_RNN_init0.7` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_no_comms_nb2_init0.01 | `two_module_rnn_6_task_routed_no_comms_nb2_init0.01_nb2_task_routed_sp0_sep_cr_RNN_init0.01` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_task_routed_no_comms_nb2_init0.001 | `two_module_rnn_6_task_routed_no_comms_nb2_init0.001_nb2_task_routed_sp0_sep_cr_RNN_init0.001` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_6_nb2_init0.1 | `single_module_rnn_6_nb2_init0.1_nb2_shared_sp1_sep_cr_RNN_init0.1` | ablation | No | No | missing | no folder found in either root |
+| single_module_rnn_6_nb2_init0.01 | `single_module_rnn_6_nb2_init0.01_nb2_shared_sp1_sep_cr_RNN_init0.01` | ablation | No | No | missing | no folder found in either root |
+| single_module_rnn_6_nb2_init0.001 | `single_module_rnn_6_nb2_init0.001_nb2_shared_sp1_sep_cr_RNN_init0.001` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_ablation_common_input | `two_module_rnn_6_ablation_common_input` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_ablation_common_input | `two_module_rnn_6_task_routed_ablation_common_input_nb1_task_routed_sp1_ci_cr_RNN` | ablation | No | No | missing | no folder found in either root |
+| single_module_rnn_6_nb2_init2 | `single_module_rnn_6_nb2_init2_nb2_shared_sp1_sep_cr_RNN_init2` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_nb2_init2 | `two_module_rnn_6_nb2_init2_nb2_shared_sp1.0_sep_cr_RNN_init2` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_6_sp05_nb2_init2 | `two_module_rnn_6_sp05_nb2_init2_nb2_shared_sp0.5_sep_cr_RNN_init2` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_no_comms_nb2_init2 | `two_module_rnn_6_no_comms_nb2_init2_nb2_shared_sp0_sep_cr_RNN_init2` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_task_routed_nb2_init2 | `two_module_rnn_6_task_routed_nb2_init2_nb2_task_routed_sp1.0_sep_cr_RNN_init2` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_6_task_routed_sp05_nb2_init2 | `two_module_rnn_6_task_routed_sp05_nb2_init2_nb2_task_routed_sp0.5_sep_cr_RNN_init2` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_no_comms_nb2_init2 | `two_module_rnn_6_task_routed_no_comms_nb2_init2_nb2_task_routed_sp0_sep_cr_RNN_init2` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_12_nb2_init2 | `single_module_rnn_12_nb2_init2_nb2_shared_sp1_sep_cr_RNN_init2` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_nb2_init2 | `two_module_rnn_12_nb2_init2_nb2_shared_sp1.0_sep_cr_RNN_init2` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_sp05_nb2_init2 | `two_module_rnn_12_sp05_nb2_init2_nb2_shared_sp0.5_sep_cr_RNN_init2` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_no_comms_nb2_init2 | `two_module_rnn_12_no_comms_nb2_init2_nb2_shared_sp0_sep_cr_RNN_init2` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_task_routed_nb2_init2 | `two_module_rnn_12_task_routed_nb2_init2_nb2_task_routed_sp1.0_sep_cr_RNN_init2` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_12_task_routed_sp05_nb2_init2 | `two_module_rnn_12_task_routed_sp05_nb2_init2_nb2_task_routed_sp0.5_sep_cr_RNN_init2` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_task_routed_no_comms_nb2_init2 | `two_module_rnn_12_task_routed_no_comms_nb2_init2_nb2_task_routed_sp0_sep_cr_RNN_init2` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_25_nb2_init2 | `single_module_rnn_25_nb2_init2_nb2_shared_sp1_sep_cr_RNN_init2` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_nb2_init2 | `two_module_rnn_25_nb2_init2_nb2_shared_sp1.0_sep_cr_RNN_init2` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_sp05_nb2_init2 | `two_module_rnn_25_sp05_nb2_init2_nb2_shared_sp0.5_sep_cr_RNN_init2` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_no_comms_nb2_init2 | `two_module_rnn_25_no_comms_nb2_init2_nb2_shared_sp0_sep_cr_RNN_init2` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_task_routed_nb2_init2 | `two_module_rnn_25_task_routed_nb2_init2_nb2_task_routed_sp1.0_sep_cr_RNN_init2` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_sp05_nb2_init2 | `two_module_rnn_25_task_routed_sp05_nb2_init2_nb2_task_routed_sp0.5_sep_cr_RNN_init2` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init2 | `two_module_rnn_25_task_routed_no_comms_nb2_init2_nb2_task_routed_sp0_sep_cr_RNN_init2` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init2_nl2 | `two_module_rnn_25_task_routed_no_comms_nb2_init2_nl2_nb2_task_routed_sp0_sep_cr_RNN_init2` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init2_nl3 | `two_module_rnn_25_task_routed_no_comms_nb2_init2_nl3_nb2_task_routed_sp0_sep_cr_RNN_init2` | ablation | No | No | missing | no folder found in either root |
+| single_module_rnn_50_nb2_init2 | `single_module_rnn_50_nb2_init2_nb2_shared_sp1_sep_cr_RNN_init2` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_50_nb2_init2_nl2 | `single_module_rnn_50_nb2_init2_nl2_nb2_shared_sp1_sep_cr_RNN_init2` | ablation | No | Yes | keep_ablation | already in ablation root |
+| single_module_rnn_50_nb2_init2_nl3 | `single_module_rnn_50_nb2_init2_nl3_nb2_shared_sp1_sep_cr_RNN_init2` | ablation | No | Yes | keep_ablation | already in ablation root |
+| single_module_rnn_100_nb2 | `single_module_rnn_100_nb2_nb2_shared_sp1_sep_cr_RNN` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_100_nb2_init0.1 | `single_module_rnn_100_nb2_init0.1_nb2_shared_sp1_sep_cr_RNN_init0.1` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_100_nb2_init0.01 | `single_module_rnn_100_nb2_init0.01_nb2_shared_sp1_sep_cr_RNN_init0.01` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_100_nb2_init0.001 | `single_module_rnn_100_nb2_init0.001_nb2_shared_sp1_sep_cr_RNN_init0.001` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| single_module_rnn_100_nb2_init2 | `single_module_rnn_100_nb2_init2_nb2_shared_sp1_sep_cr_RNN_init2` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_nb2_init2 | `two_module_rnn_50_nb2_init2_nb2_shared_sp1.0_sep_cr_RNN_init2` | ablation | No | Yes | keep_ablation | already in ablation root |
+| two_module_rnn_50_sp05_nb2_init2 | `two_module_rnn_50_sp05_nb2_init2_nb2_shared_sp0.5_sep_cr_RNN_init2` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_no_comms_nb2_init2 | `two_module_rnn_50_no_comms_nb2_init2_nb2_shared_sp0_sep_cr_RNN_init2` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_task_routed_nb2_init2 | `two_module_rnn_50_task_routed_nb2_init2_nb2_task_routed_sp1.0_sep_cr_RNN_init2` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_sp05_nb2_init2 | `two_module_rnn_50_task_routed_sp05_nb2_init2_nb2_task_routed_sp0.5_sep_cr_RNN_init2` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_no_comms_nb2_init2 | `two_module_rnn_50_task_routed_no_comms_nb2_init2_nb2_task_routed_sp0_sep_cr_RNN_init2` | primary | Yes | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_no_comms_nb2_input_only | `two_module_rnn_6_no_comms_nb2_input_only_nb2_shared_sp0.0_sep_cr_RNN_init1.0_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_no_comms_nb2_init0.1_input_only | `two_module_rnn_6_no_comms_nb2_init0.1_input_only_nb2_shared_sp0.0_sep_cr_RNN_init0.1_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_no_comms_nb2_init0.01_input_only | `two_module_rnn_6_no_comms_nb2_init0.01_input_only_nb2_shared_sp0.0_sep_cr_RNN_init0.01_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_no_comms_nb2_init0.001_input_only | `two_module_rnn_6_no_comms_nb2_init0.001_input_only_nb2_shared_sp0.0_sep_cr_RNN_init0.001_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_no_comms_nb2_init2_input_only | `two_module_rnn_6_no_comms_nb2_init2_input_only_nb2_shared_sp0.0_sep_cr_RNN_init2.0_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_sp05_nb2_input_only | `two_module_rnn_6_sp05_nb2_input_only_nb2_shared_sp0.5_sep_cr_RNN_init1.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp05_nb2_init0.1_input_only | `two_module_rnn_6_sp05_nb2_init0.1_input_only_nb2_shared_sp0.5_sep_cr_RNN_init0.1_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp05_nb2_init0.01_input_only | `two_module_rnn_6_sp05_nb2_init0.01_input_only_nb2_shared_sp0.5_sep_cr_RNN_init0.01_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp05_nb2_init0.001_input_only | `two_module_rnn_6_sp05_nb2_init0.001_input_only_nb2_shared_sp0.5_sep_cr_RNN_init0.001_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp05_nb2_init2_input_only | `two_module_rnn_6_sp05_nb2_init2_input_only_nb2_shared_sp0.5_sep_cr_RNN_init2.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_nb2_input_only | `two_module_rnn_6_nb2_input_only_nb2_shared_sp1.0_sep_cr_RNN_init1.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_nb2_init0.1_input_only | `two_module_rnn_6_nb2_init0.1_input_only_nb2_shared_sp1.0_sep_cr_RNN_init0.1_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_nb2_init0.01_input_only | `two_module_rnn_6_nb2_init0.01_input_only_nb2_shared_sp1.0_sep_cr_RNN_init0.01_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_nb2_init0.001_input_only | `two_module_rnn_6_nb2_init0.001_input_only_nb2_shared_sp1.0_sep_cr_RNN_init0.001_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_nb2_init2_input_only | `two_module_rnn_6_nb2_init2_input_only_nb2_shared_sp1.0_sep_cr_RNN_init2.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_no_comms_nb2_input_only | `two_module_rnn_6_task_routed_no_comms_nb2_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init1.0_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_task_routed_no_comms_nb2_init0.1_input_only | `two_module_rnn_6_task_routed_no_comms_nb2_init0.1_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init0.1_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_task_routed_no_comms_nb2_init0.01_input_only | `two_module_rnn_6_task_routed_no_comms_nb2_init0.01_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init0.01_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_task_routed_no_comms_nb2_init0.001_input_only | `two_module_rnn_6_task_routed_no_comms_nb2_init0.001_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init0.001_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_task_routed_no_comms_nb2_init2_input_only | `two_module_rnn_6_task_routed_no_comms_nb2_init2_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init2.0_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_6_task_routed_sp05_nb2_input_only | `two_module_rnn_6_task_routed_sp05_nb2_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init1.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp05_nb2_init0.1_input_only | `two_module_rnn_6_task_routed_sp05_nb2_init0.1_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init0.1_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp05_nb2_init0.01_input_only | `two_module_rnn_6_task_routed_sp05_nb2_init0.01_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init0.01_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp05_nb2_init0.001_input_only | `two_module_rnn_6_task_routed_sp05_nb2_init0.001_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init0.001_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp05_nb2_init2_input_only | `two_module_rnn_6_task_routed_sp05_nb2_init2_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init2.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_nb2_input_only | `two_module_rnn_6_task_routed_nb2_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init1.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_nb2_init0.1_input_only | `two_module_rnn_6_task_routed_nb2_init0.1_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init0.1_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_nb2_init0.01_input_only | `two_module_rnn_6_task_routed_nb2_init0.01_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init0.01_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_nb2_init0.001_input_only | `two_module_rnn_6_task_routed_nb2_init0.001_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init0.001_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_nb2_init2_input_only | `two_module_rnn_6_task_routed_nb2_init2_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init2.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_no_comms_nb2_init0.001_input_only | `two_module_rnn_12_no_comms_nb2_init0.001_input_only_nb2_shared_sp0.0_sep_cr_RNN_init0.001_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_no_comms_nb2_init2_input_only | `two_module_rnn_12_no_comms_nb2_init2_input_only_nb2_shared_sp0.0_sep_cr_RNN_init2.0_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_sp05_nb2_init0.001_input_only | `two_module_rnn_12_sp05_nb2_init0.001_input_only_nb2_shared_sp0.5_sep_cr_RNN_init0.001_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_sp05_nb2_init2_input_only | `two_module_rnn_12_sp05_nb2_init2_input_only_nb2_shared_sp0.5_sep_cr_RNN_init2.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_nb2_init0.001_input_only | `two_module_rnn_12_nb2_init0.001_input_only_nb2_shared_sp1.0_sep_cr_RNN_init0.001_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_nb2_init2_input_only | `two_module_rnn_12_nb2_init2_input_only_nb2_shared_sp1.0_sep_cr_RNN_init2.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_task_routed_no_comms_nb2_init0.001_input_only | `two_module_rnn_12_task_routed_no_comms_nb2_init0.001_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init0.001_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_task_routed_no_comms_nb2_init2_input_only | `two_module_rnn_12_task_routed_no_comms_nb2_init2_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init2.0_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_12_task_routed_sp05_nb2_init0.001_input_only | `two_module_rnn_12_task_routed_sp05_nb2_init0.001_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init0.001_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_task_routed_sp05_nb2_init2_input_only | `two_module_rnn_12_task_routed_sp05_nb2_init2_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init2.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_task_routed_nb2_init0.001_input_only | `two_module_rnn_12_task_routed_nb2_init0.001_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init0.001_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_12_task_routed_nb2_init2_input_only | `two_module_rnn_12_task_routed_nb2_init2_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init2.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_no_comms_nb2_init0.001_input_only | `two_module_rnn_25_no_comms_nb2_init0.001_input_only_nb2_shared_sp0.0_sep_cr_RNN_init0.001_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_no_comms_nb2_init2_input_only | `two_module_rnn_25_no_comms_nb2_init2_input_only_nb2_shared_sp0.0_sep_cr_RNN_init2.0_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_sp05_nb2_init0.001_input_only | `two_module_rnn_25_sp05_nb2_init0.001_input_only_nb2_shared_sp0.5_sep_cr_RNN_init0.001_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_sp05_nb2_init2_input_only | `two_module_rnn_25_sp05_nb2_init2_input_only_nb2_shared_sp0.5_sep_cr_RNN_init2.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_nb2_init0.001_input_only | `two_module_rnn_25_nb2_init0.001_input_only_nb2_shared_sp1.0_sep_cr_RNN_init0.001_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_nb2_init2_input_only | `two_module_rnn_25_nb2_init2_input_only_nb2_shared_sp1.0_sep_cr_RNN_init2.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init0.001_input_only | `two_module_rnn_25_task_routed_no_comms_nb2_init0.001_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init0.001_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_task_routed_no_comms_nb2_init2_input_only | `two_module_rnn_25_task_routed_no_comms_nb2_init2_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init2.0_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_25_task_routed_sp05_nb2_init0.001_input_only | `two_module_rnn_25_task_routed_sp05_nb2_init0.001_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init0.001_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_sp05_nb2_init2_input_only | `two_module_rnn_25_task_routed_sp05_nb2_init2_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init2.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_nb2_init0.001_input_only | `two_module_rnn_25_task_routed_nb2_init0.001_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init0.001_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_25_task_routed_nb2_init2_input_only | `two_module_rnn_25_task_routed_nb2_init2_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init2.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_no_comms_nb2_input_only | `two_module_rnn_50_no_comms_nb2_input_only_nb2_shared_sp0.0_sep_cr_RNN_init1.0_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_no_comms_nb2_init0.1_input_only | `two_module_rnn_50_no_comms_nb2_init0.1_input_only_nb2_shared_sp0.0_sep_cr_RNN_init0.1_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_no_comms_nb2_init0.01_input_only | `two_module_rnn_50_no_comms_nb2_init0.01_input_only_nb2_shared_sp0.0_sep_cr_RNN_init0.01_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_no_comms_nb2_init0.001_input_only | `two_module_rnn_50_no_comms_nb2_init0.001_input_only_nb2_shared_sp0.0_sep_cr_RNN_init0.001_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_no_comms_nb2_init2_input_only | `two_module_rnn_50_no_comms_nb2_init2_input_only_nb2_shared_sp0.0_sep_cr_RNN_init2.0_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_sp05_nb2_input_only | `two_module_rnn_50_sp05_nb2_input_only_nb2_shared_sp0.5_sep_cr_RNN_init1.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_sp05_nb2_init0.1_input_only | `two_module_rnn_50_sp05_nb2_init0.1_input_only_nb2_shared_sp0.5_sep_cr_RNN_init0.1_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_sp05_nb2_init0.01_input_only | `two_module_rnn_50_sp05_nb2_init0.01_input_only_nb2_shared_sp0.5_sep_cr_RNN_init0.01_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_sp05_nb2_init0.001_input_only | `two_module_rnn_50_sp05_nb2_init0.001_input_only_nb2_shared_sp0.5_sep_cr_RNN_init0.001_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_sp05_nb2_init2_input_only | `two_module_rnn_50_sp05_nb2_init2_input_only_nb2_shared_sp0.5_sep_cr_RNN_init2.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_nb2_input_only | `two_module_rnn_50_nb2_input_only_nb2_shared_sp1.0_sep_cr_RNN_init1.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_nb2_init0.1_input_only | `two_module_rnn_50_nb2_init0.1_input_only_nb2_shared_sp1.0_sep_cr_RNN_init0.1_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_nb2_init0.01_input_only | `two_module_rnn_50_nb2_init0.01_input_only_nb2_shared_sp1.0_sep_cr_RNN_init0.01_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_nb2_init0.001_input_only | `two_module_rnn_50_nb2_init0.001_input_only_nb2_shared_sp1.0_sep_cr_RNN_init0.001_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_nb2_init2_input_only | `two_module_rnn_50_nb2_init2_input_only_nb2_shared_sp1.0_sep_cr_RNN_init2.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_no_comms_nb2_input_only | `two_module_rnn_50_task_routed_no_comms_nb2_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init1.0_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_task_routed_no_comms_nb2_init0.1_input_only | `two_module_rnn_50_task_routed_no_comms_nb2_init0.1_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init0.1_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_task_routed_no_comms_nb2_init0.01_input_only | `two_module_rnn_50_task_routed_no_comms_nb2_init0.01_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init0.01_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_task_routed_no_comms_nb2_init0.001_input_only | `two_module_rnn_50_task_routed_no_comms_nb2_init0.001_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init0.001_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_task_routed_no_comms_nb2_init2_input_only | `two_module_rnn_50_task_routed_no_comms_nb2_init2_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init2.0_initscopeinput_only` | primary | No | No | keep_primary | primary condition must remain in primary root |
+| two_module_rnn_50_task_routed_sp05_nb2_input_only | `two_module_rnn_50_task_routed_sp05_nb2_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init1.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_sp05_nb2_init0.1_input_only | `two_module_rnn_50_task_routed_sp05_nb2_init0.1_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init0.1_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_sp05_nb2_init0.01_input_only | `two_module_rnn_50_task_routed_sp05_nb2_init0.01_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init0.01_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_sp05_nb2_init0.001_input_only | `two_module_rnn_50_task_routed_sp05_nb2_init0.001_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init0.001_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_sp05_nb2_init2_input_only | `two_module_rnn_50_task_routed_sp05_nb2_init2_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init2.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_nb2_input_only | `two_module_rnn_50_task_routed_nb2_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init1.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_nb2_init0.1_input_only | `two_module_rnn_50_task_routed_nb2_init0.1_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init0.1_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_nb2_init0.01_input_only | `two_module_rnn_50_task_routed_nb2_init0.01_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init0.01_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_nb2_init0.001_input_only | `two_module_rnn_50_task_routed_nb2_init0.001_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init0.001_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_50_task_routed_nb2_init2_input_only | `two_module_rnn_50_task_routed_nb2_init2_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init2.0_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_nb2_init0.3_input_only | `two_module_rnn_6_nb2_init0.3_input_only_nb2_shared_sp1.0_sep_cr_RNN_init0.3_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_nb2_init0.5_input_only | `two_module_rnn_6_nb2_init0.5_input_only_nb2_shared_sp1.0_sep_cr_RNN_init0.5_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_nb2_init0.7_input_only | `two_module_rnn_6_nb2_init0.7_input_only_nb2_shared_sp1.0_sep_cr_RNN_init0.7_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_nb2_init0.9_input_only | `two_module_rnn_6_nb2_init0.9_input_only_nb2_shared_sp1.0_sep_cr_RNN_init0.9_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp05_nb2_init0.3_input_only | `two_module_rnn_6_sp05_nb2_init0.3_input_only_nb2_shared_sp0.5_sep_cr_RNN_init0.3_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp05_nb2_init0.5_input_only | `two_module_rnn_6_sp05_nb2_init0.5_input_only_nb2_shared_sp0.5_sep_cr_RNN_init0.5_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp05_nb2_init0.7_input_only | `two_module_rnn_6_sp05_nb2_init0.7_input_only_nb2_shared_sp0.5_sep_cr_RNN_init0.7_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_sp05_nb2_init0.9_input_only | `two_module_rnn_6_sp05_nb2_init0.9_input_only_nb2_shared_sp0.5_sep_cr_RNN_init0.9_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_no_comms_nb2_init0.3_input_only | `two_module_rnn_6_no_comms_nb2_init0.3_input_only_nb2_shared_sp0.0_sep_cr_RNN_init0.3_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_no_comms_nb2_init0.5_input_only | `two_module_rnn_6_no_comms_nb2_init0.5_input_only_nb2_shared_sp0.0_sep_cr_RNN_init0.5_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_no_comms_nb2_init0.7_input_only | `two_module_rnn_6_no_comms_nb2_init0.7_input_only_nb2_shared_sp0.0_sep_cr_RNN_init0.7_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_no_comms_nb2_init0.9_input_only | `two_module_rnn_6_no_comms_nb2_init0.9_input_only_nb2_shared_sp0.0_sep_cr_RNN_init0.9_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_nb2_init0.3_input_only | `two_module_rnn_6_task_routed_nb2_init0.3_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init0.3_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_nb2_init0.5_input_only | `two_module_rnn_6_task_routed_nb2_init0.5_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init0.5_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_nb2_init0.7_input_only | `two_module_rnn_6_task_routed_nb2_init0.7_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init0.7_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_nb2_init0.9_input_only | `two_module_rnn_6_task_routed_nb2_init0.9_input_only_nb2_task_routed_sp1.0_sep_cr_RNN_init0.9_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp05_nb2_init0.3_input_only | `two_module_rnn_6_task_routed_sp05_nb2_init0.3_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init0.3_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp05_nb2_init0.5_input_only | `two_module_rnn_6_task_routed_sp05_nb2_init0.5_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init0.5_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp05_nb2_init0.7_input_only | `two_module_rnn_6_task_routed_sp05_nb2_init0.7_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init0.7_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_sp05_nb2_init0.9_input_only | `two_module_rnn_6_task_routed_sp05_nb2_init0.9_input_only_nb2_task_routed_sp0.5_sep_cr_RNN_init0.9_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_no_comms_nb2_init0.3_input_only | `two_module_rnn_6_task_routed_no_comms_nb2_init0.3_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init0.3_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_no_comms_nb2_init0.5_input_only | `two_module_rnn_6_task_routed_no_comms_nb2_init0.5_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init0.5_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_no_comms_nb2_init0.7_input_only | `two_module_rnn_6_task_routed_no_comms_nb2_init0.7_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init0.7_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |
+| two_module_rnn_6_task_routed_no_comms_nb2_init0.9_input_only | `two_module_rnn_6_task_routed_no_comms_nb2_init0.9_input_only_nb2_task_routed_sp0.0_sep_cr_RNN_init0.9_initscopeinput_only` | ablation | No | No | missing | no folder found in either root |

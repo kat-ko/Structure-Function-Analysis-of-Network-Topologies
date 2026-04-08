@@ -131,7 +131,7 @@ def fit_ann_data(ann_data):
     return grouped_df
 
 
-def run_analysis(data_type, sim_name=None, base_folder='./'):
+def run_analysis(data_type, sim_name=None, base_folder='./', simulations_subdir='simulations'):
     """Run von Mises analysis for participants or simulations."""
     data_folder = os.path.join(base_folder, 'data')
 
@@ -142,9 +142,10 @@ def run_analysis(data_type, sim_name=None, base_folder='./'):
     elif data_type == 'simulations':
         if not sim_name:
             raise ValueError("Simulation name must be provided for simulation data")
-        ann_data = ann.load_ann_data(os.path.join(data_folder, 'simulations', sim_name))
+        sim_root = os.path.join(data_folder, simulations_subdir)
+        ann_data = ann.load_ann_data(os.path.join(sim_root, sim_name))
         grouped_df = fit_ann_data(ann_data)
-        output_path = os.path.join(data_folder, 'simulations', f'{sim_name}_vonmises_fits.csv')
+        output_path = os.path.join(sim_root, f'{sim_name}_vonmises_fits.csv')
     else:
         raise ValueError("data_type must be 'participants' or 'simulations'")
 
@@ -158,8 +159,14 @@ def main():
     parser.add_argument('data_type', choices=['participants', 'simulations'], help='Type of data to analyze')
     parser.add_argument('--sim-name', type=str, help='Name of simulation folder (required if data_type is simulations)')
     parser.add_argument('--base-folder', type=str, default='./', help='Base project folder path (default: current directory)')
+    parser.add_argument(
+        '--simulations-subdir',
+        type=str,
+        default='simulations',
+        help='Simulation subdirectory under data/ (e.g. simulations or simulations/primary_grid_ablations).',
+    )
     args = parser.parse_args()
-    run_analysis(args.data_type, args.sim_name, args.base_folder)
+    run_analysis(args.data_type, args.sim_name, args.base_folder, args.simulations_subdir)
 
 
 if __name__ == "__main__":

@@ -25,6 +25,7 @@ from a1b2.training.simulation import run_simulation
 from a1b2.training.schedule import train_single_schedule
 from a1b2.analysis import transfer_interference as ann
 from a1b2.utils.run_config import build_run_id
+from a1b2.utils.sim_storage import resolve_sim_root
 
 
 def _project_root(base_folder):
@@ -36,7 +37,7 @@ def load_settings(config_path):
         return json.load(f)
 
 
-def run_experiment(condition_name, base_folder="./"):
+def run_experiment(condition_name, base_folder="./", storage_mode="auto", print_output_path=False):
     set_seed(2024)
     root = _project_root(base_folder)
     data_folder = os.path.join(root, "data")
@@ -77,7 +78,16 @@ def run_experiment(condition_name, base_folder="./"):
     ]
 
     run_id = build_run_id(condition)
-    sim_folder = os.path.join(data_folder, "simulations", run_id)
+    sim_root = resolve_sim_root(condition, Path(data_folder), mode=storage_mode)
+    sim_folder = str(sim_root / run_id)
+
+    if print_output_path:
+        print(f"Condition: {condition_name}")
+        print(f"run_id: {run_id}")
+        print(f"storage_mode: {storage_mode}")
+        print(f"output_path: {sim_folder}")
+        return
+
     os.makedirs(sim_folder, exist_ok=True)
 
     settings_to_save = {
@@ -164,6 +174,18 @@ def main():
     parser = argparse.ArgumentParser(description="Run neural network simulations")
     parser.add_argument("condition", type=str, help="Condition name (e.g. rich_50, two_module_rnn_50)")
     parser.add_argument("--base-folder", type=str, default="./", help="Base project folder")
+    parser.add_argument(
+        "--storage-mode",
+        type=str,
+        default="auto",
+        choices=["auto", "primary", "ablation"],
+        help="Where to store outputs: auto routes by primary-grid policy.",
+    )
+    parser.add_argument(
+        "--print-output-path",
+        action="store_true",
+        help="Print resolved output folder and exit (no training).",
+    )
     parser.add_argument("--geometry", action="store_true", help="Run geometry visualization experiment")
     parser.add_argument("--participant", type=str, default="study1_same_sub20", help="Participant ID for geometry")
     args = parser.parse_args()
@@ -171,7 +193,7 @@ def main():
     if args.geometry:
         run_geometry_experiment(args.condition, args.participant, args.base_folder)
     else:
-        run_experiment(args.condition, args.base_folder)
+        run_experiment(args.condition, args.base_folder, args.storage_mode, args.print_output_path)
 
 
 if __name__ == "__main__":

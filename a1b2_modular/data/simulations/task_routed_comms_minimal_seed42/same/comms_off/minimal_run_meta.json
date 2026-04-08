@@ -1,7 +1,0 @@
-{
-  "condition_name": "two_module_rnn_25_task_routed_no_comms_nb2",
-  "sparsity": 0,
-  "participant": "study1_same_sub1",
-  "n_epochs": 8,
-  "seed": 42
-}
