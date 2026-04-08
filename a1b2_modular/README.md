@@ -54,6 +54,8 @@ Requirements: Python ≥3.8, numpy, pandas, scipy, matplotlib, seaborn, torch, t
 
 Notebooks in `notebooks/`: `figure2_transfer_interference.ipynb`, `figure3_anns.ipynb`, `figure4_individual_differences.ipynb`, `modular_analyses.ipynb`.
 
+**Tests / MVP analysis:** `tests/nb_no_comms_geometry_init_size_similarity_mvp.ipynb` — exports `data/derived/no_comms_mvp_*_long.csv`, heatmaps (init × `grid_h` × similarity) for **task_routed**, **shared**, and **single_module** (capacity-matched baselines), optional MixedLM via `pip install -e ".[notebook-stats]"`.
+
 ## Experimental factors (RNN studies)
 
 The primary RNN comparison is **no-module (single-module) vs two-module** architecture. Varying factors that affect **run_id** (and thus the results folder) include:

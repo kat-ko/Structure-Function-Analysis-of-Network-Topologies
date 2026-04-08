@@ -19,6 +19,9 @@ dependencies = [
     "scikit-learn",
 ]
 
+[project.optional-dependencies]
+notebook-stats = ["statsmodels"]
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["a1b2*"]
