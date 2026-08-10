@@ -312,10 +312,16 @@ also compute
 rho_c_signed(μ,ν) = ⟨ s^μ_0, s^ν_0 ⟩ / (‖s^μ_0‖ ‖s^ν_0‖)
 ```
 Menghi's anticorrelation result lives in the **negative** range, which `|·|`
-erases — so the signed form is required for H1d. `rho_convention:
-glue_abs | signed_normalized | both` (default `both`); `rho_c_glue` is primary
-(comparable to published numbers), `rho_c_signed` is the H1d probe. Numbers under
-the two conventions are **not** comparable; state this in the paper.
+erases — so the signed form is the **required H1d instrument** (under abs alone,
+H1d is untestable). **"Primary" is two roles, not one verdict** (`03` §E.4):
+`rho_c_glue` = primary for reporting / comparability with published GLUE;
+`rho_c_signed` = primary for the H1d hypothesis test. `rho_convention: both` is
+**mandatory** — both are always computed; **no code path may reduce it to one.**
+Numbers under the two conventions are **not** comparable; state this in the paper.
+
+**Flag-and-stop:** if anchor centers `s⁰_μ` are not exposable from
+`manifold_analysis_corr` without a vendored QP patch, stop and report — do **not**
+degrade to abs-only (`05` §2.2 / `03` §E.4).
 
 ### 6.2 Capacity decomposition — exact, three factors
 

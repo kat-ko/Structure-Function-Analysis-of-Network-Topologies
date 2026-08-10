@@ -60,7 +60,7 @@ n_t: 200
 kappa: 0.0                    # do not change
 estimation_mode: "pairwise" | "full_P"   # pairwise = lab standard (2 manifolds/QP); full_P = all P jointly. Compared in Phase 0
 capacity_modes: ["raw", "gaussianized"]  # gaussianized = Wakhloo 2023 preprocessing (00 §6.3)
-rho_convention: "both"       # glue_abs (primary, comparable) | signed_normalized (H1d) | both
+rho_convention: "both"       # MANDATORY — both always computed; no path may select glue_abs or signed_normalized alone. rho_c_glue = reporting/comparability; rho_c_signed = H1d instrument (03 §E.4)
 beta: 0.0                    # tilt for tilted_capacity: 0 = generic, ∞ = retained (00 §7)
 ccgp_enabled: true           # per-family CCGP (00 §10)
 
@@ -237,7 +237,7 @@ prediction.
 | H1a | Rich forgetting is radius/utility-accounted | share of `Δ log α` from `Δ log(1+R_eff⁻²)` and `Δ log Ψ_eff` | rich > lazy | _TBD_ | shares equal within noise, or lazy > rich |
 | H1b | Lazy forgetting is ρ_c-accounted | `Δ rho_c_glue` (covariate; `rho_c_signed` for direction) | lazy > rich | _TBD_ | reversed or null |
 | H1c | Forgetting ≡ ultra-rich OOD signature | sign pattern over (R, ψ, D) | matches Chou Fig 7c | qualitative match on all 3 | any sign mismatch |
-| H1d | Progressive center-decorrelation (Menghi) | `ρ_c` trajectory | decreasing over stream, faster in rich | _TBD_ | flat or increasing |
+| H1d | Progressive center-decorrelation (Menghi) | **`rho_c_signed` trajectory** (NOT `rho_c_glue` — the absolute value erases the sign and makes H1d untestable; see `03` §E.4) | decreasing over stream, faster in rich | _TBD_ | flat or increasing |
 | H2a | Generic capacity falls with γ | `α_generic` vs `γ` | monotone decreasing | _TBD_ | non-monotone or flat |
 | H2b | Retained capacity rises with γ | `α_retained` vs `γ` | monotone increasing | _TBD_ | non-monotone or flat |
 | H2c | Crossing predicts γ\* | argmax(`α_generic × α_retained`) | = argmin(average error) | within 1 grid step | separated by >1 grid step |

@@ -82,7 +82,7 @@ Capacity drop on task *j* after training on later tasks is accounted for differe
 
 *Constraint (P5):* stated as decomposition, not causal mechanism. Report ρ_a and R jointly and check consistency with the duality.
 
-### H2 — The generic/aligned trade
+### H2 — The generic/retained trade
 Generic capacity decreases monotonically with γ₀ across the stream while retained capacity increases; their crossing predicts γ₀\*. Specifically, the γ₀ minimizing average error coincides with the maximum of (generic capacity × retained capacity) within seed noise.
 
 *Mandatory validation:* generic capacity is **label-agnostic**, and the plasticity literature has theoretical counterexamples showing label-agnostic structural metrics (representation rank, eNTK rank) can look favourable where gradient descent cannot progress. Generic capacity must therefore be validated against a **label-aware** held-out-task metric — Johnston & Fusi's novel-task generalization measure — not asserted.
@@ -315,7 +315,7 @@ Verify: (i) capacity-at-init tracks *a*, flat in γ; (ii) ‖ΔW_m‖ separates 
 *Kill:* (i) fails → fall back to input-dimension wealth manipulation. (ii) fails → parameterization is wrong, stop. (iii) coincide → **H3 is dead**, proceed with H1/H2 only.
 
 **Phase 1 — H1, H2, H6 (homogeneous only)**
-γ × *a* sweep, Hiratani 2×2 streams, 8 seeds. Produces the forgetting-attribution table, the generic/aligned crossing, and the probe-dichotomy validation. **This alone is a complete NeurReps abstract.** No heterogeneity claims required.
+γ × *a* sweep, Hiratani 2×2 streams, 8 seeds. Produces the forgetting-attribution table, the generic/retained crossing, and the probe-dichotomy validation. **This alone is a complete NeurReps abstract.** No heterogeneity claims required.
 *Kill:* GLUE attributions don't separate by regime → fall back to rotation/expansion decomposition. Generic capacity fails to track the probe metric → report as a negative finding about label-agnostic geometry measures (publishable in this track).
 
 **Phase 2 — H3, H5 (heterogeneous)**
@@ -334,7 +334,7 @@ T = 40 at three similarity levels. Half-life of the initial regime difference.
 
 1. **Setup + orthogonality.** Fixed manifold arrangement, factorial labeling, dichotomy-as-task, the (a, γ) 2×2, and capacity-at-init confirming *a*/γ orthogonality.
 2. **The forgetting attribution.** *(money figure)* Capacity on task 1 across the stream with GLUE decomposition, lazy vs. rich. Side panel overlaying the ultra-rich OOD signature from Chou et al. Fig 7c to show the signatures match.
-3. **Generic vs. aligned.** Both as functions of γ, with γ₀\* marked and the probe-dichotomy metric overlaid as validation.
+3. **Generic vs. retained.** Both as functions of γ, with γ₀\* marked and the probe-dichotomy metric overlaid as validation.
 4. **Either** heterogeneous vs. homogeneous on the front with per-module division of labour and the γ_eff control, **or** — if Phase 2 fails — the H4 half-life plot, reframing from "heterogeneity helps" to "heterogeneity does not persist; what maintains it?"
 
 Both versions of Fig. 4 are coherent papers.
@@ -367,7 +367,7 @@ Both versions of Fig. 4 are coherent papers.
 
 **Genuinely open**
 - Is heterogeneity of initial geometry sufficient to break symmetry, or is asymmetric readout structure also required? Shared gradients may pull both modules to redundant solutions. Cross-module CKA answers it empirically; no theory predicts which.
-- Does the generic/aligned trade have a **fixed exchange rate** or a regime-dependent one? Fixed ⇒ a conservation law, and heterogeneity only relocates on the front. Regime-dependent ⇒ heterogeneity may genuinely dominate. This is the deepest question in the plan and nobody has an answer.
+- Does the generic/retained trade have a **fixed exchange rate** or a regime-dependent one? Fixed ⇒ a conservation law, and heterogeneity only relocates on the front. Regime-dependent ⇒ heterogeneity may genuinely dominate. This is the deepest question in the plan and nobody has an answer.
 - Ecological validity: a factorial dichotomy stream buys identifiability at the cost of representativeness. The Split-CIFAR100 confirmation is a thin hedge and should not be oversold.
 
 **Deferred**
@@ -393,7 +393,7 @@ Items 1–3 suffice. Heterogeneity (H3) is upside.
 | Objection | Response |
 |---|---|
 | "Graldi et al. with different plots" | They measure 1−CKA and accuracy drop; we measure *what changed geometrically*. We also test their own flagged LR confound |
-| "Chung et al. applied to CL" | All capacity work is stationary. The generic/aligned distinction does not exist in the stationary setting |
+| "Chung et al. applied to CL" | All capacity work is stationary. The generic/retained distinction does not exist in the stationary setting |
 | "Synthetic manifolds" | Standard benchmarks lack the **task structure** the design needs (P=2 ⇒ one dichotomy up to sign; no similarity axis/factorial/CCGP). Plus one Split-CIFAR100 confirmation. *(Not an estimability claim — GLUE runs pairwise at P=2.)* |
 | "Heterogeneity beating a point estimate is a priori true" | H5 and the joint-training control are load-bearing; H1/H2 stand without any heterogeneity claim |
 | "The 2×2 isn't orthogonal" | It is — identical hidden-weight variance across γ. Shown in Fig 1 |

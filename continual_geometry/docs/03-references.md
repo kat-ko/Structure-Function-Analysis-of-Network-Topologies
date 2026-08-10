@@ -141,19 +141,31 @@ error-prone thing in the project.
 
 Definition 2.3 (main text, "simplified") gives yet a third form for `D_mf` and `R_mf`.
 
-**Decision — REVISED 2026-08-10 (convention C3, per 04 §C3 + ICLR 2026 §B.3).**
-The lab convention of record is **Definition B.6 / ICLR 2026 §B.3**: `ρ_c`, `ρ_a`,
-`ψ` are **absolute value, unnormalized, cross-index**. This is `rho_c_glue` (the
-default) and it is what makes numbers comparable to published GLUE results. The
-signed, normalized form is kept as a **second output `rho_c_signed`**, used for
-H1d only. (This reverses the earlier "use Algorithm 2's signed form as primary"
-decision.)
+**Decision — REVISED 2026-08-10 (convention C3, per 04 §C3 + ICLR 2026 §B.3).
+"Primary" does two separate jobs; do not collapse them into one verdict:**
 
-**Why the signed form is retained anyway:** signed ρ_c can be negative, and
-**Menghi's anticorrelation result lives entirely in the negative range.** The
-absolute value cannot distinguish decorrelation from anticorrelation, so **H1d
-needs `rho_c_signed`.** Report both; the two are **not comparable** — say so in
-the paper. `00-math-spec.md` §6.1 now specifies both (`rho_convention`).
+- **Primary for reporting / comparability** = `rho_c_glue` — the
+  Definition B.6 / ICLR 2026 §B.3 convention: `ρ_c`, `ρ_a`, `ψ` **absolute value,
+  unnormalized, cross-index**. This is the number reported in the paper alongside
+  published GLUE values so a reviewer can compare. (This reverses the earlier
+  "use the signed form as primary" decision.)
+- **Primary for the H1d hypothesis test** = `rho_c_signed` — signed, normalized
+  `⟨s⁰_μ,s⁰_ν⟩/(‖s⁰_μ‖‖s⁰_ν‖)`. Under an absolute value, **decorrelation and
+  anticorrelation are indistinguishable**, and Menghi's decorrelation prediction
+  is not merely weakened but **untestable**. H1d's measure is `rho_c_signed`,
+  explicitly (see `01` pre-registration table).
+
+**`rho_convention: both` is MANDATORY, not a selectable default.** Both are always
+computed; **no code path may reduce it to one.** The two are not comparable — say
+so in the paper. `00-math-spec.md` §6.1 specifies both.
+
+**Flag-and-stop (effective now, before §2.2).** `rho_c_signed` needs the anchor
+centers `s⁰_μ`. If `manifold_analysis_corr` does **not** expose them (`signed_rho.py`
+VERIFY-FIRST, `05` §2.2), that is a **flag-and-stop**, **not** a graceful
+degradation to abs-only: it means H1d needs either an adapter-level extraction or
+a `third_party/patches/` change to vendored QP internals (Kati's sign-off), or H1d
+drops from the abstract. Report what would be required and wait — do not silently
+proceed with `rho_c_glue` alone.
 
 **Also record (verified empirical directions, App. B.5 / Fig 3c):** `ρ_c` and
 `ρ_a` move capacity in **opposite** directions; large ρ_c → effective **radius

@@ -83,7 +83,7 @@ each is actually applied (several are not):
 7. `00` §13 → re-derive the cost model: the QP over anchor points dominates;
    the linear algebra is P×P (16×16), not N×N. Update the cut-order note.
 8. `01` §1 config schema → add `estimation_mode: pairwise | full_P`,
-   `rho_convention: glue_abs | signed_normalized | both` (default `both`),
+   `rho_convention: both` (mandatory; both always computed — see §E.4 two-role rule),
    `beta: float | null`, `ccgp_enabled: bool = false`.
 9. `01` Phase 0 → add the pairwise-vs-full-P comparison; keep the
    P×N sweep as restructured (N-first decision order).
@@ -175,14 +175,18 @@ Vendored code stays byte-identical; all corrections live here.
   over projection dimension at fixed (P, M). Version string
   `correlated_capacity@de8dac79…`. Same RNG injection.
 
-**`signed_rho.py`** — **VERIFY-FIRST item.** Signed-normalized ρ_c needs the
-anchor centers s⁰_μ. Check whether `manifold_analysis_corr` exposes them (or
-can with a ≤5-line read of internals). If exposure requires modifying the QP
-path: **stop and flag** — that goes through `third_party/patches/` with Kati's
-sign-off, not the adapter. If centers are exposable: compute both
-`rho_c_glue = |⟨s⁰_μ, s⁰_ν⟩|` (lab convention, primary) and
-`rho_c_signed = ⟨s⁰_μ, s⁰_ν⟩/(‖s⁰_μ‖‖s⁰_ν‖)` (H1d instrument). Config field
-`rho_convention` selects; default `both`.
+**`signed_rho.py`** — **VERIFY-FIRST / flag-and-stop.** Signed-normalized ρ_c
+needs the anchor centers `s⁰_μ`. Check whether `manifold_analysis_corr` exposes
+them (or can with a ≤5-line read of internals). **If centers are not exposable
+without modifying the QP path: STOP AND FLAG** — that is **not** a graceful
+degradation to abs-only. H1d is untestable under `|·|` alone; report whether the
+fix is adapter-level extraction vs. a `third_party/patches/` change (Kati
+sign-off) or dropping H1d from the abstract, and wait. If centers *are*
+exposable: always compute both
+`rho_c_glue = |⟨s⁰_μ, s⁰_ν⟩|` (reporting / comparability) and
+`rho_c_signed = ⟨s⁰_μ, s⁰_ν⟩/(‖s⁰_μ‖‖s⁰_ν‖)` (required H1d instrument).
+`rho_convention: both` is **mandatory** — no code path may reduce it to one
+(`03` §E.4).
 
 **`preprocessing.py`** — Gaussianization ported from the vendored
 `ood-generalization-geometry` implementation (cite file path in docstring);
@@ -363,7 +367,9 @@ validation → reported as the negative finding, not suppressed.
 
 ## 6. Escalation — flag-and-stop, no exceptions
 
-1. Signed-ρ_c requires modifying vendored QP internals (§2.2).
+1. Signed-ρ_c / H1d: anchor centers `s⁰_μ` not exposable without modifying
+   vendored QP internals (§2.2). **Not a degradation to abs-only** — flag and
+   wait (adapter extraction vs. `third_party/patches/` vs. drop H1d).
 2. Ψ_eff identity test fails (§3.3).
 3. §2a fails at P=16 across all N (§5).
 4. Any formula in `00` post-reconciliation appears inconsistent with a

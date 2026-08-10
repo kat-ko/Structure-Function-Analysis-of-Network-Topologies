@@ -78,7 +78,7 @@ Mapping A1/A2 onto our design (not stated in GLUE; my reasoning):
   higher-order correlations could bite and A1 may matter.
 
 If correct, this says: the §2a mean-field gate is necessary but **not sufficient** —
-it validates `α_mf` on *random-label* generic capacity, but the aligned/attribution
+it validates `α_mf` on *random-label* generic capacity, but the retained/attribution
 path (the money figure) is where GLUE-vs-replicaMFT divergence would live. Worth an
 explicit `α_sim` vs `α_mf` check at a **fixed** dichotomy, not only random ones.
 

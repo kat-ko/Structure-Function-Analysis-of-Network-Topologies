@@ -76,13 +76,72 @@ Verified vs inferred: all scientific substitutions trace to sources verified
 reference sheets carry blank `Verified by (human)` and may not be cited by code
 until signed off.
 
-### Git status — FLAG (commit not executed)
+### Git — initial import + reconciliation (two commits, into the parent monorepo)
 
-The git repo root is the **parent monorepo**
-`/home/kat/workspace/Structure-Function-Analysis-of-Network-Topologies`, which
-also contains unrelated projects (recent commits: "plotting", "ablations",
-"paper progress"). `continual_geometry/` is **entirely untracked** — there is no
-prior commit of the sub-project, so 05 §1.2's "one commit" would in practice be
-the **initial import** of the whole subtree (44 files: docs + `third_party/` +
-`results/`; `papers/` PDFs excluded by `papers/.gitignore`, verified). Held for
-Kati's decision (see chat) — no commit made.
+Repo root is the **parent monorepo**
+`/home/kat/workspace/Structure-Function-Analysis-of-Network-Topologies` (holds
+unrelated projects). `continual_geometry/` was **entirely untracked**; verified
+no nested `.git`, no leftover `.git` in `third_party/`, subproject not ignored.
+Committed as two objects for legible history (per Kati's steer):
+
+- `32b8b65e` — **import vendored deps + gitignore**: `third_party/` source
+  (replicaMFT, correlated_capacity, VENDORED.md, patches/), `papers/.gitignore`,
+  and a new `continual_geometry/.gitignore`.
+- `2099b0af` — **spec reconciliation (05 §1)**: docs-only + `src/glue/adapters/README.md`
+  + this log.
+
+**Gitignore conflict resolved:** the parent `.gitignore` has a blanket `results`
+rule that would drop `continual_geometry/results/`. Added an **anchored**
+`!/results/` in `continual_geometry/.gitignore` so this project's audit trail
+(LOG.md, future *.json evidence) is tracked while vendored
+`third_party/**/results/` artifacts (~78 .npy/CSV) stay ignored. `papers/` PDFs
+(48 MB) remain ignored.
+
+**Deferred (not part of §1):** vendoring `ood-generalization-geometry` (Gaussianization)
+moved to §2.2 (its own commit, when `preprocessing.py` is the active task) — it is
+figure-repro code needed only at preprocessing, and keeps the reconciliation diff clean.
+
+*(This entry post-dates the two commits above; fold it into the next daily
+checkpoint commit — §8.)*
+
+---
+
+## 2026-08-11
+
+### Amendment before §2 — ρ_c two-role rule + H1d flag-and-stop
+
+Per Kati ratification: **"primary" is two jobs**. `rho_c_glue` = reporting /
+comparability with published GLUE; `rho_c_signed` = **required H1d instrument**
+(under `|·|`, H1d is untestable). `rho_convention: both` is **mandatory** — no
+path may reduce to one. Applied in `03` §E.4 (already had the split), `00` §6.1,
+`01` config + H1d pre-reg (already named `rho_c_signed`), `AGENTS` §3, `05` §2.2
+and §6 item 1, `glue-decomposition.md`.
+
+**Escalation live:** if `manifold_analysis_corr` does not expose anchor centers
+`s⁰_μ`, that is flag-and-stop (adapter extraction vs `third_party/patches/` vs
+drop H1d) — **not** degradation to abs-only.
+
+### Spot-check (load-bearing reconciliation)
+
+1. `00` §6.2 — exact identity present; UNCERTAIN gone from capacity approx;
+   two-factor only mentioned historically.
+2. `02` — §2b deleted; §2a has β axis; no live cross-ref treating §2b as a gate.
+3. "aligned capacity/margin" retired in AGENTS/00/01 pre-reg; remaining hits in
+   `04` (correction log) and `05` (historical apply-order) only; PROJECT leftovers
+   cleaned.
+4. `00` §8 — log-space additive, zero residual; Wakhloo caveat (report ρ_a with R)
+   intact.
+5. `glue-decomposition.md` — `Verified by (human)` still blank.
+6. `04` erratum header present; body unchanged.
+
+### Gitignore confirm
+
+`git check-ignore -v continual_geometry/results/LOG.md` → exit 1 (not ignored).
+Probe JSON `results/_gitignore_probe.json` appeared in `git status` (then removed).
+
+### §2 start — `src/manifolds/`
+
+Scaffolded: `generator.py`, `labeling.py`, `dichotomies.py`, `streams.py`,
+tests under `tests/`, `pyproject.toml` + `requirements.txt`. Local `.venv` via
+`uv` (gitignored). **`pytest`: 15 passed** (`02` §5 stream/dichotomy suite +
+unit-norm + ρ_C monotonicity).

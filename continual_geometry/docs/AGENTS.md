@@ -51,7 +51,7 @@ only these terms.
 | **tilted capacity `(β)`** | capacity under `P(y) ∝ exp(β⟨y, y_j⟩)`; β=0 → generic, β→∞ → retained | retained (which is only its β→∞ endpoint) |
 | **effective utility `psi_eff` (Ψ_eff)** | the `E[c]/E[a]` capacity factor (excess-compression term) in `α = Ψ_eff·(1+R_eff⁻²)/D_eff` | center–axis alignment ψ |
 | **center–axis alignment `ψ`** | the pairwise geometric measure `E[\|⟨s⁰_μ, s¹_ν⟩\|]` | effective utility `psi_eff` |
-| **rho_c_glue / rho_c_signed** | absolute-unnormalized center correlation (primary) / signed-normalized (H1d probe) | each other; numbers not comparable |
+| **rho_c_glue / rho_c_signed** | abs-unnormalized center corr (reporting/comparability) / signed-normalized (required H1d instrument); `rho_convention: both` always | each other; never drop either; numbers not comparable |
 | **readout similarity** | Hamming-based similarity between dichotomies | input/feature similarity |
 | **feature similarity** | correlation between manifold *arrangements* across tasks | readout similarity |
 | **drift** | any change in representation across boundaries | forgetting (which is a performance quantity) |

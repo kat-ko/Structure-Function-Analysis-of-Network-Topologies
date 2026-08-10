@@ -94,10 +94,11 @@ additively in logs with **zero residual**:
 ```
 
 Report the mean over pairs `μ ≠ ν`. The signed, normalized `rho_c_signed`
-(`⟨s^μ_0,s^ν_0⟩ / (‖s^μ_0‖‖s^ν_0‖)`) is a **second** output, required for H1d
-(Menghi anticorrelation lives in the negative range). See `03-references.md` §E.4
-for the full discrepancy log; numbers under the two conventions are not
-comparable.
+(`⟨s^μ_0,s^ν_0⟩ / (‖s^μ_0‖‖s^ν_0‖)`) is **always** also computed — required for
+H1d (Menghi anticorrelation lives in the negative range; under `|·|` H1d is
+untestable). Two roles (`03` §E.4): `rho_c_glue` = reporting/comparability;
+`rho_c_signed` = H1d instrument. `rho_convention: both` is mandatory. Numbers
+under the two conventions are not comparable.
 
 ⚠️ **`ψ` (center–axis alignment, a pairwise geometric measure) is a different
 quantity from `Ψ_eff` (effective utility, a scalar capacity factor)** despite the

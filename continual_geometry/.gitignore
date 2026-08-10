@@ -10,3 +10,12 @@
 
 # Human-only PDFs stay out of git (also enforced by papers/.gitignore).
 papers/*.pdf
+
+# Local env / caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+dist/
+build/
