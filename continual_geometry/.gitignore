@@ -1,0 +1,12 @@
+# Subproject-scoped ignore rules for continual_geometry.
+#
+# The parent monorepo's .gitignore has a blanket `results` rule that would
+# swallow this subproject's results/ directory. That directory is our audit
+# trail (LOG.md) and pre-registration evidence (mft_validity.json,
+# cost_model.json, noise_floors.json) — it MUST be tracked. Re-include it,
+# ANCHORED to this dir only (leading slash) so vendored third_party/**/results/
+# stay ignored:
+!/results/
+
+# Human-only PDFs stay out of git (also enforced by papers/.gitignore).
+papers/*.pdf
