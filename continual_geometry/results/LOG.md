@@ -742,3 +742,86 @@ attenuated by roughly a third and two fifths respectively. Two consequences:
    `rep_*` points show are a different regime (their mode ratios sit at 1.25 while
    the synthetic points sit at 1.04–1.21). Reported as an attenuation bound, not
    applied as a factor.
+
+---
+
+## 2026-08-11 — `src/analysis/` and the time-reparameterization test: **H3 survives**
+
+`src/analysis/{trajectories,timewarp}.py`, `scripts/run_timewarp.py` →
+`results/timewarp.json`. Phase 0's fifth and last check. Geometry
+`(α, D_eff, R_eff, ρ_c)` recorded at 9 logarithmically spaced checkpoints to 4000
+steps, γ ∈ {0.03, 1, 3, 10}, 3 seeds, `full_P`, `n_t = 200`. The measurement RNG is
+held fixed across checkpoints so successive points differ because the
+representation moved, not because the estimator resampled `(y,t)`.
+
+Three warps of increasing generosity, residuals in units of the noise floor so
+1.0 is the decision boundary: the **measured** warp (the steps-to-target-loss
+ratio, no free parameters), the **best rate** (one free parameter), and **DTW**
+(the most generous monotone warp there is; fixed start, which the paired-init
+design justifies, and free end).
+
+### First: the lazy arm's geometry does not move at all
+
+Total geometric excursion over the whole training window:
+
+| γ | 0.03 | 1.0 | 3.0 | 10.0 |
+|---|---|---|---|---|
+| excursion (noise floors) | **0.2** | 9.8 | 27.2 | 65.2 |
+
+At γ = 0.03 the loss falls 0.499 → 0.010 while the representation geometry moves
+**two tenths of one noise floor** — `D_eff` goes 4.436 → 4.431. All of the learning
+is in the readout. This is the lazy limit confirmed by direct geometric
+measurement rather than by a weight-norm proxy, and it makes the γ ≪ 1 vs γ ~ 1
+contrast a contrast between *no* geometric change and geometric change, which is
+what H1/H2 need.
+
+It also makes every comparison involving γ = 0.03 **vacuous** for this test: a
+trajectory that does not move is trivially the slowed-down opening of any other
+trajectory, so "they coincide" says nothing about shape. Those pairs are now
+labelled vacuous rather than counted as coincidence.
+
+### Verdict: H3 is testable
+
+| pair | measured | best rate | best monotone (DTW) | verdict |
+|---|---|---|---|---|
+| 0.03 vs 1 | 4.10 | 0.04 | 0.09 | vacuous |
+| 0.03 vs 3 | 11.81 | 0.05 | 1.24 | vacuous |
+| 0.03 vs 10 | 30.67 | 0.10 | 12.86 | vacuous |
+| **1 vs 3** | 10.27 | 5.54 | **1.05** | coincide (marginal, ±0.29) |
+| **1 vs 10** | 35.06 | 6.92 | **11.54** | **DIFFER** |
+| **3 vs 10** | 26.24 | 21.32 | **7.06** | **DIFFER** |
+
+Two of the three informative large-γ pairs differ by 7–12 noise floors under the
+most generous monotone warp available. **Trajectories at different large γ are not
+one trajectory at two speeds**, the division-of-labour hypothesis survives, and
+heterogeneity contrasts are unrestricted — `00` §12's fallback does not fire.
+
+Caveat worth carrying: `1 vs 3` is marginal at 1.05 ± 0.29, and those are the two
+arms that move least (9.8 and 27.2 floors). So the honest rule is **use
+well-separated γ with γ = 10 as one endpoint**; a 1-vs-3 contrast is not
+demonstrably a shape difference.
+
+### Two substantive by-products
+
+**Matching loss does not match geometry.** The parameter-free measured warp fails
+everywhere (4–35 floors). And the rate that best aligns *geometry* is 10–20× the
+rate that aligns *loss*: for 1 vs 10, best-rate scale 161.6 against a loss-based
+8.0. Geometry and loss evolve on different clocks, and even the best geometric rate
+leaves 6.92 floors. This is worth a sentence in the paper: matched-loss stopping
+equalizes training progress, not representational change.
+
+**ρ_c is by far the most dynamic channel.** Movement per channel at γ = 10, in
+floors: `ρ_c` 122, `R_eff` 22, `α` 19, `D_eff` 18. Good news for H1d, which turns
+on ρ_c: the measure with the tightest noise floor is also the one that moves most.
+
+### Two bugs, one of which nearly produced the wrong headline
+
+1. `measured_warp_scale` returned the inverse of the convention `residual` uses.
+   Caught by a unit test asserting a known rate is recovered.
+2. DTW required coverage in *either* series rather than **both**. That let a nearly
+   static trajectory be matched against the other's flat opening segment and score
+   a near-zero residual — a degenerate warp reported as coincidence. Under the
+   buggy version `1 vs 10` scored 1.18 and would have been called marginal
+   coincidence; corrected it is 11.54. Both directions are now pinned by controls:
+   a synthetic pure-rate-rescaling must be recovered and called coincident, and a
+   synthetic shape inversion must survive every warp.

@@ -546,6 +546,27 @@ is within the trajectory noise floor, the trajectories coincide.
 **Consequence if they coincide:** restrict all heterogeneity contrasts to
 `γ ≪ 1` vs `γ ~ 1`, and record that H3 is not testable in the large-γ range.
 
+**RAN 2026-08-11 — they do not coincide. H3 is testable; the restriction does not
+apply.** `results/timewarp.json`, `src/analysis/timewarp.py`. Implementation notes
+that matter for interpreting the number:
+
+- Residuals are expressed in **units of the per-channel noise floor**, so 1.0 is
+  the decision boundary and the value is directly readable.
+- Three warps of increasing generosity: the **measured** steps-to-target-loss ratio
+  (no free parameters), the **best single rate** (one parameter), and **DTW** (the
+  most generous monotone warp; fixed start — justified because paired init gives
+  every γ identical hidden weights and a zero readout, so all trajectories begin at
+  the same geometry — and free end, since a faster run has travelled further by the
+  last checkpoint). Coincidence requires only one warp to succeed; H3 survives only
+  if none do.
+- **Vacuity guard.** If a trajectory's total excursion is under ~3 noise floors it
+  is reported vacuous, not coincident. A static trajectory is trivially the slowed
+  opening of any other, so alignment carries no information about shape. This
+  applies to γ = 0.03, whose geometry moves 0.2 floors.
+
+Result: γ=1 vs 10 and γ=3 vs 10 differ by **11.5** and **7.1** floors; γ=1 vs 3 is
+marginal at 1.05. Use well-separated γ with γ = 10 as one endpoint.
+
 ---
 
 ## 13. Cost model

@@ -144,7 +144,7 @@ pairwise at `P = 2` routinely; see `PROJECT.md` §2 P1 and 04 §C6.)
 | Capacity-at-init flat in `γ` | variation within noise floor | parameterization bug — **stop** | **PASS, exactly** — representations bitwise identical across γ |
 | `‖ΔW_m‖/‖W_m‖` separates across γ | ≥ 1 order of magnitude | parameterization bug — **stop** | **PASS** — 2.53 decades at matched loss (0.0015 → 0.503), all arms converged |
 | **Estimation-mode comparison** (spec §13) | `pairwise` vs `full_P` agree within noise floor on {α, R_eff, D_eff, ρ_c} | if they diverge, report both — `pairwise` is comparable-to-published (lab standard), `full_P` is primary | **DIVERGE on geometry, agree on α** — see below |
-| **Time-reparameterization test** (spec §12) | residual after warping **exceeds** noise floor | if trajectories coincide, **H3 is dead** — restrict contrasts to γ≪1 vs γ~1, proceed with H1/H2 only | not yet run (needs geometry trajectories, `src/analysis/`) |
+| **Time-reparameterization test** (spec §12) | residual after warping **exceeds** noise floor | if trajectories coincide, **H3 is dead** — restrict contrasts to γ≪1 vs γ~1, proceed with H1/H2 only | **PASS — H3 survives.** γ=1 vs 10 and γ=3 vs 10 differ by 11.5 and 7.1 noise floors under the most generous monotone warp |
 
 **Gate 2 passed. RESOLVED 2026-08-11: `a` is not reinstated as a heterogeneity
 axis.** `05` D4 pre-authorized dropping `a` on a Gate-2 failure; it did not fail
@@ -200,8 +200,31 @@ stable at `lr0 = 50`. **Any change to `M`, `P`, or `N` invalidates this value**;
 re-run `scripts/run_phase0_richness.py`.
 
 **Steps-to-target spans 39.5× across γ** (2883 at γ=0.03 → 73 at γ=10) at matched
-loss. This is the natural first warp for the time-reparameterization test (`00`
-§12) — H3 predicts trajectories do *not* collapse under it.
+loss. This was the natural first warp for the time-reparameterization test (`00`
+§12), and it fails to align the trajectories — see below.
+
+**RESOLVED 2026-08-11 — H3 is testable; `00` §12's fallback does not fire.**
+`results/timewarp.json`. Under the most generous monotone warp available (DTW),
+γ=1 vs 10 and γ=3 vs 10 differ by **11.5** and **7.1** noise floors. Trajectories
+at different large γ are not one trajectory at two speeds, so **heterogeneity
+contrasts are unrestricted**. Three qualifications, all load-bearing:
+
+1. **Use well-separated γ, with γ = 10 as one endpoint.** γ=1 vs 3 is marginal
+   (1.05 ± 0.29) and those are the two arms that move least, so a 1-vs-3 contrast
+   is not demonstrably a shape difference.
+2. **At γ = 0.03 the geometry does not move** — total excursion 0.2 noise floors
+   over the window while the loss falls 0.499 → 0.010, i.e. all learning is in the
+   readout. Comparisons against it are *vacuous* for this test rather than
+   coincident: a static trajectory is trivially the slowed opening of any other.
+   Excursions in floors: γ=0.03 → **0.2**, γ=1 → 9.8, γ=3 → 27.2, γ=10 → 65.2.
+3. **Matching loss does not match geometry.** The rate that best aligns geometry is
+   10–20× the rate that aligns loss (161.6 vs 8.0 for γ=1 vs 10), and even that
+   leaves 6.9 floors. `matched_loss` equalizes training progress, not
+   representational change — worth stating wherever the stopping rule is described.
+
+Also from the trajectories: **ρ_c is the most dynamic channel by a wide margin**
+(122 floors of movement at γ=10, against 22 for `R_eff`, 19 for `α`, 18 for
+`D_eff`), which is favourable for H1d.
 
 #### Phase 0 precondition — mean-field validity at project `P` (decide **before** building)
 
