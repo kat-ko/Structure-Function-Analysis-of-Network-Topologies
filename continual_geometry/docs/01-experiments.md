@@ -146,24 +146,42 @@ pairwise at `P = 2` routinely; see `PROJECT.md` §2 P1 and 04 §C6.)
 | **Estimation-mode comparison** (spec §13) | `pairwise` vs `full_P` agree within noise floor on {α, R_eff, D_eff, ρ_c} | if they diverge, report both — `pairwise` is comparable-to-published (lab standard), `full_P` is primary | **DIVERGE on geometry, agree on α** — see below |
 | **Time-reparameterization test** (spec §12) | residual after warping **exceeds** noise floor | if trajectories coincide, **H3 is dead** — restrict contrasts to γ≪1 vs γ~1, proceed with H1/H2 only | not yet run (needs geometry trajectories, `src/analysis/`) |
 
-**Gate 2 passed, which reopens the `a` axis.** `05` D4 pre-authorized dropping the
-`a` axis on a Gate-2 failure. It did not fail: `α` at init rises strictly
-monotonically 0.309 → 0.394 across `a ∈ [0,1]`, 6.4× the required dynamic range,
-in the expected direction. Compute is no longer binding either. Reinstating `a` is
-therefore a scope decision for the human, not a feasibility one — and it is what
-makes `C3`/`C4` meaningful. Left cut pending that decision.
+**Gate 2 passed. RESOLVED 2026-08-11: `a` is not reinstated as a heterogeneity
+axis.** `05` D4 pre-authorized dropping `a` on a Gate-2 failure; it did not fail
+(`α` at init rises strictly monotonically 0.309 → 0.394, 6.4× the required range,
+in the expected direction). The knob works. But the binding constraint is now
+analysis time rather than compute, and H3 is still at risk pending the
+time-reparameterization test, so **`C3` and `C4` stay cut** — heterogeneity is the
+full paper's spine, not a rushed fourth result in this sprint.
 
-**Estimation mode is close to a pure rescaling of the `D`/`Ψ` pair.** `α` agrees
-to 1.02% (inside its 1.87% floor) and `R_eff` to 0.62%, but `D_eff` and `Ψ_eff`
-both inflate under `pairwise` by 1.2609 and 1.2676 respectively — a ratio of
-1.0053, so they cancel in `α = Ψ_eff(1+R_eff⁻²)/D_eff`. At `P = 2` only two
-manifolds compete for each `t`, so anchors are less constrained and apparent
-dimension rises. Two consequences: published GLUE *capacities* are comparable to
-ours while published *geometries* are not (a 26% `D_eff` offset is a mode
-difference, not a finding); and since Figure 2 decomposes into exactly the two
-affected channels, **it must be confirmed at ≥ 2 conditions that the factor is
-constant, so that it cancels in `Δlog D_eff`, before Phase 1 commits compute.**
-One condition cannot separate a constant offset from a varying one.
+**What is included: a homogeneous `a` sweep.** `C2` at `a ∈ {0, 0.5, 1}`, fixed
+`γ`, no heterogeneous pairs. Cheap, strengthens Figure 1's orthogonality panel
+(γ and `a` are exactly orthogonal at init — see the flat-in-γ row above), and
+banks the trajectory data H3 needs.
+
+**RESOLVED 2026-08-11 — `full_P` is MANDATORY for all Tier-2 measurement.**
+`results/mode_constancy.json` (`scripts/run_mode_constancy.py`, 9 geometries × 3
+seeds) tested whether the mode offset is constant. It is not: the
+`pairwise/full_P` ratio on `D_eff` ranges 1.038 → 1.253 (CV 7.1%) and on `Ψ_eff`
+1.050 → 1.283. Decisively, in `Δlog D_eff` — the quantity attribution uses — the
+two modes disagree by **9.7× the noise floor** on the comparison Phase 1 actually
+makes (`rep_init → rep_rich`: −0.227 vs −0.348), while agreeing to 0.1× the floor
+on two near-identical representations. The disagreement grows with the size of the
+geometry change, which is precisely the pathology that would contaminate Figure 2
+undetectably. `pairwise` is therefore computed and reported **only** where
+comparability with published values is the point.
+
+Appendix material either way: published GLUE *capacities* are comparable across
+estimation modes (`α` agrees to ~1% in every geometry tested, because the `D_eff`
+and `Ψ_eff` distortions are co-directional and cancel in
+`α = Ψ_eff(1+R_eff⁻²)/D_eff`) while published *geometries* are not. A 20–25%
+`D_eff` offset between modes is an estimator convention, not a finding.
+
+**Guard when building arrangements for estimation: keep `P(D+1) ≪ ambient`.** A
+first pass at this check placed synthetic manifolds in the input dimension
+`d = 150`, where `P(D+1) = 144` of 150 at `D = 8` — nearly degenerate, `D_eff`
+collapses for reasons unrelated to what is being measured. This is why `02` §1
+runs B.5 at `N = 1000`.
 
 **Train accuracy is not a usable progress measure in this model, and stopping must
 be on loss.** From `u_m(0) = 0`, one gradient step gives `u_m ∝ Σ_b y_b h(x_b)`,
@@ -245,7 +263,14 @@ Arithmetic means of `α_i` are a bug, not a convention choice.
 
 ### Phase 1 — H1, H2, H6 (homogeneous only)
 
-Grid: `γ` sweep × `a` sweep × Hiratani 2×2 streams, `C1`/`C2`, 8 seeds, 20 streams.
+Grid: `γ` sweep × **homogeneous** `a ∈ {0, 0.5, 1}` × Hiratani 2×2 streams,
+`C1`/`C2`, **8 seeds**, 20 streams. `C3`/`C4` cut (see Phase 0). `estimation_mode:
+full_P` throughout; `pairwise` only for the comparability appendix.
+
+**Seeds fixed at 8 (2026-08-11).** The MDE figures below are lower bounds computed
+from estimator Monte-Carlo variance at fixed manifolds, and the variance sources
+they exclude — network initialization and stream realization — are exactly what
+seeds average over. +1.7 h wall is worth it.
 
 **Cost (measured 2026-08-11, `results/cost_model.json`) — compute is not the
 binding constraint.** 52.4 s/eval at `n_t = 200`, one BLAS thread per worker,

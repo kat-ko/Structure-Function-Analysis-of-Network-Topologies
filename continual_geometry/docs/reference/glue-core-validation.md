@@ -276,6 +276,31 @@ high-`M` values so the compression is bounded empirically rather than argued.
 must carry "`D_eff` above ≈ 4 is a lower bound (finite-`M` compression, §5)". This
 is not optional and not satisfied by stating it once in the methods.
 
+**The attenuation, measured.** With ground truth known, the compression can be
+scored directly in log space at Phase 1 settings (`P = 16`, ambient 300, `M = 150`):
+
+| | `d log D_eff / d log D` | `d log R_eff / d log R` |
+|---|---|---|
+| `full_P` (P = 16, primary) | **0.663** | **0.581** |
+| `pairwise` (P = 2, lab standard) | 0.772 | 0.624 |
+
+1.0 would be faithful. So a true `Δlog D` registers as ≈ 2/3 of itself and a true
+`Δlog R` as ≈ 3/5 of itself: Figure 2's dimension and radius channels are
+attenuated by roughly a third and two fifths. This replaces the qualitative
+"understates rather than manufactures" with a number.
+
+**Not applied as a correction.** Dividing by 0.663 would import a
+synthetic-manifold calibration into representation measurements, and the mode
+ratios show those are a different regime (1.25 for representations against
+1.04–1.21 for synthetic points at matched ambient dimension). Reported as an
+attenuation bound on the effect size, not used to rescale.
+
+**Guard: keep `P(D+1) ≪ ambient`.** At `P = 16, D = 8` in an ambient of 150, the
+arrangement occupies 144 of 150 dimensions, the manifolds leave general position,
+and `D_eff` collapses for reasons unrelated to the estimator. This is why B.5 runs
+at `N = 1000`, and it is a real trap when measuring input manifolds rather than
+representations.
+
 Reaching a 5% deficit at `D = 10` would need `M ≈ 4000`, which is not affordable
 across the grid — hence a stated caveat plus the high-`M` robustness arm above,
 rather than a fix.
@@ -286,6 +311,7 @@ rather than a fix.
 
 ```
 scripts/run_glue_core_recovery.py   -> results/glue_core_recovery.json   (§2, §4)
+scripts/run_mode_constancy.py       -> results/mode_constancy.json       (§5)
 scripts/run_gate_2a.py              -> results/gate_2a.json              (§3)
 scripts/run_estimator_followups.py  -> results/estimator_followups.json  (§3, §5)
 scripts/run_scale_compression.py    -> results/scale_compression.json    (§5)

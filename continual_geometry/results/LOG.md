@@ -672,3 +672,73 @@ therefore richness, not differential training progress.
 time-reparameterization test (`00` §12): if warping step count by this factor
 collapses the geometry trajectories onto each other, H3 is dead. The factor is now
 measured, so the test has a principled warp to try first rather than a fitted one.
+
+---
+
+## 2026-08-11 — mode constancy: the `pairwise` offset is NOT constant
+
+`scripts/run_mode_constancy.py` → `results/mode_constancy.json`. Nine geometries ×
+3 seeds × both modes: six synthetic points moving one axis at a time from the
+Phase 1 base (`D` ∈ {2,4,8}, `R` ∈ {0.5,1,1.5}, `ρ_C` ∈ {0,0.4}) and three network
+representations (init, trained lazy γ=0.03, trained rich γ=10), since Phase 1
+measures representations rather than generated manifolds.
+
+**A first pass was wrong and is worth recording.** It placed the synthetic
+manifolds in the *input* dimension `d = 150`, where `P(D+1) = 144` of 150
+dimensions at `D = 8`: the arrangement is nearly degenerate, the manifolds are no
+longer in general position, and `D_eff` collapses for reasons unrelated to
+estimation mode. That inflated the effect (`D_eff` ratio reached 1.52). Redone in
+the *measurement* ambient dimension `N = 300`. **General rule: keep
+`P(D+1) ≪ ambient`** — this is why B.5 uses `N = 1000` — and it is now a guard
+worth having in any arrangement built for estimation.
+
+**Verdict: not constant.** The `pairwise/full_P` ratio on `D_eff` ranges
+1.038 → 1.253 (CV 7.05%) and on `Ψ_eff` 1.050 → 1.283 (CV 7.74%).
+
+The decisive statistic is not the ratio's spread but whether `Δlog D_eff` — the
+quantity the attribution actually uses — survives the mode change:
+
+| comparison | `Δlog D_eff` full_P | pairwise | error | vs floor |
+|---|---|---|---|---|
+| `rep_init → rep_rich` | −0.2273 | −0.3483 | 0.1210 | **9.7×** |
+| `rep_lazy → rep_rich` | −0.2247 | −0.3441 | 0.1194 | **9.5×** |
+| `rep_init → rep_lazy` | −0.0026 | −0.0042 | 0.0015 | 0.1× |
+| worst overall | +0.7199 | +0.9075 | 0.1876 | 15× |
+
+The third row is the internal control: two representations that are geometrically
+almost identical, where the two modes agree to a tenth of the noise floor. So the
+disagreement is not noise — **it grows with the size of the geometry change**,
+which is exactly the pathology that would contaminate Figure 2. The first two rows
+are the comparison Phase 1 actually makes (same network, different training
+states), and there the error is ~10× the floor.
+
+**Consequence, per the ratified rule: `full_P` is mandatory for all Tier-2
+measurement.** `pairwise` is computed and reported only where comparability with
+published values is the point. The appendix gets the observation that published
+GLUE *geometries* are not comparable across estimation modes while *capacities*
+are — `α` agrees to ~1% in every geometry tested, because the `D_eff` and `Ψ_eff`
+distortions are co-directional and largely cancel in `α = Ψ_eff(1+R_eff⁻²)/D_eff`.
+
+### Bonus, and it sharpens the compression caveat
+
+With ground truth known at these points, both modes can be scored directly. In
+log space, against the generated values:
+
+| | `d log D_eff / d log D` | `d log R_eff / d log R` |
+|---|---|---|
+| `full_P` (P=16) | **0.663** | **0.581** |
+| `pairwise` (P=2) | 0.772 | 0.624 |
+
+(1.0 would be faithful.) This upgrades the earlier qualitative statement — "the
+bias is monotone and compresses dynamic range, so the dimension channel
+understates rather than manufactures" — into a **measured attenuation factor**:
+at Phase 1 settings, a true `Δlog D` registers as ≈ 0.66 of itself and a true
+`Δlog R` as ≈ 0.58 of itself. Figure 2's dimension and radius channels are
+attenuated by roughly a third and two fifths respectively. Two consequences:
+
+1. The conservatism claim now has a number attached instead of a direction.
+2. It is *not* being used as a correction. Dividing by 0.663 would import the
+   synthetic-manifold calibration into representation measurements, which the
+   `rep_*` points show are a different regime (their mode ratios sit at 1.25 while
+   the synthetic points sit at 1.04–1.21). Reported as an attenuation bound, not
+   applied as a factor.
