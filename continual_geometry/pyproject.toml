@@ -14,6 +14,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0"]
+# Figures only (`scripts/fig_*.py`); no measurement code imports it.
+figures = ["matplotlib>=3.8"]
 # Only needed to run the vendored estimators; pymanopt is pinned by replicaMFT's
 # use of `pymanopt.solvers`, removed upstream in 1.0.
 vendored = ["cvxopt>=1.3", "autograd>=1.6", "pymanopt==0.2.5"]

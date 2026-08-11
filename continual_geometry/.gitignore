@@ -8,6 +8,11 @@
 # stay ignored:
 !/results/
 
+# Per-arm Phase 1 records: thousands of files at the full grid, each carrying full
+# loss curves and similarity matrices. The pooled `results/phase1_summary*.json` is
+# the tracked artifact; per-arm files are regenerable with `run_phase1.py --resume`.
+/results/phase1/
+
 # Human-only PDFs stay out of git (also enforced by papers/.gitignore).
 papers/*.pdf
 

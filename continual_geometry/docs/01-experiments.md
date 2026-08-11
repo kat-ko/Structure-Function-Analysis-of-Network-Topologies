@@ -209,9 +209,13 @@ loss. This was the natural first warp for the time-reparameterization test (`00`
 at different large γ are not one trajectory at two speeds, so **heterogeneity
 contrasts are unrestricted**. Three qualifications, all load-bearing:
 
-1. **Use well-separated γ, with γ = 10 as one endpoint.** γ=1 vs 3 is marginal
-   (1.05 ± 0.29) and those are the two arms that move least, so a 1-vs-3 contrast
-   is not demonstrably a shape difference.
+1. **DESIGN CONSTRAINT (binds the full paper's heterogeneity contrasts): every
+   large-γ heterogeneity contrast must use well-separated γ with γ = 10 as one
+   endpoint.** γ=1 vs 3 is marginal at 1.05 ± 0.29 — inside the decision boundary,
+   and those are the two arms that move least (9.8 and 27.2 floors), so a 1-vs-3
+   contrast is not demonstrably a shape difference rather than a rate difference.
+   A heterogeneous pair drawn from `{1, 3}` cannot support an H3 claim. This
+   carries forward to `C3`/`C4` when heterogeneity is built for the full paper.
 2. **At γ = 0.03 the geometry does not move** — total excursion 0.2 noise floors
    over the window while the loss falls 0.499 → 0.010, i.e. all learning is in the
    readout. Comparisons against it are *vacuous* for this test rather than
@@ -220,7 +224,27 @@ contrasts are unrestricted**. Three qualifications, all load-bearing:
 3. **Matching loss does not match geometry.** The rate that best aligns geometry is
    10–20× the rate that aligns loss (161.6 vs 8.0 for γ=1 vs 10), and even that
    leaves 6.9 floors. `matched_loss` equalizes training progress, not
-   representational change — worth stating wherever the stopping rule is described.
+   representational change.
+
+### FOR THE METHODS SECTION — the training protocol's two non-obvious facts
+
+Both are measured, both are easy for a reader to assume away, and both change how
+the γ axis should be read. State them together where the stopping rule is described.
+
+1. **Stopping must be on loss, and this is load-bearing rather than a preference.**
+   From `u(0) = 0`, one gradient step gives the kernel readout
+   `u ∝ Σ_b y_b h(x_b)`, whose *sign* is independent of the learning rate and of γ.
+   Train accuracy is therefore ~0.99 after a single step in every arm. An
+   accuracy criterion would halt training before any feature learning — the γ axis
+   would be silently dead and the null would look clean.
+2. **Matched loss equalizes training progress, not representational change.** The
+   time rescaling that best aligns the *geometry* trajectories of γ=1 and γ=10 is
+   **161.6×**, against **8.0×** for the rescaling that aligns their *loss* — and
+   even at the geometry-optimal rate a residual of **6.9 noise floors** remains.
+   Loss and representational geometry run on different clocks, so a matched-loss
+   protocol equalizes the first and not the second. Any claim of the form "compared
+   at equal performance" must not be read as "compared at equal representational
+   change".
 
 Also from the trajectories: **ρ_c is the most dynamic channel by a wide margin**
 (122 floors of movement at γ=10, against 22 for `R_eff`, 19 for `α`, 18 for
@@ -333,6 +357,50 @@ required. Do not gate submission on Phase 2.
 Kill criteria:
 - GLUE attributions do not separate by regime → fall back to the rotation/expansion decomposition (spec §9), which is far more robust
 - Generic capacity does not track the probe metric → report as a negative finding about label-agnostic geometry measures
+
+#### Phase 1 measurement plan (built 2026-08-11; `src/pipeline.py`, `scripts/run_phase1.py`)
+
+One arm = one `(γ, a, condition, stream, seed)`. `run_arm` trains the stream and
+returns everything Figures 2 and 3 need from a single pass.
+
+**Schedule — 38 evaluations per arm against the cost model's 40.** Tracked tasks are
+every 4th; each is measured at its own boundary and at every later measurement
+boundary: `{0:[0], 4:[0,4], 8:[0,4,8], 12:[0,4,8,12], 15:[0,4,8,12]}`. Two
+requirements this satisfies, both asserted by tests:
+
+- **Each tracked task's own boundary is measured.** Task `j`'s forgetting is
+  attributed against the geometry immediately after `j` was learned; a schedule
+  without that boundary has no denominator.
+- **The lag widens.** Retention at a single fixed lag can show how much is lost but
+  not how fast.
+
+**The measurement RNG is fixed across boundaries and shared between the generic and
+retained ensembles.** A difference between two boundaries is then the representation
+moving rather than the estimator resampling `(y, t)`, and the generic/retained
+crossing is paired at every boundary. With ~40 evaluations per arm each carrying
+1–2% Monte-Carlo noise, an unshared stream would put noise in the differences that
+does not cancel.
+
+**Probe measure: `margin`, not accuracy** (`results/probe_check.json`). Probe
+*accuracy* is exactly 1.0 at initialization and after training in every arm — load
+`P/N = 0.053` against a critical capacity near 0.3, so every balanced dichotomy is
+separable and separability at sub-critical load cannot track capacity. It would have
+plotted flat at 1.0 and read as "generic capacity preserved". The readout **margin**
+separates γ at SNR 4.0 with sign-consistent movement over training, and is the
+principled choice besides: capacity is the load at which the margin reaches zero.
+Held-out-*manifold* accuracy is retained as a **control only** — it sits at chance,
+correctly, because `y*` is a random dichotomy with no structure to generalize, and its
+apparent γ effect is one seed's initialization. If it ever rises above chance the
+probe is leaking factor structure.
+
+**`R_eff` is reported jointly with `ρ_c`, quantitatively.** Fitted on the B.5
+center-correlation sweep, `log R_eff = 0.0126 + 0.3548·(−log(1−ρ_c))` (R² = 0.99986,
+`D_eff` flat to 0.38% across the sweep), so attribution reports what fraction of each
+observed `Δ log R_eff` the observed `Δ ρ_c` accounts for. Denominators below the
+`R_eff` noise floor are suppressed rather than divided by. Fractions ≫ 1 are expected
+on representations and are meaningful — the calibration is fitted where `ρ_C` alone
+varies, so it over-predicts where radius and centers move together; it is a bound on
+the center-collapse share, never a correction to `R_eff`.
 
 ### Phase 2 — H3, H5 (heterogeneous)
 

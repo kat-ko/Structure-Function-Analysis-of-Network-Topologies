@@ -825,3 +825,111 @@ on ρ_c: the measure with the tightest noise floor is also the one that moves mo
    coincidence; corrected it is 11.54. Both directions are now pinned by controls:
    a synthetic pure-rate-rescaling must be recovered and called coincident, and a
    synthetic shape inversion must survive every warp.
+
+---
+
+## 2026-08-11 — Phase 1 pipeline, and the artifact check becomes a rule
+
+Phase 0 is closed. `AGENTS.md` §8.2 now makes the pattern that closed it mandatory:
+**before interpreting any result, state what would have to be true for it to be an
+artifact, and check that.** Both of the last two bugs were caught by diagnostics
+rather than by tests, and the DTW one was a false negative that would have killed H3
+and looked like a finding. The section carries the four cases so far as a table, plus
+the four checks that have earned default status: compare against an exactly solvable
+limit; vary what should not matter; confirm the method *fails* where it should;
+and ask whether the quantity moved at all before interpreting agreement about how it
+moved.
+
+It earned its keep within the hour — see the probe finding below.
+
+### Built
+
+- `src/analysis/attribution.py` — the exact three-factor log-space decomposition, plus
+  the `ρ_c → R_eff` conversion.
+- `src/pipeline.py` — one arm end to end: stream → sequential training → Tier-2
+  geometry on a schedule → attribution, accuracy matrix, `CF`/`CFr`, and the `00` §11
+  manipulation checks.
+- `scripts/run_phase1.py` — the grid, resumable, one JSON per arm.
+- `scripts/run_probe_check.py` → `results/probe_check.json`.
+- `scripts/fig_gamma_excursion.py` → `results/fig_gamma_excursion.csv` and
+  `results/figures/gamma_excursion.{pdf,png}`.
+- 26 new tests; 90 pass.
+
+**Schedule and budget.** Tracked tasks every 4th, measured at their own boundary
+(the attribution baseline) and at every later measurement boundary, so retention is
+followed over a widening lag rather than at one fixed lag: `{0:[0], 4:[0,4],
+8:[0,4,8], 12:[0,4,8,12], 15:[0,4,8,12]}`. That is **38 evaluations per arm against
+the cost model's 40**, asserted by a test. The measurement RNG is fixed across
+boundaries and shared between the generic and retained ensembles, so a change between
+two boundaries is the representation moving, and the generic/retained crossing is
+paired at every boundary.
+
+### The probe measure was dead, and its first replacement was noise
+
+Figure 3 overlays a probe metric on generic capacity. The obvious choice — accuracy
+of a refit linear readout on the held-out dichotomy `y*` — is **exactly 1.0**, at
+initialization and after training, in both modules, at every γ. The load is
+`P/N = 16/300 = 0.053` against a critical capacity near 0.3, so every balanced
+dichotomy is separable with room to spare, and separability at fixed sub-critical
+load cannot track capacity. It would have plotted as a flat line at 1.0 and read as
+"generic capacity is preserved".
+
+Three candidates, scored on whether the γ signal beats the measure's own noise:
+
+| measure | γ=10 | γ=1 | γ=0.03 | signal | noise | SNR | verdict |
+|---|---|---|---|---|---|---|---|
+| `accuracy` | 1.0000 | 1.0000 | 1.0000 | 0 | 0 | — | **saturated** |
+| `margin` | 0.0500 | 0.0632 | 0.0598 | 0.0132 | 0.0033 | **4.0** | use |
+| `margin_p05` | 0.0462 | 0.0565 | 0.0521 | 0.0102 | 0.0032 | 3.2 | use |
+| `heldout_manifold_accuracy` | 0.4608 | 0.4635 | 0.4142 | 0.0494 | 0.1206 | 0.4 | **noise** |
+
+**`margin` is the probe measure**, and it is the principled one rather than a
+fallback: capacity *is* the load at which the margin reaches zero, so the margin is
+the graded quantity underneath the thresholded one. Its change over training is
+sign-consistent across seeds in every arm — rich training reduces the probe margin,
+γ=0.03 leaves it unchanged to four decimals, which is the geometrically static lazy
+arm showing up again on an independent measure.
+
+**Held-out-manifold accuracy is a control, not an overlay.** It sits at chance with a
+within-run split sd of 0.06–0.16, which is *correct* rather than broken: `y*` is a
+random balanced dichotomy, so there is no shared structure for a readout fitted on 12
+manifolds to extend to 4 unseen ones. Its apparent γ=0.03 dip is one seed's
+initialization (0.329 vs 0.495 at init, and γ=0.03 barely moves), not an effect of γ.
+Kept because if it ever rises above chance, the probe is leaking factor structure.
+
+The artifact rule is what produced this: the first question asked of a 1.0 was "did
+this quantity move at all", and the second, asked of the 0.414, was "is this
+difference bigger than the seed difference". It was not.
+
+### `ρ_c → R_eff`: the conversion is measured, and it does not transfer unchanged
+
+Fitted on the B.5 center-correlation sweep, where ground-truth `ρ_C` 0 → 0.8 drives
+`R_eff` 1.02 → 1.82 while `D_eff` stays flat to **0.38%** — the radius absorbs center
+correlation essentially alone, as Wakhloo's duality says:
+
+    log R_eff = 0.0126 + 0.3548 · (−log(1 − ρ_c))      R² = 0.99986
+
+`R_eff ∝ (1 − ρ_c)^(−0.355)`, five points, near-exact. Attribution now reports what
+fraction of each observed `Δ log R_eff` the observed `Δ ρ_c` accounts for, which makes
+`00` §8's joint-reporting requirement quantitative.
+
+Two guards, both from the first smoke grid. The denominator is **floored at the
+`R_eff` noise floor** (CV 0.50%): fractions of −134 were coming from radius changes of
+order 1e-3, and a ratio whose denominator is unresolvable is not a measurement.
+And fractions **≫ 1 survive legitimately** — one group reports 42 — which is
+informative rather than broken: it means `ρ_c` collapsed far more than the radius
+followed, so the synthetic calibration (fitted where `ρ_C` is the *only* thing
+varying) over-predicts on representations, where radius and centers move together.
+**Open, to settle at the design point:** whether that over-prediction is systematic
+enough to quote a transfer factor, or whether the conversion should be reported only
+as a bound. Not answerable at smoke settings (`n_t = 25`).
+
+### Smoke grid runs; the shape is right and is not yet evidence
+
+Reduced settings (`T=4, P=8, M=40, N=80, n_t=25`) — a wiring check, not a
+measurement. Retained capacity falls at every lag, far more at γ=10 (Δlog α ≈ −0.95
+to −1.28 at lag 1) than at γ=0.3 (−0.11), and the dominant factor differs between
+them: utility at γ=10, radius at γ=0.3. That is the H1 shape. It is also 25 `(y,t)`
+samples and one seed, so it goes in this log and nowhere near a figure.
+
+Identity residual across every evaluation in the suite: **≤ 3.5e-16**.

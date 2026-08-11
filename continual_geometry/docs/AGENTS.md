@@ -157,3 +157,37 @@ Rules:
 3. This applies to the numbers already written into `00-math-spec.md` and the other
    specs. A cell transcribed from a search snippet is `inferred` until checked
    against the source, regardless of who wrote it.
+
+## 8.2 Artifact check — mandatory before interpreting any measurement
+
+**Before stating what a result means, state what would have to be true for it to be
+an artifact, and check that.** Write both the candidate artifact and its check into
+`results/LOG.md` alongside the result. A result reported without this step is not
+finished, whatever its p-value.
+
+This is not a general exhortation to be careful. It is here because every silent
+bug in this project so far has been caught by a diagnostic rather than by a test,
+and each would have produced a clean, publishable-looking number:
+
+| Result as it first appeared | Would have concluded | Actual artifact |
+|---|---|---|
+| Non-convergence at low γ | γ needs a bigger step budget | Accuracy saturates at step 1 — the kernel readout is sign-correct immediately, so stopping on accuracy halted before any feature learning |
+| Loss plateau at 0.34 below γ≈3 | Lazy arm is expressivity-limited | `lr0` too small; the exact readout solution reaches 0.0002 |
+| `D_eff` ratio 1.52 at `D`=8 | Mode offset grows steeply with dimension | `P(D+1)` = 144 of 150 ambient — arrangement nearly degenerate |
+| DTW residual 1.18 for γ=1 vs 10 | **H3 is dead** | Coverage required in *either* series, so a static trajectory matched the other's flat opening |
+
+The last one is the case to remember: a false negative that would have killed a
+hypothesis and looked like a finding.
+
+Checks that have earned their place as defaults:
+
+- **Compare against an exactly solvable limit.** The readout solved by least
+  squares; point manifolds where `α = 2`; a zero-padded embedding where the answer
+  must be unchanged.
+- **Vary the thing that should not matter.** Ambient dimension at fixed geometry,
+  `n_t`, seed, `P`. If the number moves, it is the estimator's, not the system's.
+- **Check the null direction too.** For any alignment or fitting procedure, confirm
+  it *fails* on inputs it should fail on. A method that always finds agreement has
+  not tested anything.
+- **Ask whether the quantity moved at all** before interpreting agreement about how
+  it moved. A static trajectory or a saturated metric agrees with everything.

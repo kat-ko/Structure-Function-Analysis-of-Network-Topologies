@@ -101,7 +101,7 @@ def record_geometry_trajectory(
     step = 0
     for target_step in checkpoints:
         while step < target_step:
-            loss = model.sgd_step(X, target)
+            model.sgd_step(X, target)
             step += 1
         reps = model.manifold_representation(points, module=module)
         r = core.glue_measures(reps, np.random.default_rng(measure_rng_seed), n_t=n_t)
