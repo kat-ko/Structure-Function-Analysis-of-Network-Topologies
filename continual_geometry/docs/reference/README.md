@@ -39,6 +39,7 @@ matter how confident it looks.
 | `cl-metrics.md` | agent-drafted | awaiting human verify |
 | `glue-algorithm.md` | **human** (Algorithm 2 + Def B.6; high transcription risk) | not written |
 | `glue-decomposition.md` | agent-drafted (ICLR 2026 §B.3, exact 3-factor identity + a/b/c) | awaiting human verify |
+| `glue-core-validation.md` | agent-**measured** (own implementation; every number from `results/*.json`, not from a paper) | written; awaiting human verify |
 | `glue-sign-conventions.md` | **human** (App B.4; ρ_a vs ρ_c opposite, ψ non-monotone) | not written |
 | `correlation-duality.md` | agent-draft → human verify vs PRL supplement (+ Gaussianization, `00` §6.3) | not written |
 | `glue-refinements.md` | agent-draft (main text) → human verify + extract S1 | drafted; which-assumptions done, A2↔C4 cross-ref added, S1 formula pending |

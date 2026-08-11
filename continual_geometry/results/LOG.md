@@ -303,3 +303,134 @@ upstream in pymanopt 1.0, so that pin must not be raised. Recorded in
   a manifold is inactive) is a flagged convention; `"all"` is the literal §B.3
   reading and passes recovery, so it stays default. Recorded in the result key.
 - ρ_a and ψ_{μν} deliberately out of scope.
+
+---
+
+### P1 — cost model: Phase 1 fits in **2.8 h wall**, no cuts needed
+
+`scripts/run_cost_model.py` → `results/cost_model.json`. Machine: 256 logical
+cores (2 × AMD EPYC 7763), 503 GB. Workers pinned to 1 BLAS thread each.
+
+**The 18 s/eval figure was a multithreaded-BLAS number.** Pinned to one thread the
+base point (P=16, M=150, N=300, n_t=200) costs **52.4 s/eval**. That is the right
+number to plan with, because throughput is set by total core-seconds, not by
+per-eval latency, and one process per core beats few processes with threaded BLAS.
+
+Grid as specified — T=16, Tier-2 every 4th boundary → 40 evals/run;
+6 γ × 4 conditions × 10 streams × 5 seeds = 1,200 runs = **48,000 evaluations**:
+
+| `n_t` | s/eval | serial | wall @248 workers | α CV |
+|---|---|---|---|---|
+| 50 | 13.1 | 175 h | 0.70 h | 3.23% |
+| 100 | 26.2 | 349 h | 1.41 h | 2.82% |
+| **200** | **52.4** | **699 h** | **2.82 h** | **1.87%** |
+| 400 | 104.8 | 1397 h | 5.63 h | 1.03% |
+| 800 | 209.6 | 2795 h | 11.27 h | 0.72% |
+
+**Decision: keep `n_t = 200`. The cut order is not invoked** — no reduction to
+Tier-2 interval, retained-tasks-evaluated, seeds, or streams. Even `n_t = 400`
+(CV 1.0%) is affordable at 5.6 h if a measure turns out to need it.
+
+Noise floors at the base point (12 replicates, `n_t = 200`), for `02` §6:
+α 1.87%, D_eff 1.26%, R_eff 0.50%, Ψ_eff 1.39%, ρ_c 0.97%.
+
+Scaling, for future sizing: cost is superlinear in `P` (≈ P^2.1: 70 / 288 /
+1285 ms per sample at P = 8/16/32, M=150, N=300) and ≈ M^1.6, and grows with `N`.
+`P = 32` would have cost ~4.5× — worth noting given that §2a came out against
+needing it. `α_sim` is cheap by comparison (1.4–35 s per full bisection).
+
+### P2a — `center_policy`: `"all"` wins, on evidence
+
+Full B.5 protocol under both policies, at `n_t ∈ {200, 1000}`
+(`results/glue_core_recovery.json`, 180 estimations, 69 s). Mean absolute relative
+recovery error:
+
+| policy | `D → D_eff` | `R → R_eff` | `ρ_C → rho_c_glue` |
+|---|---|---|---|
+| `"all"` | 10.3% | 7.0% | **3.7%** |
+| `"active"` | **9.6%** | **6.4%** | 8.6% |
+
+`"active"` wins by under a percentage point on `D` and `R` — comparable to seed
+noise — while `"all"` wins by more than 2× on `ρ_C`, consistently at both `n_t`.
+`ρ_C` is also the most direct of the three tests since the generated correlation
+is exactly known, and `"active"` systematically over-estimates `ρ_c`
+(0.043/0.239/0.434 vs truth 0/0.2/0.4) — the measure H1d turns on.
+**Default stays `"all"`, now with evidence rather than by default.** Conclusions
+about D and R are robust to the choice; conclusions about ρ_c are not. Kept in the
+result key either way.
+
+### P2b — scale compression is finite-`M`, and we found the mechanism
+
+Three candidate causes, all tested (`results/scale_compression.json`):
+
+1. **Not `(y,t)` Monte-Carlo.** `n_t` 200 → 1000 moves `D_eff` at `D=10` from 8.17
+   to 8.19, `R_eff` at `R=2` from 1.773 to 1.785. Gap does not close.
+2. **Not an artifact of B.5's `P = 2`.** Mean |rel err| on `D`: 13.1% (P=2),
+   14.4% (P=8), 16.5% (P=16). Nearly flat.
+3. **It is finite sampling of each manifold.** `D_eff/D` at P=2, N=1000:
+
+| `M` | 50 | 100 | 200 | 400 | 800 |
+|---|---|---|---|---|---|
+| D=2 | 1.112 | 1.118 | 1.123 | 1.127 | 1.130 |
+| D=6 | 0.846 | 0.898 | 0.934 | 0.955 | 0.969 |
+| D=10 | 0.671 | 0.750 | 0.817 | 0.865 | 0.897 |
+
+The deficit falls as ≈ `M^-0.45` and converges to 1. Anchors are extreme points of
+a finite sample, and a finite sample under-represents a high-dimensional
+manifold's extent; higher `D` needs more points for the same coverage. The ~12%
+over-report at `D = 2` is a separate, `M`-independent effect.
+
+**Consequence — a caveat, not a fix.** 5% deficit at `D = 10` would need
+`M ≈ 4000`, unaffordable at Phase-1 scale. But the bias is monotone (signs and
+rank orders preserved), a fixed transform at fixed `M` (which we hold constant),
+and it **compresses** dynamic range — so estimated `Δ log D_eff` is biased *toward
+zero* and the §8 dimension channel is **conservative**: a real contribution can be
+understated, never manufactured. Stated in `00` §6.1 and in the paper.
+
+### P2c — B.5 presentation corrected
+
+The earlier table read as a confounded diagonal because three independent sweeps
+were compressed into one row-per-measure. The script and the sheet now report each
+sweep separately with the off-axis knobs stated (`D` and `R` each swept at
+`ρ_C = 0`; `D = 4, R = 1` held while `ρ_C` sweeps). The underlying runs were always
+independent — this was a reporting defect, not a design one.
+
+### P3 — §2a at β = 0: **`P = 16, N = 300` confirmed, escalation not triggered**
+
+`scripts/run_gate_2a.py` → `results/gate_2a.json`. 81 estimations, 411 s.
+
+| P | N | α_sim | α_core | α_mf | core–sim | mf–sim |
+|---|---|---|---|---|---|---|
+| 8 | 300 | 0.483 ± 0.052 | 0.440 ± 0.006 | 0.388 | 8.9% | 19.8% |
+| 8 | 600 | 0.449 ± 0.046 | 0.439 ± 0.013 | 0.387 | 2.2% | 13.9% |
+| 8 | 1200 | 0.436 ± 0.043 | 0.430 ± 0.016 | 0.387 | 1.5% | 11.3% |
+| **16** | **300** | 0.420 ± 0.017 | 0.434 ± 0.002 | 0.413 | **3.4%** | **1.6%** |
+| 16 | 600 | 0.440 ± 0.009 | 0.440 ± 0.004 | 0.414 | 0.0% | 6.0% |
+| 16 | 1200 | 0.460 ± 0.013 | 0.437 ± 0.006 | 0.413 | 4.9% | 10.1% |
+| 32 | 300 | 0.437 ± 0.014 | 0.440 ± 0.005 | 0.423 | 0.7% | 3.1% |
+| 32 | 600 | 0.451 ± 0.007 | 0.433 ± 0.001 | 0.421 | 4.0% | 6.6% |
+| 32 | 1200 | 0.440 ± 0.019 | 0.439 ± 0.004 | 0.422 | 0.1% | 3.9% |
+
+`α_core` vs `α_sim`: 2.9% mean, ≤5% everywhere except (P=8, N=300), no systematic
+sign. At the design point both `α_core` (3.4%) and `α_mf` (1.6%) sit inside
+`α_sim`'s own seed scatter. **The `N`→600→1200 and `P`→32 escalation ladder is not
+invoked; the five-factor redesign is off the table.**
+
+**Caveat recorded rather than buried:** the clean `O(1/N)` trend appears only at
+`P = 8` for `α_mf` (19.8 → 13.9 → 11.3%). Elsewhere there is no trend, because
+`α_core` is flat in `N` (< 2% variation at fixed geometry, seed SD ~0.004) while
+**`α_sim` itself drifts upward with ambient `N`** (0.420 → 0.440 → 0.460 at P=16)
+with 3–10× larger seed SD. The generated geometry is `N`-independent, so that
+drift is a property of the simulation estimator — its bisection range and
+projection statistics both scale with `N`. Part of the residual at large `N` is
+therefore `α_sim`'s bias, not `α_core`'s error. Neither is asserted correct; both
+are reported. This does not affect the design-point conclusion, which is at the
+smallest `N`.
+
+### Documentation
+
+`docs/reference/glue-core-validation.md` created — the paper's methods paragraph
+and the reviewer answer to "you implemented the estimator yourself". Records, with
+numbers: the α=2 exact limit, B.5 recovery per axis, the α_sim/α_mf cross-check,
+the center_policy decision, and the compression limitation with its mechanism.
+`Verified by (human)` blank.

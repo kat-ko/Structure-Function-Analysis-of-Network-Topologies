@@ -168,8 +168,17 @@ commitments attached; `P` is expensive — it is tied to the factorial design
 (4 factors → 16, 5 → 32), and changing it changes the dichotomy families, CCGP
 structure, single-factor/XOR counts, and every similarity calculation.
 
-**OPEN DECISION (must resolve now, not after Phase 1)** — pre-specified order if §2a
-fails at `(P=16, N=300)`:
+**RESOLVED 2026-08-11 — `P = 16, N = 300` stands; escalation not triggered.**
+`results/gate_2a.json` (`scripts/run_gate_2a.py`, `P × N`, 3 seeds, M=60, n_t=200):
+at the design point `α_core` is within **3.4%** of `α_sim` and `α_mf` within
+**1.6%** — the best mean-field agreement anywhere in the sweep, and inside
+`α_sim`'s own seed scatter (±0.017). `α_core` varies < 2% across `N` at fixed
+geometry while `α_sim` itself drifts upward with ambient `N`, so the residual is
+at least partly the simulation estimator's own bias. **The five-factor `P = 32`
+redesign is off the table**; the ladder below is retained as the record of what
+would have happened. See `docs/reference/glue-core-validation.md` §3.
+
+The pre-specified order, had §2a failed at `(P=16, N=300)`:
 
 1. **Raise `N`** (300 → 600 → 1200). Costs compute and nothing else. Prefer this.
 2. If capacity accuracy is still marginal but `N` cannot go higher, **accept and

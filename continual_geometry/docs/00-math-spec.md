@@ -295,6 +295,28 @@ capacity vector `α_i` (replicaMFT does), reduce with the **harmonic mean**
 `α = 1 / mean(1/α_i)` — **never** the arithmetic mean. Rationale: `α = P/N_crit`
 and critical dimensions add across manifolds.
 
+**Implementation conventions, settled by measurement 2026-08-11**
+(`docs/reference/glue-core-validation.md`; all numbers reproducible from
+`scripts/run_*.py`):
+
+- **Joint QP, not per-manifold.** Anchors come from one QP over all `P·M`
+  constraints. `diag(y)` cancels in `a/b/c`, so a per-manifold construction would
+  be label-invariant — i.e. would silently rebuild `α_mf`'s limitation.
+- **Inactive manifolds contribute a zero row.** Pinned by the exact point-manifold
+  limit: this reproduces `α = 2` at `κ = 0` (measured 2.00 ± 0.12).
+- **`center_policy = "all"`** for `s⁰_μ = E[s^μ(y,t)]` — the literal §B.3 reading.
+  Chosen on evidence: `"active"` is marginally better on `D`/`R` recovery (< 1 pp)
+  but more than 2× worse on `ρ_C` recovery (8.6% vs 3.7%), and it systematically
+  over-estimates `ρ_c`, which is H1d's instrument. Recorded in every result key.
+- **Independent `t` and `y` RNG streams**, so comparisons across `β` are paired.
+- **Known bias — scale compression.** `D_eff` and `R_eff` over-report below
+  `D ≈ 4` / `R ≈ 1` and under-report above (18% low at `D = 10`, 11% at `R = 2`).
+  Mechanism measured: finite sampling of each manifold — the deficit shrinks as
+  `M^-0.45` and is independent of `n_t` and of `P`. It is monotone, so signs and
+  rank orders are preserved, and it biases `Δ log D_eff` **toward zero**, making
+  the §8 dimension channel conservative. Absolute `D_eff` above 4 is a lower
+  bound and must be reported as such.
+
 #### What `replicaMFT` actually provides — read before using it
 
 Verified 2026-08-11 by reading `mftma/manifold_analysis_correlation.py`. These

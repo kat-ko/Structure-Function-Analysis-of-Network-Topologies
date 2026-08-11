@@ -87,6 +87,15 @@ test_mean_field_validity:
     record mean and max relative error per beta -> results/mft_validity.json
 ```
 
+**Ran 2026-08-11 at β = 0 over `P ∈ {8,16,32} × N ∈ {300,600,1200}`**
+(`scripts/run_gate_2a.py` → `results/gate_2a.json`). At the design point
+`(P=16, N=300)`: `α_core` within **3.4%** of `α_sim`, `α_mf` within **1.6%**.
+Mean `α_core` error across the surface 2.9%, no systematic sign; `α_mf` is
+systematically low (1.6–19.8%, worst at `P = 8`, improving with `N` as expected).
+**`P = 16, N = 300` confirmed** — see `01` Phase 0 and
+`docs/reference/glue-core-validation.md` §3. The β > 0 half of this gate is still
+to run.
+
 `β = 0` answers whether mean-field holds at our parameters at all.
 **`β = ∞` validates retained capacity, which is what the §8 money figure runs on**
 — and it now tests *our* estimator, not a vendored one, which is why `§2a` and the
