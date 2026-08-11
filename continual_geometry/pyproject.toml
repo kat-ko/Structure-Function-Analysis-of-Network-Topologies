@@ -9,10 +9,14 @@ description = "Geometric signatures of sequential learning"
 requires-python = ">=3.10"
 dependencies = [
   "numpy>=1.24",
+  "scipy>=1.11",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0"]
+# Only needed to run the vendored estimators; pymanopt is pinned by replicaMFT's
+# use of `pymanopt.solvers`, removed upstream in 1.0.
+vendored = ["cvxopt>=1.3", "autograd>=1.6", "pymanopt==0.2.5"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -209,3 +209,97 @@ come from the **joint** QP over all `P·M` constraints with rows `y_μ z^μ_j`
 (Algorithm 2 / `00` §6.1) — where the shared separating direction couples the
 manifolds. Implementing joint; `maxproj`/`minimize_vt_sq` still usable for the
 `P = 2` cross-check. No vendored code touched either way.
+
+### `src/glue/core.py` built and **validated** — both targets pass
+
+Joint anchor QP at κ=0: `min ½‖v−t‖²  s.t. Gv ≤ 0`, rows of `G` = `y_μ z^μ_i`.
+KKT gives `v = t − Gᵀλ`, so the duals are the NNLS problem
+`λ = argmin_{λ≥0} ‖Gᵀλ − t‖²` — solved with `scipy.optimize.nnls`, no cvxopt and
+no vendored code in the path. Anchors are the unsigned dual-weighted averages
+`Σλ z / Σλ` per `00` §6.1.
+
+**Convention resolved by a hard check, not by choice.** A manifold with zero dual
+mass gets a **zero row**. That reproduces the rectification in the replica
+expression `α = 1/E[(⟨t,ŝ⟩)₊²]`: for `P` orthonormal point manifolds ~half are
+active, `E[a] = P/2`, so `α = 2` — the known κ=0 point-manifold capacity.
+`test_point_manifold_capacity_is_two` measures **α = 2.00 ± 0.12**, active
+fraction 0.50. This is the load-bearing test for the whole formulation.
+
+**Also found and fixed:** ensembles must use an RNG stream for `y` independent of
+the one for `t` (`rng.spawn(2)`), or comparisons across β differ by Monte-Carlo
+noise on `t` as well as by `Y`. At `n_t = 150` that noise is ~10% of α — larger
+than the effects being compared. Tilt-β=50 and retained now agree to <1%.
+
+**Gate 1 — §B.5 ground-truth recovery** (P=2, M=200, N=1000, n_t=200, 3 seeds;
+`results/glue_core_recovery.json`, 162 s). Recovery is close to identity on all
+three axes, with clean cross-axis separation:
+
+| ground truth | 2 / 0.8 / 0.0 | 4 / 1.0 / 0.2 | 6 / 1.4 / 0.4 | 8 / 1.7 / 0.6 | 10 / 2.0 / 0.8 |
+|---|---|---|---|---|---|
+| `D_eff` vs D | 2.25 | 4.07 | 5.60 | 6.98 | 8.17 |
+| `R_eff` vs R | 0.87 | 1.02 | 1.34 | 1.56 | 1.77 |
+| `rho_c_glue` vs ρ_C | 0.04 | 0.22 | 0.41 | 0.61 | 0.81 |
+
+`D_eff` is pinned at 4.07–4.08 across **both** the R and ρ_C sweeps — the axes are
+separable. `α` falls monotonically on all three. `Ψ_eff ∈ [0.85, 0.91] ⊂ [0,1]` ✓.
+`identity_residual < 1e-8` everywhere (exact by construction, so this is a
+transcription check on the file).
+
+**F4 resolved with a number.** The cross-sheet ambiguity — does axis/center
+correlation land in `R` or in `D`? — is now measured at our parameters: sweeping
+ρ_C from 0 → 0.8 moves `R_eff` 1.02 → 1.82 and leaves `D_eff` at 4.07 → 4.08.
+**Correlation is absorbed entirely by the radius**, as Wakhloo's duality predicts,
+not by dimension. §8 attribution must keep reporting ρ_c alongside R.
+
+**Gate 2 — α channel vs `α_sim`.** P=8, d=200, D=4, R=1, M=60:
+`α_sim = 0.471` vs `α_core = 0.433` (8%, and `α_sim` is coarse here — `N_c = 17`).
+
+**Deadline met on Day 3, not Day 14.** The rotation/expansion fallback for
+Figure 2 is not needed.
+
+### `src/glue/adapters/simcap.py` — and a correction to the α_sim assumption
+
+**`manifold_simcap_analysis` is generic-only as shipped.** `compute_sep_Nc_general`
+(`:180`) draws its *own* random balanced labels internally, so the vendored entry
+point cannot produce retained or tilted capacity either — the "α_sim runs a real
+SVM with real labels" claim holds for `check_data_separability_general` (which
+takes explicit labels and *is* public), not for the entry point above it. The
+adapter therefore owns the bisection: injected `Ensemble`, injected
+`numpy.random.Generator` (which also removes the global `np.random.seed` violation
+of `AGENTS.md` §4), vendored SVM call unchanged. Nothing in `third_party/` touched.
+
+Figure 3 is still safe — but via this adapter, not via the vendored function.
+
+### `02` §2c Ψ_eff diagnostic — ran, mismatched as predicted
+
+`results/psi_eff_diagnostic.json`, n_t = 200:
+
+| | P=8 | P=16 |
+|---|---|---|
+| `Ψ_eff` via replicaMFT identity | 0.694 | 0.665 |
+| `Ψ_eff` direct `E[c]/E[a]` (core) | 0.772 | 0.768 |
+| relative gap | **10.1%** | **13.4%** |
+| `D_M` vs `D_eff` | 3.26 / 3.70 | 3.32 / 3.58 |
+| `R_M` vs `R_eff` | 1.069 / 1.001 | 0.967 / 0.992 |
+| `α_mf` vs `α_core` | 0.399 / 0.417 | 0.415 / 0.433 |
+| `center_cos_abs` vs `rho_c_glue` / `rho_c_signed` | 0.143 / 0.044 / 0.025 | 0.074 / 0.040 / 0.000 |
+
+Confirms F4 (the PRX functionals are not the GLUE ones) and F1 (`res_coeff0` is a
+third quantity, ~3× `rho_c_glue` here). Note `α_mf` and `α_core` agree to ~4% on
+the **generic** channel — exactly the cross-check role replicaMFT now has.
+
+### Environment
+
+Added `scipy` (core dependency). Vendored estimators need `cvxopt`, `autograd`,
+and **`pymanopt==0.2.5`** — replicaMFT imports `pymanopt.solvers`, removed
+upstream in pymanopt 1.0, so that pin must not be raised. Recorded in
+`requirements.txt` and as the `vendored` extra in `pyproject.toml`.
+**`pytest`: 30 passed.**
+
+### Still open
+
+- `preprocessing.py` and ood-geometry vendoring remain deferred, per instruction.
+- `center_policy` (`"all"` vs `"active"` when averaging anchors over samples where
+  a manifold is inactive) is a flagged convention; `"all"` is the literal §B.3
+  reading and passes recovery, so it stays default. Recorded in the result key.
+- ρ_a and ψ_{μν} deliberately out of scope.
