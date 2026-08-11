@@ -290,10 +290,40 @@ D_eff   = (1/P) · E[b]
 R_eff   = sqrt( E[c] / E[b − c] )
 Ψ_eff   = E[c] / E[a]                 # "effective utility" ∈ [0,1]
 ```
-`replicaMFT` returns `{α, R_eff, D_eff, ρ_c, K}`; it does **not** return `Ψ_eff`
-or expose `a/b/c`. The adapter derives `Ψ_eff = α · D_eff / (1 + R_eff⁻²)` (exact
-by §6.2) and marks it `derived_via_identity=True` until `05` §3.3 validates it
-against an independent `E[c]/E[a]`.
+**Aggregation rule (pinned).** Wherever an estimator returns a *per-manifold*
+capacity vector `α_i` (replicaMFT does), reduce with the **harmonic mean**
+`α = 1 / mean(1/α_i)` — **never** the arithmetic mean. Rationale: `α = P/N_crit`
+and critical dimensions add across manifolds.
+
+#### What `replicaMFT` actually provides — read before using it
+
+Verified 2026-08-11 by reading `mftma/manifold_analysis_correlation.py`. These
+limits are **structural** (properties of the replica theory GLUE refines), not
+implementation gaps:
+
+- **`α_mf` is label-invariant by construction — generic capacity only.**
+  `manifold_analysis_corr(XtotT, kappa, n_t)` takes **no `y`** and analyses each
+  manifold **independently**: the dichotomy average is integrated out
+  *analytically* in the replica derivation, so there is no `y` to pass.
+  **Retained and tilted capacity are not extractable from it at any effort.**
+  This is exactly GLUE's relaxed assumption A2 (`docs/reference/glue-refinements.md`).
+- **`res_coeff0` is NOT the anchor-based ρ_c.** It is the mean over `μ≠ν` of the
+  **absolute cosine** between *global-mean-subtracted **manifold** centers* (raw
+  class means) in a `P−1` basis — abs **and** normalized, on manifold centers,
+  not anchor centers `s⁰_μ`. It matches **neither** `rho_c_glue` (abs,
+  unnormalized) **nor** `rho_c_signed`. Record it as `center_cos_abs`
+  (replicaMFT-specific); **do not report it as ρ_c**.
+- **`R_M`/`D_M` are the PRX-2018 eq-28/29 functionals**, not the `R_eff`/`D_eff`
+  above. The derived `Ψ_eff = α·D_eff/(1+R_eff⁻²)` is therefore **expected to
+  fail** against replicaMFT outputs; `02` §2c is reclassified gate → **diagnostic**.
+- **Anchor centers are formed then discarded**, in a *per-manifold* frame
+  (per-manifold centering, norm division, and a per-manifold QR re-basis when
+  `N > M`), so cross-manifold `⟨s⁰_μ, s⁰_ν⟩` is not recoverable from its returns.
+
+**Consequence.** The three-factor decomposition is computed by **our own GLUE
+core** (`src/glue/core.py`, estimator string `glue_core@<sha>`), which builds
+anchor points in the **ambient** frame under a shared `y` per §6.1. `replicaMFT`
+is retained as a **cross-check on generic α only**, under the §9 pooling firewall.
 
 **Pairwise alignment measures (Def B.6 / ICLR 2026 §B.3 — absolute value,
 unnormalized, cross-index; convention C3):**
@@ -380,6 +410,21 @@ App. A.1.
 
 (Terminology: the term "aligned capacity/margin" is **retired**; use
 `retained_capacity` for the fixed-`y_j` quantity — see `AGENTS.md` §3.)
+
+**Estimator routing (pinned 2026-08-11).** `y` is not an optional argument that
+some estimators happen to lack — it is what separates the two theories:
+
+| Quantity | `α_sim` | `α_core` (`src/glue/core.py`) | `α_mf` (`replicaMFT`) |
+|---|---|---|---|
+| generic (β = 0) | yes | yes | yes (cross-check only) |
+| retained (β = ∞) | yes | yes | **impossible** |
+| tilted (0 < β < ∞) | yes | yes | **impossible** |
+| three-factor `Ψ_eff, R_eff, D_eff` | no | yes | **no** (different functionals) |
+
+`α_mf` is label-invariant *by construction* (§6.1): the replica derivation
+integrates the dichotomy average out analytically, so no amount of adapter work
+recovers a `y`-dependent number from it. Every retained and tilted quantity in
+this project routes through `α_sim` (ground truth) and `α_core` (decomposition).
 
 **Mandatory label-aware validation.** Generic capacity is a label-agnostic
 structural metric, and the plasticity literature has theoretical counterexamples

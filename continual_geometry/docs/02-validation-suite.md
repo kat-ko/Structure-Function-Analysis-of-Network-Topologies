@@ -54,8 +54,9 @@ real error source between them:
 
 | Quantity | Source | Error it exposes |
 |---|---|---|
-| `α_sim` | simulation, bisection on N (ground truth) | — |
-| `α_mf` | replica mean-field estimate (§6.1) | **does mean-field theory hold at our P, M, N, and tilt β?** |
+| `α_sim` | simulation, bisection on N (ground truth); **works at any `y`** | — |
+| `α_mf` | replica mean-field (`replicaMFT`) — **label-invariant, β = 0 only** | does mean-field theory hold at our P, M, N? |
+| `α_core` | our GLUE core (`src/glue/core.py`), ambient anchors under shared `y` | does our three-factor estimator recover ground truth, at any β? |
 
 **α_sim source (verified):** `third_party/correlated_capacity`
 `capacity/manifold_simcap_analysis.py::manifold_simcap_analysis(XtotT, n_rep, seed)`
@@ -70,28 +71,35 @@ isolation first — it calls global `np.random.seed` (see `third_party/VENDORED.
 
 **Gate.**
 
+**Corrected 2026-08-11 — the β axis is `α_sim`-only on the mean-field side.**
+`α_mf` is **label-invariant by construction** (`00` §6.1): the replica derivation
+integrates the dichotomy average out analytically, so `replicaMFT` cannot produce
+capacity at `β > 0`. The β sweep therefore compares `α_sim` against **`α_core`**
+(our GLUE core), with `α_mf` participating **only at β = 0**.
+
 ```
 test_mean_field_validity:
     at project parameters (d=150, P=16, M=150, N=300, D and R in range),
-    over the tilt axis  β ∈ {0, 0.5, 1, 2, 4, ∞}   (β=∞ ≡ retained, y fixed at y_j)
-    compare  α_sim  (manifold_simcap_analysis, ground truth)
-    against  α_mf   (replicaMFT manifold_analysis_corr, §6.1)
-    record mean and max relative error per β -> results/mft_validity.json
+    beta = 0      : compare alpha_sim  vs  alpha_mf   (replicaMFT)   # MFT validity
+                    compare alpha_sim  vs  alpha_core (glue core)    # core validity
+    beta in {0.5, 1, 2, 4, inf}  (inf == retained, y fixed at y_j):
+                    compare alpha_sim  vs  alpha_core                # core only
+    record mean and max relative error per beta -> results/mft_validity.json
 ```
 
-The **β axis is load-bearing, not cosmetic.** `β = 0` validates generic capacity;
-**`β = ∞` validates retained capacity, which is what the §8 money figure runs on.**
-The usable β range (where `α_sim ≈ α_mf`) is the headline output of this gate — it
-decides whether retained/tilted capacity run on public code (wide range) or Figure
-3 waits on GLUE (narrow). This is also where `docs/reference/glue-refinements.md`'s
-A2 concern — mean-field accuracy under a degenerate, fixed-label ensemble — is
-**empirically settled** (that concern and 04 §C4 are compatible: C4 is about the
-estimator's *definition*, A2 about mean-field *accuracy*; this sweep measures the
-latter).
+`β = 0` answers whether mean-field holds at our parameters at all.
+**`β = ∞` validates retained capacity, which is what the §8 money figure runs on**
+— and it now tests *our* estimator, not a vendored one, which is why `§2a` and the
+B.5 recovery sweeps (§1) together are the acceptance criteria for `src/glue/core.py`.
 
-If `α_sim` vs `α_mf` disagree substantially at a given β, mean-field theory does
-not hold there and **no downstream capacity claim at that β is safe** — this is a
-stop, not a caption change. See also the P×N sweep in `01-experiments.md` Phase 0
+`docs/reference/glue-refinements.md`'s A2 concern is **resolved structurally, not
+empirically**: A2 is not a question of mean-field *accuracy* under a degenerate
+ensemble, it is the reason `α_mf` has no `y` argument at all. 04 §C4 (fixed-`y` is
+a legitimate analyst choice) still stands — it just cannot be served by replicaMFT.
+
+If `α_sim` and `α_core` disagree substantially at a given β, our estimator is wrong
+at that β and **no downstream capacity claim there is safe** — a stop, not a caption
+change. See also the P×N sweep in `01-experiments.md` Phase 0
 (`test_mean_field_validity_at_project_P`), which decides whether `(P, N)` are large
 enough *before* anything is built.
 
@@ -114,22 +122,26 @@ enough *before* anything is built.
 identity, so there is no `(1+R⁻²)/D` approximation to test. See `00` §6.2 and 04
 §C1. `results/approximation_fidelity.json` is no longer produced.)*
 
-### §2c — Ψ_eff identity check (GLUE-dependent, per 05 §3.3)
+### §2c — Ψ_eff identity: **diagnostic**, not a gate (reclassified 2026-08-11)
 
-Not a mean-field gate — a **transcription check** on the adapter. The adapter
-derives `Ψ_eff = α · D_eff / (1 + R_eff⁻²)` from `replicaMFT` outputs (`00` §6.1),
-which is exact *by construction* and therefore cannot catch an error. Once the
-anchor points are exposed (GLUE access, or the vendored-QP change gated on Kati —
-`05` §2.2), compute `Ψ_eff` **independently** as `E[c]/E[a]` from §6.1 `a/b/c` and
-assert it equals the identity-derived value to float64 tolerance.
+Originally D3's gate. Reading the source showed `replicaMFT`'s `R_M`/`D_M` are the
+**PRX-2018 eq-28/29** functionals, *not* `R_eff = √(E[c]/E[b−c])` and
+`D_eff = E[b]/P`. So `Ψ_eff = α·D_eff/(1+R_eff⁻²)` computed from replicaMFT outputs
+is **expected to disagree** with `E[c]/E[a]`. Run it anyway — cheap, and it converts
+a reasoned expectation into a recorded measurement.
 
 ```
-test_psi_eff_identity:   # requires a/b/c exposure; skipped until then
-    assert  E[c]/E[a]  ==  alpha * D_eff / (1 + R_eff**-2)   (float64 tol)
+test_psi_eff_identity_diagnostic:
+    psi_from_replicaMFT = alpha_mf * D_M / (1 + R_M**-2)      # harmonic-mean alpha
+    psi_from_core       = E[c] / E[a]                          # src/glue/core.py
+    record both + relative gap -> results/psi_eff_diagnostic.json
+    EXPECTED: mismatch. A pass would be the surprise and must be explained.
 ```
 
-Until it runs, `Ψ_eff` carries `derived_via_identity=True` and `§8` attribution
-may fall back to two factors (`00` §8).
+Within `src/glue/core.py` the identity is exact **by construction** (both sides come
+from the same `a/b/c`), so the meaningful internal check is
+`assert P/E[a] == Psi_eff*(1+R_eff**-2)/D_eff` to float64 tolerance — a
+transcription check on the implementation, included in the core's unit tests.
 
 ---
 

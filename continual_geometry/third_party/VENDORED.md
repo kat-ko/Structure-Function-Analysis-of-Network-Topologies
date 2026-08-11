@@ -29,9 +29,14 @@ all three** — numbers from different estimators must never be pooled.
 
 | Version string | Role |
 |---|---|
-| `replicaMFT@d56eda1d86a71f4f4601ef1acc3254e20259a80c` | Primary near-term estimator: {α, R, D, ρ_c} |
-| `correlated_capacity@de8dac79760e8eb552c036604503efcb87e1e6b6` | Ground-truth α_sim + correlated-capacity (Wakhloo duality). **Not GLUE.** |
+| `correlated_capacity@de8dac79760e8eb552c036604503efcb87e1e6b6` | Ground-truth `α_sim` at **any** `y`. **Not GLUE.** |
+| `glue_core@<our-sha>` | **Ours** (`src/glue/core.py`, not vendored): α, D_eff, R_eff, Ψ_eff, anchor ρ_c both conventions |
+| `replicaMFT@d56eda1d86a71f4f4601ef1acc3254e20259a80c` | **Downgraded 2026-08-11** to cross-check on **generic α only** — see capability limit below |
 | `GLUE@<pending>` | Full GLUE incl. ρ_a, ψ — pending early-access (form in §GLUE below) |
+
+`glue_core` is ours but is versioned and firewalled like a third-party estimator:
+it is a distinct estimator and its numbers must never be pooled with `α_mf` or
+`α_sim`.
 
 ---
 
@@ -41,9 +46,44 @@ all three** — numbers from different estimators must never be pooled.
 - **Fetched:** 2026-07-31
 - **Pinned SHA:** `d56eda1d86a71f4f4601ef1acc3254e20259a80c`
 - **Entry point:** `mftma/manifold_analysis_correlation.py::manifold_analysis_corr(XtotT, kappa, n_t, t_vecs=None, n_reps=10)`
-- **Returns (verified by reading source):** `(a_Mfull_vec, R_M_vec, D_M_vec, res_coeff0, KK)`
-  = capacity α, radius R, dimension D, center-correlation ρ_c, and K.
-- **Provides:** {α, R, D, ρ_c}. **Missing:** ρ_a, ψ (the open dependency — GLUE only).
+- **Returns (verified by reading source):** `(a_Mfull_vec, R_M_vec, D_M_vec, res_coeff0, KK)`.
+
+### CAPABILITY LIMIT — verified finding, 2026-08-11
+
+Established by reading `mftma/manifold_analysis_correlation.py` end to end. These
+are **structural properties of the replica mean-field theory** (Chung/Cohen, PRX
+2018 / Nat Comms 2020) that GLUE was written to refine — **not** implementation
+gaps, and **not** fixable by an adapter, a patch, or any amount of effort.
+
+1. **Label-invariant by construction — generic capacity only.**
+   `manifold_analysis_corr(XtotT, kappa, n_t)` has **no `y` argument** and analyses
+   each manifold independently. The dichotomy average is integrated out
+   *analytically* when deriving the self-consistent equations, so `y` was
+   eliminated before the code existed. GLUE instead samples `(y, t)` and averages
+   *numerically*, which is why GLUE supports an analyst-chosen ensemble `Y` and
+   this does not. **Retained and tilted capacity are not extractable at any
+   effort.** This is GLUE's relaxed assumption A2 seen in code.
+2. **`res_coeff0` is not ρ_c.** It is the mean over `μ≠ν` of the **absolute
+   cosine** between *global-mean-subtracted manifold centers* (raw class means) in
+   a `P−1` basis. Abs **and** normalized, on manifold centers not anchor centers —
+   it matches **neither** `rho_c_glue` (abs, unnormalized) nor `rho_c_signed`.
+   Record as `center_cos_abs`; **never report it as ρ_c**. (`00` §6.1 corrected.)
+3. **`R_M`/`D_M` are the PRX-2018 eq-28/29 functionals**, not
+   `R_eff = √(E[c]/E[b−c])` and `D_eff = E[b]/P`. The `Ψ_eff` identity is expected
+   to **fail** against these outputs — `02` §2c is now a diagnostic, not a gate.
+4. **Anchor centers are computed then discarded**, in a per-manifold frame
+   (centering, norm division, per-manifold QR re-basis when `N > M`), so
+   cross-manifold `⟨s⁰_μ, s⁰_ν⟩` is unrecoverable from the return values.
+5. **`α` is returned per manifold.** Reduce with the **harmonic mean**
+   `1/mean(1/α_i)` — never arithmetic.
+
+**Consequence:** downgraded from primary estimator to *cross-check on generic α
+only*. Everything label-dependent routes through `α_sim` and our `src/glue/core.py`.
+Useful residue: `maxproj` and `minimize_vt_sq` are public module-level functions
+and remain usable as building blocks — calling them is not a modification.
+
+- **Provides:** generic per-manifold α (+ PRX R_M/D_M, `center_cos_abs`).
+  **Missing:** any `y`-dependence, anchor-based ρ_c, ρ_a, ψ.
 - **Use at κ = 0** (`docs/00-math-spec.md` §6; estimators are not interchangeable at κ ≠ 0).
 - **Patch-needs before use:** no explicit `rcond` on pseudo-inverses and no float64
   enforcement observed — apply per `AGENTS.md` §4 and log effective rank.

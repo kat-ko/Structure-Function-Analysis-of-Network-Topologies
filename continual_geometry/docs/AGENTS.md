@@ -77,6 +77,15 @@ in variable names.
 - Random state: every stochastic component takes an explicit
   `numpy.random.Generator`. No global seeding, no bare `np.random.*`.
 - Any function that samples must be reproducible from (seed, config) alone.
+- **α aggregation is the harmonic mean.** Wherever a per-manifold capacity vector
+  `α_i` is reduced to one number, use `1 / mean(1/α_i)`. `α = P/N_crit` and
+  critical dimensions add across manifolds, so an arithmetic mean of `α_i` is a
+  bug, not a convention choice. `replicaMFT` returns such a vector.
+- **`α_mf` is generic-only.** `replicaMFT` is label-invariant by construction
+  (`00` §6.1, `third_party/VENDORED.md`). Never pass, fake, or imply a `y` for it;
+  never use it for retained or tilted capacity. Those route through `α_sim`
+  (`correlated_capacity`) and `α_core` (`src/glue/core.py`).
+- **`res_coeff0` is not ρ_c.** Record it as `center_cos_abs` if recorded at all.
 
 ## 5. Experiment hygiene
 

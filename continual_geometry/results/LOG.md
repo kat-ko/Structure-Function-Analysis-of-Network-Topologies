@@ -145,3 +145,67 @@ Scaffolded: `generator.py`, `labeling.py`, `dichotomies.py`, `streams.py`,
 tests under `tests/`, `pyproject.toml` + `requirements.txt`. Local `.venv` via
 `uv` (gitignored). **`pytest`: 15 passed** (`02` §5 stream/dichotomy suite +
 unit-norm + ρ_C monotonicity).
+
+### replicaMFT capability audit — three findings, one structural
+
+Triggered by the §2.2 verify-first anchor-center check. Read
+`mftma/manifold_analysis_correlation.py` end to end. Framing per Kati: these are
+**properties of the replica mean-field theory that GLUE refines**, not bugs.
+
+- **F2 (structural, decisive).** `manifold_analysis_corr` takes no `y` because the
+  dichotomy average is integrated out *analytically* in the replica derivation —
+  `y` was eliminated before the code was written. GLUE samples `(y, t)` and
+  averages *numerically*, which is precisely why it supports an analyst-chosen
+  ensemble `Y`. ⇒ `α_mf` gives **generic capacity only, permanently**. Retained,
+  tilted, and per-task attribution are not extractable at any effort. This is
+  assumption A2 of `glue-refinements.md`, seen in code.
+- **F1 (spec error we were carrying).** `res_coeff0` = mean over `μ≠ν` of the
+  **absolute cosine** between global-mean-subtracted **manifold** centers (raw
+  class means) in a `P−1` basis. Abs *and* normalized, on manifold centers not
+  anchor centers ⇒ matches **neither** `rho_c_glue` nor `rho_c_signed`.
+  Renamed `center_cos_abs`; `00` §6.1 corrected.
+- **F4 (follows from F2).** `R_M`/`D_M` are the PRX-2018 eq-28/29 functionals, not
+  `R_eff = √(E[c]/E[b−c])` / `D_eff = E[b]/P`. The D3 `Ψ_eff` identity is therefore
+  **expected to fail**; reclassified gate → diagnostic (`02` §2c).
+- Also: anchor centers are formed (`s_all.mean(axis=1)`) then discarded, in a
+  per-manifold frame (centering, norm division, per-manifold QR re-basis when
+  `N > M`) ⇒ cross-manifold `⟨s⁰_μ, s⁰_ν⟩` unrecoverable from returns.
+
+**Decision (Kati): build the GLUE core ourselves.** New `src/glue/core.py`,
+estimator string `glue_core@<sha>`, firewalled like any other estimator. Scope:
+α, D_eff, R_eff, Ψ_eff, anchor ρ_c in **both** conventions. Not ρ_a / ψ_{μν}.
+Nothing in `third_party/` modified — clears the firewall. Hard deadline: validated
+against B.5 recovery by **end of Day 14**, else Figure 2 falls back to the
+rotation/expansion decomposition (principal angles vs ΔPR).
+
+### Spec corrections 1–5 applied (pre-code commit)
+
+1. `00` §6.1 — replicaMFT capability block: label-invariance, `res_coeff0` ≠ ρ_c,
+   `R_M`/`D_M` ≠ `R_eff`/`D_eff`, anchor centers discarded.
+2. `00` §7 estimator-routing table + `01` Phase 0 — `α_mf` generic-only; retained
+   and tilted route through `α_sim` and `α_core`.
+3. `02` §2a — β axis is `α_sim` vs `α_core`; `α_mf` participates at β = 0 only.
+   §2c reclassified to diagnostic.
+4. Harmonic-mean α aggregation pinned in `00` §6.1, `01`, `AGENTS` §4.
+5. `third_party/VENDORED.md` — capability limit recorded as a verified finding;
+   replicaMFT downgraded to generic-α cross-check; `glue_core` added to the
+   version-string table.
+
+### FLAG — technical correction to the build route (needs Kati's eye, not a stop)
+
+The instruction says anchor points "via `maxproj` composed **per-manifold** in the
+ambient frame". Composing per-manifold reproduces exactly the structure that makes
+`α_mf` label-invariant, so it would silently re-inherit the limitation we are
+escaping. Reason: in ICLR B.3, `S_y = diag(y)·S`, and `diag(y)` **cancels
+algebraically** in all three quadratic forms —
+
+```
+a = (S_y t)ᵀ (S_y S_yᵀ)† (S_y t) = (S t)ᵀ (S Sᵀ)† (S t)     since diag(y)² = I
+```
+
+so `a`, `b`, `c` are invariant to `y` *given* `S`. **All** `y`-dependence must
+therefore enter through the anchor points themselves, which it does only if they
+come from the **joint** QP over all `P·M` constraints with rows `y_μ z^μ_j`
+(Algorithm 2 / `00` §6.1) — where the shared separating direction couples the
+manifolds. Implementing joint; `maxproj`/`minimize_vt_sq` still usable for the
+`P = 2` cross-check. No vendored code touched either way.

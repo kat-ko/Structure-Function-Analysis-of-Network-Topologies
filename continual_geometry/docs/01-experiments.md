@@ -158,8 +158,9 @@ Sweep the two limit knobs jointly:
 ```
 test_mean_field_validity_at_project_P:
     sweep P in {8, 16, 32} x N in {300, 600, 1200}   (M fixed)
-    compare alpha_sim vs alpha_mf at each (P, N)
-    record relative error surface -> results/mft_validity.json
+    compare alpha_sim vs alpha_mf   at each (P, N)   # generic (beta=0) only
+    compare alpha_sim vs alpha_core at each (P, N)   # generic + retained
+    record relative error surfaces -> results/mft_validity.json
 ```
 
 **Fix the first lever correctly.** `N` (module width) is nearly free — no design
@@ -179,7 +180,20 @@ fails at `(P=16, N=300)`:
    `P`-dependent number in `00`/`01` shifts.
 
 This is a scientific call for the human; the sweep produces the evidence. Note it
-runs on `replicaMFT` + `correlated_capacity` alone — **no GLUE dependency**.
+runs on `replicaMFT` + `correlated_capacity` + our own `src/glue/core.py` alone —
+**no GLUE dependency**.
+
+**`α_mf` is generic-only (verified 2026-08-11, `00` §6.1).** `replicaMFT`'s
+`manifold_analysis_corr` takes no `y`; the replica derivation integrates the
+dichotomy average out analytically, so it is **label-invariant by construction**
+and can never yield retained or tilted capacity. It is a cross-check on generic
+`α`, nothing more. Retained/tilted capacity and the whole three-factor
+decomposition route through `α_sim` and `α_core` (`src/glue/core.py`,
+estimator string `glue_core@<sha>`, subject to the same §9 pooling firewall).
+
+**α aggregation is pinned to the harmonic mean** `1/mean(1/α_i)` wherever a
+per-manifold `α` vector is reduced (`α = P/N_crit`; critical dimensions add).
+Arithmetic means of `α_i` are a bug, not a convention choice.
 
 ### Phase 1 — H1, H2, H6 (homogeneous only)
 
