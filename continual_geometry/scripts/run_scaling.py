@@ -38,7 +38,7 @@ import multiprocessing as mp  # noqa: E402
 
 import numpy as np  # noqa: E402
 
-N_T = 20
+N_T = 200  # must match the grid; measuring at n_t=20 mischaracterised the peak
 WORKER_COUNTS = (1, 8, 16, 32, 64, 96, 128, 192, 254)
 EVALS_PER_WORKER = 2
 

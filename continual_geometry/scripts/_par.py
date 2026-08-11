@@ -4,13 +4,23 @@ BLAS threads are pinned to 1 in the workers: the per-sample linear algebra is
 small (P×P Grams, one NNLS), so multi-threaded BLAS only adds contention once we
 are already running one process per core.
 
-**Worker count is capped at 128, measured** (`results/scaling.json`). Throughput does
-not increase with cores past that and then *falls*: 4.08 eval/s at 32 workers, 5.17 at
-128, and **3.75 at 254 — worse than 32**. Two reasons. `nproc` reports 256 on this
-2×64-core EPYC 7763 only because of SMT, so there are 128 physical cores; and the
-anchor QP has `P·M = 2400` variables, whose Gram matrix at 46 MB exceeds the 32 MB L3,
-so every worker streams it from DRAM and the workload is memory-bandwidth-bound.
-Taking `nproc − 2` was silently running the grid at 73% of its own peak throughput.
+**Worker count is capped at 192, measured on the real workload**
+(`results/scaling_colgen.json`): 2.83 eval/s at 128, **3.39 at 192**, 3.47 at 254. 254
+buys 2% over 192 for 48% more latency per evaluation, so 192 is the operating point.
+
+This cap replaces an earlier one of 128, and the correction is instructive. The 128 cap
+came from `results/scaling.json`, which showed throughput *falling* past 128 — the
+workload was then memory-bandwidth-bound, since the dense NNLS Gram matrix at 46 MB
+exceeded the 32 MB L3 and every worker streamed it from DRAM. Two things changed. The
+column-generation solver shrank the working set enough that the workload is no longer
+bandwidth-bound, which moved the peak to the right; and `scaling.json` had been measured
+at `n_t = 20` while the grid runs at `n_t = 200`, so it characterised an evaluation ten
+times cheaper than the real one. The peak's location is a property of the workload, so a
+scaling curve has to be measured at the settings it will be used to size.
+
+`nproc` reports 256 on this 2×64-core EPYC 7763 only because of SMT, so 192 is already
+oversubscribed against 128 physical cores — which now helps, the workload having become
+latency-bound rather than bandwidth-bound.
 """
 
 from __future__ import annotations
@@ -19,7 +29,7 @@ import multiprocessing as mp
 import os
 from concurrent.futures import ProcessPoolExecutor
 
-MAX_WORKERS = 128
+MAX_WORKERS = 192
 
 # `spawn`, not the Linux default `fork`. A forked worker inherits the parent's
 # already-imported modules, so a pool launched after an edit runs the *old* code while

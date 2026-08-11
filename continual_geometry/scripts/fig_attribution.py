@@ -59,6 +59,9 @@ def main() -> None:
     fig, axes = plt.subplots(2, len(gammas), figsize=(4.4 * len(gammas), 6.4),
                              squeeze=False, sharey="row")
 
+    shared_span = max((abs(t["dlog_alpha"]) for by in rows.values() for t in by.values()),
+                      default=0.0)
+
     for j, g in enumerate(gammas):
         by_lag = rows.get((g, cond, module), {})
         lags = sorted(by_lag)
@@ -90,6 +93,27 @@ def main() -> None:
             ax.legend(frameon=False, fontsize=8, loc="upper center",
                       bbox_to_anchor=(0.5, -0.16), ncol=4, columnspacing=1.2,
                       handlelength=1.4)
+
+        # A shared y-axis is what makes the γ contrast legible, but it flattens the
+        # lazy arm to a line and hides its internal structure. Inset it at native
+        # scale when its excursion is a small fraction of the shared range.
+        span = max(abs(np.concatenate([total, [0]])))
+        if shared_span and span < 0.15 * shared_span:
+            ins = ax.inset_axes((0.12, 0.12, 0.5, 0.45))
+            ipos, ineg = np.zeros(len(lags)), np.zeros(len(lags))
+            for f in FACTORS:
+                v = np.array([by_lag[l]["terms"][f] for l in lags])
+                base = np.where(v >= 0, ipos, ineg)
+                ins.bar(range(len(lags)), v, bottom=base, color=COLOR[f], width=0.62,
+                        edgecolor="white", linewidth=0.4)
+                ipos = ipos + np.where(v >= 0, v, 0)
+                ineg = ineg + np.where(v < 0, v, 0)
+            ins.plot(range(len(lags)), total, "o-", color="k", lw=1.2, ms=3)
+            ins.axhline(0, color="0.3", lw=0.6)
+            ins.set_xticks([])
+            ins.tick_params(labelsize=6)
+            ins.set_title(f"native scale (×{shared_span / span:.0f})", fontsize=6.5)
+            ins.spines[["top", "right"]].set_visible(False)
 
         # cancellation: how much of the total motion cancels between factors
         for i, l in enumerate(lags):

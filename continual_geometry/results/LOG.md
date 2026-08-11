@@ -1108,3 +1108,58 @@ to be negative; mixed signs are handled and will appear in the lazy arm.
 8 arms and 304 evals was not the single-cell pilot intended — one γ, one condition, one
 seed, ~38 evals. The de-risking value was reached at the first completed arm. Size
 pilots to the smallest unit that exercises the whole path.
+
+### Grid resized on measured throughput: 26.1 h → 4.0 h, no cuts needed
+
+Measured on the **real** workload at `n_t = 200`, spawned pool, clean processes
+(`results/scaling_colgen.json`):
+
+| solver | workers | latency/eval | throughput | full grid (48,640) |
+|---|---|---|---|---|
+| `nnls` | 128 | 218.3 s | 0.547 eval/s | **24.7 h** |
+| `colgen` | 128 | 33.4 s | 2.829 eval/s | 4.8 h |
+| `colgen` | 192 | 45.3 s | 3.390 eval/s | **4.0 h** |
+| `colgen` | 254 | 66.9 s | 3.470 eval/s | 3.9 h |
+
+The `nnls@128` row predicts 24.7 h against the 26.1 h actually observed — 5% — which is
+the check that this measurement describes the same thing the grid did.
+
+**colgen is 5.17× faster in parallel against 2.55× single-threaded.** The gap between
+those two numbers is the point: the win is not arithmetic, it is the working set. A
+solver that fits in cache stops competing for memory bandwidth, so the benefit compounds
+with the worker count rather than being independent of it. This is why the earlier
+reading — that grid size drove the overrun and the solver was not the lever — had it
+backwards: the grid was 1.3% over plan, and the solver was worth 6.5×.
+
+Two consequences. **No cuts to the grid are required**; the scope conversation is moot at
+4 h. And the worker cap moves 128 → 192, because the peak is a property of the workload
+and the workload changed: colgen is no longer bandwidth-bound, so SMT past 128 physical
+cores now helps where it previously hurt. 254 buys 2% over 192 for 48% more latency.
+
+A related defect in the old curve: `run_scaling.py` measured at `n_t = 20` while the grid
+runs at `n_t = 200`, so `scaling.json` characterised an evaluation ten times cheaper than
+the real one and located the peak on the wrong workload. Now pinned to the grid's value.
+
+### Pilot complete: 8/8 arms, max identity residual 3.4e-16
+
+The γ contrast is the headline and it is large. At **γ₀ = 10**, Δlog α = −1.10 to −1.52
+(a 3.0–4.6× loss of retained capacity). At **γ₀ = 0.03**, Δlog α = −0.006 to −0.010.
+**Roughly 150× less forgetting in the lazy arm** — H1's predicted direction, at a
+magnitude far beyond noise.
+
+The more interesting result is that the *mechanism* differs, not only the amount:
+
+| | utility | dimension | radius |
+|---|---|---|---|
+| γ₀ = 10 | **48%** | 44% | 8% |
+| γ₀ = 0.03 | ~5% | 47% | 48% |
+
+In the rich arm forgetting is dominated by `Ψ_eff`, the alignment between the readout
+and the manifold axes. In the lazy arm utility barely moves and what little loss occurs
+splits evenly between radius and dimension. That is a qualitative difference in kind and
+is what the shared-axis figure hides, hence the native-scale inset.
+
+Center-collapse share is `n/a` throughout the lazy arm — Δlog R_eff ≈ 0.004 sits below
+the 0.005 noise floor, so the guard declines to report a ratio. Working as intended.
+
+`results/figures/attribution_pilot.png`.
