@@ -933,3 +933,59 @@ them: utility at γ=10, radius at γ=0.3. That is the H1 shape. It is also 25 `(
 samples and one seed, so it goes in this log and nowhere near a figure.
 
 Identity residual across every evaluation in the suite: **≤ 3.5e-16**.
+
+---
+
+## 2026-08-11 — **the Phase 1 cost model was wrong by 9×**, and why
+
+Launched the full grid (1280 arms, 48,640 evals) on 254 workers. After 79 minutes,
+**zero arms had completed.** Load was a steady 267 and every worker had accumulated
+79 minutes of CPU, so nothing was blocked — it was simply far slower than projected.
+Timed one evaluation against the live grid: **775.8 s, against the 52.4 s the cost
+model assumed.** Killed it (no arm was near completion, so nothing was lost) and
+measured the throughput curve properly — `results/scaling.json`,
+`scripts/run_scaling.py`, `n_t = 20` to keep it short, which is legitimate because
+cost is linear in `n_t` while the memory footprint driving contention is set by `P·M`.
+
+| workers | eval latency | throughput | effective cores | efficiency |
+|---|---|---|---|---|
+| 1 | 5.71 s | 0.166 eval/s | 0.9 | 0.94 |
+| 32 | 6.77 s | 4.078 eval/s | 27.6 | 0.86 |
+| 64 | 11.27 s | 4.633 eval/s | 52.2 | 0.82 |
+| **128** | 20.44 s | **5.169 eval/s** | 105.7 | 0.83 |
+| 192 | 40.26 s | 4.150 eval/s | 167.1 | 0.87 |
+| 254 | 60.10 s | 3.749 eval/s | 225.3 | 0.89 |
+
+**Throughput peaks at 128 workers and then falls. Running 254 was worse than running
+32.** Two structural causes:
+
+1. **128 physical cores, not 256.** `nproc` reports 256 on this 2×64-core EPYC 7763
+   because of SMT, so 254 workers was already 2× oversubscribed before anything else.
+2. **The anchor QP is not small.** It has `P·M = 2400` variables, so its Gram is
+   2400² × 8 B ≈ **46 MB against a 32 MB L3**. Every worker streams that from DRAM on
+   every one of `n_t` samples, so the workload is memory-bandwidth-bound and cores past
+   the bandwidth limit contribute nothing.
+
+**The error in `results/cost_model.json` was methodological, not arithmetic.** It
+measured 52.4 s/eval in isolation and projected wall time by dividing total
+core-seconds by 248, i.e. it assumed perfect scaling and never measured it. The
+`01` §4 line "throughput is set by total core-seconds, so one thread per worker is the
+correct configuration for an embarrassingly parallel grid" was the load-bearing wrong
+sentence: the grid is embarrassingly parallel in its *control flow* and
+bandwidth-coupled in its *memory access*, and only the first was checked.
+
+`_par.n_workers` now caps at 128 (was `nproc − 2` = 254), which alone is a 1.4×
+throughput gain over what was running.
+
+**Revised cost: the full grid is 26.1 h at 128 workers, against the 3.0 h projected.**
+Training adds ~2 h. This invokes the `01` §4 cut order (`n_t` → Tier-2 interval →
+retained-tasks-evaluated) for the first time — pre-authorized there, and the decision
+of how far to cut is pending.
+
+Worth noting for the paper's reproducibility section, since it generalizes: **the cost
+of anchor-based GLUE estimation is bandwidth-bound in `P·M`, not compute-bound.** At
+`M = 150` and `P = 16` the QP working set exceeds a 32 MB L3, so the estimator does not
+scale with core count on a shared-memory machine past the bandwidth limit. Anyone
+sizing a GLUE run from a single-process timing will over-project by roughly an order of
+magnitude. Chou et al.'s `M = 50` puts the working set at ~5 MB, inside L3 — their
+subsampling has a performance rationale as well as a statistical one.

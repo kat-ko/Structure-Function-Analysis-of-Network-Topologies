@@ -329,9 +329,27 @@ binding constraint.** 52.4 s/eval at `n_t = 200`, one BLAS thread per worker,
 | **20 streams × 8 seeds (this doc)** | 3,840 | 153,600 | **9.0 h** |
 
 The two figures disagreed; both fit, so **the larger one stands** and the `05`
-brief's number should be read as a lower bound. The `n_t → Tier-2 interval →
-retained-tasks-evaluated` cut order is **not invoked**, and seeds and streams were
-never at risk. Remaining constraint is engineering time, not compute.
+brief's number should be read as a lower bound.
+
+**SUPERSEDED 2026-08-11 — the table above is wrong by ~9×; compute IS a binding
+constraint.** `results/scaling.json`. The cost model measured 52.4 s/eval **in
+isolation** and projected wall time by dividing core-seconds by 248 workers, i.e. it
+assumed perfect scaling and never measured it. Measured against a live 254-worker
+grid, one eval takes **775.8 s**. Throughput peaks at **128 workers** (5.17 eval/s)
+and *falls* beyond it — 254 workers is slower than 32. Causes: `nproc` reports 256 on
+this 2×64-core EPYC only because of SMT, so 128 is the physical count; and the anchor
+QP has `P·M = 2400` variables, whose 46 MB Gram exceeds the 32 MB L3, making the
+estimator memory-bandwidth-bound rather than compute-bound.
+
+| grid | evals | wall at 128 workers |
+|---|---|---|
+| 1,280 arms × 38 evals (γ×6, `a`×2, 4 conditions, 5 streams, 8 seeds) | 48,640 | **26.1 h** + ~2 h training |
+
+`_par.n_workers` now caps at 128. **The `n_t` → Tier-2 interval →
+retained-tasks-evaluated cut order is INVOKED** — how far, pending decision. Note that
+`n_t` noise largely cancels in the paired `Δlog` that attribution uses, because the
+measurement RNG is shared across boundaries, so the noise-floor table below overstates
+the cost of cutting `n_t` for Figure 2's quantities.
 
 **Seed count, on evidence.** From the measured noise floors, MDE (two-sided,
 power 0.8) at 5 vs 8 seeds per group: α 3.78% → 2.82%, `D_eff` 2.55% → 1.90%,
