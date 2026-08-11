@@ -482,3 +482,60 @@ stream variability; recompute from the Phase 0 pilot before the Day-14 table.
 `src/models/` → training loop → Phase 0, no further validation detours. Phase 0's
 own runs are cheap, so Gate-2 alignment and the time-reparameterization test get
 run properly rather than minimally even though both feed cut hypotheses.
+
+### `src/models/` and `src/train/` built — 55 tests pass
+
+**Framework decision: numpy with hand-derived gradients, no torch/jax.** The model
+is two layers with an MSE loss, so the gradients are four lines, and this buys
+float64 throughout (`AGENTS.md` §4 — torch defaults to float32 and would need
+dtype management at every op), bitwise reproducibility from `(seed, config)`, and
+no dependency. Phase 1 is thousands of tiny independent CPU runs, which suits many
+single-threaded processes rather than one accelerator. Gradients are verified
+against central finite differences to `rtol=1e-5`
+(`test_gradients_match_finite_differences`) — the whole choice rests on that test.
+
+**Base-width constant derived (`00` §4.2 UNCERTAIN, `02` §3).** Requiring
+`μP(γ₀=1, N=N_base) ≡ NTP(N=N_base)` fixes it uniquely: the width factors are
+*relative* to the base width, `N^{1/2} → (N/64)^{1/2}` in the output scale and
+`N → N/64` in the learning rate. At `γ₀=1, N=64` both give `γ_eff = 1`, `η = η₀`.
+`test_base_width_equivalence` asserts bitwise equality on the forward pass **and**
+the first gradient step, plus a companion test that the equivalence is specific to
+`N = N_base`. **AGENT-DERIVED, not human-verified** —
+`docs/reference/parameterization-derivation.md` is human-owned and unwritten; the
+test pins the behaviour but the justification should be checked against Graldi §3.
+
+Invariants under test: I5 `f(x;θ₀) = 0` exactly for every γ (zero-init readout);
+I6 hidden weights **bitwise identical across γ** (dedicated γ-independent `shape`
+RNG stream) — this is what makes γ and `a` orthogonal; I8 single shared readout.
+`paired_init(seed)` exposes four named streams (`shape`/`data`/`stream`/`probe`)
+so conditions are paired rather than merely seeded alike.
+
+Alignment (`00` §5) is built despite the a-axis being cut from the Phase 1
+factorial, because **Gate 2 is still to be run and recorded** and needs a correct
+geodesic to be interpretable. Grassmann geodesic, norm- and rank-preserving
+reassembly, endpoints and monotone principal angles all tested — including an
+explicit test that the geodesic differs from linear-interpolate-then-reorthonormalize,
+which is the failure the AGENTS Grassmann rule exists to prevent. Endpoint checks
+use the projector distance `‖P_A − P_B‖_F` rather than the largest principal
+angle: `arccos` is ill-conditioned near 1, so identical subspaces read ~1.5e-8
+(√eps) no matter how exact the geodesic is, whereas the projector distance reaches
+1e-14 and actually tests the code.
+
+**Design hazard found while testing — under-training masquerades as forgetting.**
+A step budget tuned on task 0 leaves later tasks unlearned, because later tasks
+start from a solution to a *different* dichotomy and must overwrite it. Measured
+at test scale (P=8, M=20, N=64), per-task final train accuracy:
+
+| lr₀ | steps | task 0 | 1 | 2 | 3 |
+|---|---|---|---|---|---|
+| 0.05 | 400 | 0.93 | 0.78 | 0.62 | 0.69 |
+| 0.05 | 2000 | 0.95 | 0.88 | 0.75 | 0.76 |
+| 0.2 | 2000 | 0.99 | 1.00 | 0.98 | 0.99 |
+| 0.5 | 2000 | 1.00 | 1.00 | 1.00 | 1.00 |
+
+A task the network never learned cannot be forgotten, so its "forgetting" is
+under-training and would have entered H1/H2 silently. `TrainConfig` now carries
+`target_accuracy` (default 0.98) with early stop, and `TaskRecord.converged` /
+`.usable_for_forgetting` record the outcome per task. **Phase 0 must verify
+`all(t.converged)` across the γ grid before Phase 1 commits compute** — the rich
+end (large γ, small effective LR) is where this will bite.
