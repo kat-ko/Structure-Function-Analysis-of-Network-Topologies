@@ -23,12 +23,21 @@ from ..models import MODULES, TwoModuleNet
 
 @dataclass(frozen=True)
 class TrainConfig:
-    """`target_accuracy` is not optional bookkeeping — see `TaskRecord.converged`."""
+    """`01` §1: `stopping ∈ {"matched_loss", "fixed_steps"}`.
+
+    **Stopping must be on loss, not accuracy.** From `u_m(0) = 0`, a single step
+    gives `u_m ∝ Σ_b y_b h(x_b)` — the kernel/Hebbian readout — and the *sign* of
+    `f` is then independent of the learning rate and of `γ`. So train accuracy
+    jumps to ~0.99 at step 1 for every `γ`, and an accuracy criterion halts
+    training before any feature learning occurs, which is the thing under study.
+    Loss keeps falling long after accuracy saturates, so `target_loss` is what
+    actually matches training progress across `γ` (measured: `01` Phase 0).
+    """
 
     steps_per_task: int = 2000
     batch_size: int | None = None      # None = full batch
-    loss_tol: float = 0.0              # >0 enables early stop on train loss
-    target_accuracy: float | None = 0.98
+    stopping: str = "matched_loss"     # "matched_loss" | "fixed_steps"
+    target_loss: float = 0.05
     record_every: int = 50
 
 
@@ -48,7 +57,10 @@ class TaskRecord:
 
         Retained-capacity and forgetting numbers for a non-converged task confound
         forgetting with under-training, so any run containing one is invalid for
-        H1/H2 and must be reported, not silently averaged in.
+        H1/H2 and must be reported, not silently averaged in. Under
+        `matched_loss`, `converged` additionally certifies that training progress
+        is *matched across `γ`*, without which the γ contrast is confounded with
+        how far each arm got.
         """
         return self.converged
 
@@ -105,7 +117,6 @@ def train_task(
     curve: list[float] = []
     loss = float("nan")
     step = 0
-    reached = False
     for step in range(1, cfg.steps_per_task + 1):
         if cfg.batch_size is None or cfg.batch_size >= n:
             loss = model.sgd_step(X, target)
@@ -114,23 +125,16 @@ def train_task(
             loss = model.sgd_step(X[idx], target[idx])
         if step % cfg.record_every == 0 or step == 1:
             curve.append(loss)
-            if cfg.target_accuracy is not None and accuracy(model, X, target) >= cfg.target_accuracy:
-                reached = True
-                break
-        if cfg.loss_tol > 0 and loss < cfg.loss_tol:
+        if cfg.stopping == "matched_loss" and loss <= cfg.target_loss:
             break
-    final_acc = accuracy(model, X, target)
     return TaskRecord(
         task=task_index,
         final_loss=loss,
         steps_taken=step,
-        train_accuracy=final_acc,
+        train_accuracy=accuracy(model, X, target),
         loss_curve=curve,
         weight_change={m: model.weight_change(m) for m in MODULES},
-        converged=(
-            True if cfg.target_accuracy is None
-            else bool(reached or final_acc >= cfg.target_accuracy)
-        ),
+        converged=(loss <= cfg.target_loss if cfg.stopping == "matched_loss" else True),
     )
 
 

@@ -535,7 +535,140 @@ at test scale (P=8, M=20, N=64), per-task final train accuracy:
 
 A task the network never learned cannot be forgotten, so its "forgetting" is
 under-training and would have entered H1/H2 silently. `TrainConfig` now carries
-`target_accuracy` (default 0.98) with early stop, and `TaskRecord.converged` /
+a convergence target with early stop, and `TaskRecord.converged` /
 `.usable_for_forgetting` record the outcome per task. **Phase 0 must verify
-`all(t.converged)` across the γ grid before Phase 1 commits compute** — the rich
-end (large γ, small effective LR) is where this will bite.
+`all(t.converged)` across the γ grid before Phase 1 commits compute.**
+
+---
+
+## 2026-08-11 — Phase 0 (`scripts/run_phase0.py` → `results/phase0.json`)
+
+Project config: `P=16, N=300, M=150, d=150, D=4, R=1.0, n_t=200`, γ ∈ {0.03, 0.1,
+0.3, 1, 3, 10}, 3 seeds.
+
+### GATE 2 PASSES — and this reopens a closed decision
+
+The check `05` called "the most likely single failure in the project", and for
+which D4 pre-authorized dropping the `a` axis, **passed decisively**.
+Capacity-at-init against alignment `a`:
+
+| `a` | 0.00 | 0.17 | 0.33 | 0.50 | 0.67 | 0.83 | 1.00 |
+|---|---|---|---|---|---|---|---|
+| `α` | 0.3091 | 0.3212 | 0.3383 | 0.3557 | 0.3736 | 0.3874 | 0.3940 |
+
+Strictly monotone, rank correlation **+1.00**, range **23.97%** against a required
+2× noise floor of 3.74% — **6.4× the threshold**. Direction is the expected one:
+aligning `W(0)`'s row space with the manifold-center subspace raises capacity at
+init, which is what "wealth" is supposed to mean.
+
+**Decision returning to the human.** The `a` axis was cut by pre-authorization
+anticipating this failure. It did not fail, the knob works, and compute is no
+longer binding (`01` Phase 1: 9.0 h wall at 20 streams × 8 seeds). Reinstating `a`
+is now a *scope* question rather than a feasibility one — it is what makes `C3`
+(wealthy-lazy + poor-rich) and `C4` (anti-diagonal) meaningful, and those are the
+architecture conditions the modularity story rests on. **Not reinstating it
+unilaterally**; flagging that the grounds for the cut are gone.
+
+### Capacity-at-init flat in γ — exact, by construction
+
+Not a statistical pass. `h_m = ReLU(β₀ W_m x)` contains no γ, and the readout is
+zero-init, so the representation at init is **bitwise identical across γ** and
+`α` is equal to the last bit (0.310595 at γ = 0.03 and γ = 10). Verified both ways.
+This is I6 holding, and it is what makes γ and `a` orthogonal.
+
+### `pairwise` vs `full_P`: capacity agrees, geometry does not
+
+| measure | `full_P` | `pairwise` | rel. diff | floor | |
+|---|---|---|---|---|---|
+| `α` | 0.3078 | 0.3109 | **1.02%** | 1.87% | agree |
+| `R_eff` | 0.8718 | 0.8664 | **0.62%** | 0.50% | ~agree |
+| `D_eff` | 4.548 | 5.734 | **26.1%** | 1.26% | **diverge** |
+| `Ψ_eff` | 0.6041 | 0.7657 | **26.8%** | 1.39% | **diverge** |
+| `ρ_c_glue` | 0.5980 | 0.6272 | 4.88% | 0.97% | diverge |
+| `ρ_c_signed` | 0.5219 | 0.5348 | 2.49% | 0.97% | diverge |
+
+The structure is the interesting part. `D_eff` and `Ψ_eff` inflate by **the same
+factor** under pairwise — 1.2609 and 1.2676, a ratio of **1.0053** — so they
+cancel in `α = Ψ_eff(1 + R_eff⁻²)/D_eff` to within 0.5%, and `R_eff` barely moves.
+The estimation mode is close to a **pure common rescaling of the `D`/`Ψ` pair**.
+Mechanistically this is what a joint QP should do: at `P = 2` only two manifolds
+compete for each `t`, anchors are less constrained, and the apparent dimension
+rises.
+
+Consequences:
+
+1. **Published GLUE capacities are comparable to ours; published GLUE
+   *geometries* are not.** A 26% offset in `D_eff` is a mode difference, not a
+   finding. Worth stating — the literature reports pairwise geometry.
+2. **The attribution is in the affected channels.** `α` is safe either way, but
+   Figure 2 decomposes into `D_eff` and `Ψ_eff`. If the ~1.26 factor is *constant
+   across conditions* it cancels in `Δlog D_eff` and the attribution is untouched;
+   if it drifts with the representation, it does not. **This must be checked at
+   two or more conditions before Phase 1 commits** — one condition cannot
+   distinguish a constant offset from a varying one. Added to the gate list.
+3. `full_P` remains primary, `pairwise` reported alongside, per `01` §4.
+
+### Stopping criterion was wrong, found by its own diagnostic
+
+The convergence check flagged non-convergence at low γ, and the detail disproved
+the obvious reading. Per-task train accuracy was **identical across all six γ**
+(0.991 / 0.994 / 0.982 / 0.972) with stopping at step 1 on the first task. Reason:
+from `u = 0`, one gradient step gives `u ∝ Σ_b y_b h(x_b)` — the kernel/Hebbian
+readout — and
+
+    f(x) ∝ Σ_b y_b h(x_b)ᵀ h(x)
+
+whose **sign does not depend on the learning rate or on γ**. So train accuracy
+jumps to ~0.99 at step 1 in every arm, and an accuracy-based stopping rule halts
+training before any feature learning — precisely the thing under study. `01` §1
+specifies `stopping: "matched_loss"`; the implementation used accuracy. Fixed:
+`TrainConfig` now takes `stopping ∈ {"matched_loss", "fixed_steps"}` with
+`target_loss`, and `test_accuracy_saturates_at_step_one_so_stopping_must_use_loss`
+pins the reason so it cannot be undone. Check 3 rerun under matched loss
+(`scripts/run_phase0_richness.py`).
+
+Note this also means **train accuracy is near-useless as a progress measure in
+this model** — it saturates immediately at every γ. Loss, `‖ΔW‖/‖W‖`, and the
+geometry are the informative axes.
+
+### Richness separation PASSES at matched loss — after fixing `lr0`
+
+The first matched-loss rerun failed at γ ≤ 1: loss plateaued near 0.34 and never
+reached the 0.05 target within 5,000 steps/task. Two candidate explanations, and
+the obvious one was wrong.
+
+**Ruled out — an expressivity floor.** `2N = 600` readout parameters against
+`P·M = 2400` samples looks underparameterized, which would put a hard floor under
+the lazy arm. Solving the readout exactly by least squares at fixed `W` gives loss
+**0.0002**: no floor. The targets are constant within each manifold, so there are
+only `P = 16` distinct values to fit and 600 features fit them trivially.
+
+**Actual cause — `lr0 = 0.2` was simply too small.** μP's `η ∝ γ₀²` makes the
+*function-space* rate γ-independent (`Δf ∝ η·s²` with `s = β_L/γ_eff`; the product
+is 6.66e-4 at both γ = 0.03 and γ = 10, identical as designed). What differs is
+that feature learning speeds the fit at large γ, so a global rate too small to
+converge leaves only the rich arms finishing. Raising `lr0` fixes every arm at
+once, and the system is stable well beyond the value chosen:
+
+| γ | `lr0`=0.2 | `lr0`=5.0 | `lr0`=50 |
+|---|---|---|---|
+| 0.03 | 0.426 (no conv.) | **0.050** @1196 steps | 0.050 @120 |
+| 1.0 | 0.415 (no conv.) | **0.049** @264 | 0.045 @28 |
+| 10 | 0.050 @1006 | **0.049** @42 | 0.032 @6 |
+
+**`lr0 = 5.0` adopted** for Phase 1. Re-run at 3 seeds, `T = 2`, matched loss 0.05:
+
+| γ | 0.03 | 0.1 | 0.3 | 1.0 | 3.0 | 10 |
+|---|---|---|---|---|---|---|
+| `‖ΔW‖/‖W‖` | 0.0015 | 0.0125 | 0.0486 | 0.1274 | 0.2525 | 0.5025 |
+| steps to target | 2883 | 2330 | 1305 | 515 | 203 | 73 |
+
+**PASS: 2.53 decades** of `ΔW` separation at matched loss, against the 1-decade
+requirement, and **every arm reaches the target at every seed**. The separation is
+therefore richness, not differential training progress.
+
+**Carry forward for H3.** Reaching the *same loss* takes **39.5× more steps** at
+γ = 0.03 than at γ = 10. That spread is the raw material for the
+time-reparameterization test (`00` §12): if warping step count by this factor
+collapses the geometry trajectories onto each other, H3 is dead. The factor is now
+measured, so the test has a principled warp to try first rather than a fitted one.

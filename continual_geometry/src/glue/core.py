@@ -354,6 +354,46 @@ def glue_measures(
     )
 
 
+def pairwise_measures(
+    manifolds: Sequence[np.ndarray],
+    rng: np.random.Generator,
+    *,
+    max_pairs: int | None = None,
+    **kwargs,
+) -> dict:
+    """Lab-standard `pairwise` estimation: run at `P = 2` over pairs, then pool.
+
+    The lab estimates GLUE two manifolds at a time; `glue_measures` solves one
+    joint QP over all `P` (`full_P`). The two are **not** the same estimator — the
+    joint QP lets every manifold compete for the same `t`, so anchors, and hence
+    `D_eff` and `ρ_c`, differ. `01` Phase 0 compares them and reports both:
+    `pairwise` is comparable to published values, `full_P` is primary.
+
+    `α` pools by the harmonic mean (`α = P/N_crit`; critical dimensions add).
+    Geometry pools by the arithmetic mean over pairs, and `ρ_c` likewise — for
+    `ρ_c` that *is* the cross-pair average of a pairwise quantity, so it is the
+    closest analogue of the `full_P` definition available at `P = 2`.
+    """
+    P = len(manifolds)
+    pairs = [(i, j) for i in range(P) for j in range(i + 1, P)]
+    if max_pairs is not None and max_pairs < len(pairs):
+        idx = rng.choice(len(pairs), size=max_pairs, replace=False)
+        pairs = [pairs[i] for i in sorted(idx)]
+
+    streams = rng.spawn(len(pairs))
+    out = [
+        glue_measures([manifolds[i], manifolds[j]], streams[k], **kwargs)
+        for k, (i, j) in enumerate(pairs)
+    ]
+    keys = ("D_eff", "R_eff", "Psi_eff", "rho_c_glue", "rho_c_signed")
+    pooled = {k: float(np.mean([getattr(r, k) for r in out])) for k in keys}
+    pooled["alpha"] = harmonic_mean(np.array([r.alpha for r in out]))
+    pooled["n_pairs"] = len(pairs)
+    pooled["estimation_mode"] = "pairwise"
+    pooled["estimator"] = "glue_core"
+    return pooled
+
+
 def rho_c(S0: np.ndarray, convention: Literal["glue", "signed"]) -> float:
     """Anchor-center correlation, mean over pairs `μ ≠ ν` (`00` §6.1 C3).
 

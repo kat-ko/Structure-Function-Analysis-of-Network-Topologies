@@ -13,13 +13,13 @@ from src.train.loop import flatten_task, manifold_accuracy
 P, M, D_AMB, D_INT, N = 8, 20, 30, 3, 64
 
 
-def _setup(seed=0, gamma=1.0, steps=2000, lr0=0.2, target=0.98):
+def _setup(seed=0, gamma=1.0, steps=2000, lr0=0.2, target_loss=0.1):
     streams = paired_init(seed)
     arr = generator.make_arrangement(P, D_AMB, D_INT, 1.0, M, streams["data"])
     cfg = {m: ScalingConfig(N=N, d=D_AMB, gamma_0=gamma, lr0=lr0) for m in MODULES}
     model = TwoModuleNet.init(cfg, streams["shape"])
     return model, arr, streams, TrainConfig(
-        steps_per_task=steps, record_every=100, target_accuracy=target
+        steps_per_task=steps, record_every=100, target_loss=target_loss
     )
 
 
@@ -70,8 +70,7 @@ def test_sequential_training_forgets():
 def test_under_training_is_flagged_not_silent():
     """A budget tuned on task 0 leaves later tasks unlearned; the run must say so."""
     model, arr, streams, _ = _setup()
-    tight = TrainConfig(steps_per_task=400, record_every=100,
-                        target_accuracy=0.98)
+    tight = TrainConfig(steps_per_task=60, record_every=100, target_loss=1e-4)
     ys = np.stack([dichotomies.sample_balanced(P, streams["stream"]) for _ in range(4)])
     tasks, _ = run_stream(model, [arr.points] * 4, ys, tight, streams["data"])
     assert not all(t.converged for t in tasks)
@@ -83,6 +82,7 @@ def test_convergence_stops_early_when_target_reached():
     y = dichotomies.sample_balanced(P, streams["stream"])
     rec = train_task(model, arr.points, y, tcfg, streams["data"])
     assert rec.converged and rec.steps_taken < 20_000
+    assert rec.final_loss <= tcfg.target_loss
 
 
 def test_probe_dichotomy_is_recorded_and_never_trained():
@@ -120,3 +120,25 @@ def test_accuracy_at_init_is_zero_not_chance():
     model, arr, streams, _ = _setup()
     y = dichotomies.sample_balanced(P, streams["stream"])
     assert manifold_accuracy(model, arr.points, y) == pytest.approx(0.0)
+
+
+def test_accuracy_saturates_at_step_one_so_stopping_must_use_loss():
+    """Why `stopping = "matched_loss"` and not an accuracy criterion.
+
+    From `u = 0`, one step gives `u ∝ Σ_b y_b h(x_b)` — the kernel readout — whose
+    *sign* does not depend on the learning rate. Train accuracy therefore jumps to
+    ~0.99 at step 1 identically for every γ, while the loss is still far from
+    converged. Stopping on accuracy would halt before any feature learning.
+    """
+    accs, losses = [], []
+    for gamma in (0.03, 1.0, 10.0):
+        model, arr, streams, tcfg = _setup(gamma=gamma)
+        y = dichotomies.sample_balanced(P, streams["stream"])
+        X, target = flatten_task(arr.points, y)
+        model.sgd_step(X, target)
+        from src.train.loop import accuracy as acc_fn
+        accs.append(acc_fn(model, X, target))
+        losses.append(0.5 * np.mean((model.forward(X) - target) ** 2))
+    assert min(accs) > 0.9
+    assert max(accs) - min(accs) < 1e-12      # identical across gamma
+    assert min(losses) > 0.05                 # nowhere near converged

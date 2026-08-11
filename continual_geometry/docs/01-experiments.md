@@ -138,13 +138,52 @@ pairwise at `P = 2` routinely; see `PROJECT.md` §2 P1 and 04 §C6.)
 
 ### Phase 0 — Manipulation validation (~2 days)
 
-| Check | Pass criterion | Failure action |
-|---|---|---|
-| Capacity-at-init tracks `a` | monotone, range ≥ 2× noise floor | fall back to `wealth_knob: input_dim` |
-| Capacity-at-init flat in `γ` | variation within noise floor | parameterization bug — **stop** |
-| `‖ΔW_m‖/‖W_m‖` separates across γ | ≥ 1 order of magnitude | parameterization bug — **stop** |
-| **Estimation-mode comparison** (spec §13) | `pairwise` vs `full_P` agree within noise floor on {α, R_eff, D_eff, ρ_c} | if they diverge, report both — `pairwise` is comparable-to-published (lab standard), `full_P` is primary |
-| **Time-reparameterization test** (spec §12) | residual after warping **exceeds** noise floor | if trajectories coincide, **H3 is dead** — restrict contrasts to γ≪1 vs γ~1, proceed with H1/H2 only |
+| Check | Pass criterion | Failure action | Result (2026-08-11) |
+|---|---|---|---|
+| Capacity-at-init tracks `a` | monotone, range ≥ 2× noise floor | fall back to `wealth_knob: input_dim` | **PASS** — monotone, rank corr +1.00, range 24.0% vs 3.74% needed |
+| Capacity-at-init flat in `γ` | variation within noise floor | parameterization bug — **stop** | **PASS, exactly** — representations bitwise identical across γ |
+| `‖ΔW_m‖/‖W_m‖` separates across γ | ≥ 1 order of magnitude | parameterization bug — **stop** | **PASS** — 2.53 decades at matched loss (0.0015 → 0.503), all arms converged |
+| **Estimation-mode comparison** (spec §13) | `pairwise` vs `full_P` agree within noise floor on {α, R_eff, D_eff, ρ_c} | if they diverge, report both — `pairwise` is comparable-to-published (lab standard), `full_P` is primary | **DIVERGE on geometry, agree on α** — see below |
+| **Time-reparameterization test** (spec §12) | residual after warping **exceeds** noise floor | if trajectories coincide, **H3 is dead** — restrict contrasts to γ≪1 vs γ~1, proceed with H1/H2 only | not yet run (needs geometry trajectories, `src/analysis/`) |
+
+**Gate 2 passed, which reopens the `a` axis.** `05` D4 pre-authorized dropping the
+`a` axis on a Gate-2 failure. It did not fail: `α` at init rises strictly
+monotonically 0.309 → 0.394 across `a ∈ [0,1]`, 6.4× the required dynamic range,
+in the expected direction. Compute is no longer binding either. Reinstating `a` is
+therefore a scope decision for the human, not a feasibility one — and it is what
+makes `C3`/`C4` meaningful. Left cut pending that decision.
+
+**Estimation mode is close to a pure rescaling of the `D`/`Ψ` pair.** `α` agrees
+to 1.02% (inside its 1.87% floor) and `R_eff` to 0.62%, but `D_eff` and `Ψ_eff`
+both inflate under `pairwise` by 1.2609 and 1.2676 respectively — a ratio of
+1.0053, so they cancel in `α = Ψ_eff(1+R_eff⁻²)/D_eff`. At `P = 2` only two
+manifolds compete for each `t`, so anchors are less constrained and apparent
+dimension rises. Two consequences: published GLUE *capacities* are comparable to
+ours while published *geometries* are not (a 26% `D_eff` offset is a mode
+difference, not a finding); and since Figure 2 decomposes into exactly the two
+affected channels, **it must be confirmed at ≥ 2 conditions that the factor is
+constant, so that it cancels in `Δlog D_eff`, before Phase 1 commits compute.**
+One condition cannot separate a constant offset from a varying one.
+
+**Train accuracy is not a usable progress measure in this model, and stopping must
+be on loss.** From `u_m(0) = 0`, one gradient step gives `u_m ∝ Σ_b y_b h(x_b)`,
+the kernel readout, whose sign is independent of the learning rate and of γ. Train
+accuracy therefore jumps to ~0.99 at step 1 identically in every arm, and an
+accuracy-based stopping rule halts before any feature learning. `stopping:
+"matched_loss"` with `target_loss` is mandatory, not one of two equal options.
+
+**`lr0 = 5.0`, `target_loss = 0.05` — pinned by measurement, not taste.** At
+`lr0 = 0.2` the arms at γ ≤ 1 plateau near loss 0.34 and never reach the target,
+which would silently confound γ with training progress. This is *not* an
+expressivity floor — solving the readout exactly at fixed `W` gives loss 0.0002,
+since the targets are constant within each manifold — it is simply too small a
+step. At `lr0 = 5.0` every γ reaches 0.05 at every seed, and the system remains
+stable at `lr0 = 50`. **Any change to `M`, `P`, or `N` invalidates this value**;
+re-run `scripts/run_phase0_richness.py`.
+
+**Steps-to-target spans 39.5× across γ** (2883 at γ=0.03 → 73 at γ=10) at matched
+loss. This is the natural first warp for the time-reparameterization test (`00`
+§12) — H3 predicts trajectories do *not* collapse under it.
 
 #### Phase 0 precondition — mean-field validity at project `P` (decide **before** building)
 
