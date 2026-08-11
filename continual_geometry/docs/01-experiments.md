@@ -208,6 +208,28 @@ Arithmetic means of `α_i` are a bug, not a convention choice.
 
 Grid: `γ` sweep × `a` sweep × Hiratani 2×2 streams, `C1`/`C2`, 8 seeds, 20 streams.
 
+**Cost (measured 2026-08-11, `results/cost_model.json`) — compute is not the
+binding constraint.** 52.4 s/eval at `n_t = 200`, one BLAS thread per worker,
+248 workers:
+
+| grid | runs | evals | wall |
+|---|---|---|---|
+| 10 streams × 5 seeds (`05` brief figure) | 1,200 | 48,000 | **2.8 h** |
+| **20 streams × 8 seeds (this doc)** | 3,840 | 153,600 | **9.0 h** |
+
+The two figures disagreed; both fit, so **the larger one stands** and the `05`
+brief's number should be read as a lower bound. The `n_t → Tier-2 interval →
+retained-tasks-evaluated` cut order is **not invoked**, and seeds and streams were
+never at risk. Remaining constraint is engineering time, not compute.
+
+**Seed count, on evidence.** From the measured noise floors, MDE (two-sided,
+power 0.8) at 5 vs 8 seeds per group: α 3.78% → 2.82%, `D_eff` 2.55% → 1.90%,
+`R_eff` 1.01% → 0.75%, `Ψ_eff` 2.81% → 2.09%, `ρ_c` 1.96% → 1.46% — uniformly
+**25.4% tighter for +1.7 h wall**. 8 seeds is the right call. Caveat: these floors
+are estimator Monte-Carlo variance at fixed manifolds, so they are **lower bounds**
+on the true MDE, which also carries network-init and stream variability. Recompute
+from the Phase 0 pilot spread before the Day-14 MDE table is finalised.
+
 Outputs: forgetting-attribution table (exact three-factor, log-space);
 generic/retained crossing; probe-dichotomy
 validation of generic capacity; KTA measured alongside; **Wakhloo/Slatton four

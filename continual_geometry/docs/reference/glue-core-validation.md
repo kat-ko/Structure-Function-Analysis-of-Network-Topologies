@@ -138,14 +138,27 @@ Identical point clouds, `M = 60`, `D = 4`, `R = 1`, `n_t = 200`, `n_rep = 10`,
 
 Two observations that matter for how the residual should be read:
 
-- **`α_core` is the more stable of the two.** Across `N` at fixed geometry it
-  varies by under 2% (0.434 / 0.440 / 0.437 at `P = 16`) with a seed SD around
-  0.004, while `α_sim` drifts monotonically upward with ambient `N`
-  (0.420 / 0.440 / 0.460) with a seed SD 3–10× larger. The generated geometry is
-  `N`-independent, so that drift is a property of the simulation estimator — its
-  bisection range and random-projection statistics both scale with `N`. Part of
-  the residual at large `N` is therefore `α_sim`'s bias, not `α_core`'s error. We
-  do not claim which is right; we report both.
+- **`α_core` is the more stable of the two, and `α_sim`'s `N`-drift is an
+  artifact — confirmed, not inferred.** Across `N` at fixed geometry `α_core`
+  varies under 2% (0.434 / 0.440 / 0.437 at `P = 16`, seed SD ~0.004) while
+  `α_sim` drifts monotonically upward (0.420 / 0.440 / 0.460) with 3–10× the
+  scatter. Since the generated geometry is `N`-independent only *statistically*,
+  we re-ran the comparison with `N` raised by **zero-padding a single point cloud**
+  — the geometry is then literally identical, embedded isometrically in a larger
+  ambient space, and capacity must be invariant:
+
+  | `α` under zero-padding (P=16, M=60, 5 seeds) | N=300 | N=600 | N=1200 | drift |
+  |---|---|---|---|---|
+  | `α_sim` | 0.434 ± 0.025 | 0.435 ± 0.016 | 0.461 ± 0.014 | **+6.2%** |
+  | `α_core` | 0.439 ± 0.006 | 0.434 ± 0.008 | 0.437 ± 0.004 | **−0.3%** |
+
+  `α_core` is invariant as it must be; `α_sim` is not. The drift belongs to the
+  simulation estimator — its bisection range and random-projection statistics both
+  scale with `N`. **`α_sim` is therefore the right anchor at the design point
+  (smallest `N`, best agreement, tightest scatter) but is not unambiguously ground
+  truth at large `N`**, and part of the large-`N` residual in the table above is
+  its bias rather than `α_core`'s error.
+  `scripts/run_estimator_followups.py` → `results/estimator_followups.json`.
 - **`α_mf` is systematically low**, by 1.6–19.8%, and worst at `P = 8` where the
   mean-field limit is furthest away. It improves with `N` at `P = 8`
   (19.8 → 13.9 → 11.3%), the expected direction.
@@ -217,6 +230,35 @@ extent of a high-dimensional manifold; the higher `D`, the more points are neede
 to reach the same relative coverage. The small over-report at `D = 2` is a
 separate, `M`-independent effect of about 12%.
 
+**This is a property of anchor-based estimation, not of our implementation.** The
+mechanism is in the definition — anchors are dual-weighted extreme points of the
+sampled cloud — so any GLUE-family estimator at modest `M` inherits it. Chou et
+al. subsample to **50 points per manifold**; at `M = 50` our curve puts
+`D_eff/D ≈ 0.67` at `D = 10` and `0.85` at `D = 6`. That is a methodological
+observation about published applications of the method, not only about our runs,
+and we state it as one: **we characterise the finite-sample behaviour of
+anchor-based geometry estimation as a deficit scaling ≈ `M^-0.45`, uniform across
+`D` and independent of `P` and `n_t`.** As far as we know this has not been
+characterised before; it is cheap to measure and it changes how absolute `D_eff`
+values in this literature should be read.
+
+**Why `M = 150`, and the robustness arm.** `M` trades accuracy against cost, and
+both sides are now measured. Cost at project parameters (P=16, N=300) is
+**≈ `M^1.68`**: 242 ms/sample at `M = 150`, 1173 ms at 400, 4067 ms at 800.
+
+| `M` | cost vs 150 | full Phase-1 grid | 4.5% robustness arm |
+|---|---|---|---|
+| 150 | 1.0× | 2.8 h | 0.13 h |
+| 400 | 4.9× | 13.7 h | **0.61 h** |
+| 800 | 16.8× | 47.4 h | **2.13 h** |
+
+`M = 150` is the main-grid choice: it keeps the full grid at 2.8 h wall while
+sitting on the flatter part of the accuracy curve above Chou's 50.
+`M = 800` for the whole grid is 47 h, which is not affordable — but **a high-`M`
+robustness arm is: 2.1 h at `M = 800` over 4.5% of the grid** (one condition ×
+2 γ × 3 streams × 3 seeds). Run it, and report the main-grid `D_eff` beside the
+high-`M` values so the compression is bounded empirically rather than argued.
+
 **What this means for the paper.**
 
 1. The bias is a **monotone increasing** function of the ground truth, so rank
@@ -228,11 +270,15 @@ separate, `M`-independent effect of about 12%.
    **conservative**: a real contribution can be understated, not manufactured.
 4. It must nonetheless be stated, because our streams change representational
    dimension: a bias correlated with a manipulated variable is a confound, not a
-   nuisance. Any absolute `D_eff` value should be read as a lower bound above
-   `D ≈ 4`.
+   nuisance.
+
+**Caption requirement.** Every figure and table reporting an *absolute* `D_eff`
+must carry "`D_eff` above ≈ 4 is a lower bound (finite-`M` compression, §5)". This
+is not optional and not satisfied by stating it once in the methods.
 
 Reaching a 5% deficit at `D = 10` would need `M ≈ 4000`, which is not affordable
-at Phase-1 scale — hence a stated caveat rather than a fix.
+across the grid — hence a stated caveat plus the high-`M` robustness arm above,
+rather than a fix.
 
 ---
 
@@ -241,6 +287,7 @@ at Phase-1 scale — hence a stated caveat rather than a fix.
 ```
 scripts/run_glue_core_recovery.py   -> results/glue_core_recovery.json   (§2, §4)
 scripts/run_gate_2a.py              -> results/gate_2a.json              (§3)
+scripts/run_estimator_followups.py  -> results/estimator_followups.json  (§3, §5)
 scripts/run_scale_compression.py    -> results/scale_compression.json    (§5)
 scripts/run_psi_eff_diagnostic.py   -> results/psi_eff_diagnostic.json   (02 §2c)
 scripts/run_cost_model.py           -> results/cost_model.json

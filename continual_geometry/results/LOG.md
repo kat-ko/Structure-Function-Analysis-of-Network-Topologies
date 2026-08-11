@@ -434,3 +434,51 @@ and the reviewer answer to "you implemented the estimator yourself". Records, wi
 numbers: the α=2 exact limit, B.5 recovery per axis, the α_sim/α_mf cross-check,
 the center_policy decision, and the compression limitation with its mechanism.
 `Verified by (human)` blank.
+
+### Follow-ups closing the sheet (`results/estimator_followups.json`)
+
+**1. `α_sim`'s N-drift is an artifact — confirmed, not inferred.** Re-ran with `N`
+raised by **zero-padding one point cloud**: identical geometry, isometric
+embedding, capacity invariant by construction.
+
+| P=16, M=60, 5 seeds | N=300 | N=600 | N=1200 | drift |
+|---|---|---|---|---|
+| `α_sim` | 0.434 ± 0.025 | 0.435 ± 0.016 | 0.461 ± 0.014 | **+6.2%** |
+| `α_core` | 0.439 ± 0.006 | 0.434 ± 0.008 | 0.437 ± 0.004 | **−0.3%** |
+
+`α_core` is invariant as it must be; `α_sim` is not. `02` §2a amended: `α_sim` is
+the reference standard **at the design point** (smallest N, best agreement,
+tightest scatter), not unconditional ground truth — large-`N` disagreement must
+not be charged to `α_core` by default.
+
+**2. Cost of `M` measured at project scale: ≈ `M^1.68`** (242 / 1173 / 4067
+ms/sample at M = 150 / 400 / 800, P=16, N=300). Full grid: 2.8 h / 13.7 h / 47.4 h.
+`M = 150` justified as the main-grid point; **a high-`M` robustness arm at `M = 800`
+costs 2.1 h over 4.5% of the grid** and is now planned, so the compression is
+bounded empirically rather than argued. (An earlier log line estimated `M^1.6` by
+extrapolating from the 50–150 range; the direct measurement at project scale
+confirms it.)
+
+**3. Compression reframed from caveat to methods finding.** The mechanism is in
+the *definition* — anchors are dual-weighted extreme points of the sampled cloud —
+so every GLUE-family estimator at modest `M` inherits it. Chou et al. subsample to
+**M = 50**, where our curve puts `D_eff/D ≈ 0.67` at `D = 10`. The sheet now states
+the finite-sample behaviour of anchor-based geometry estimation as a deficit
+scaling ≈ `M^-0.45`, uniform in `D`, independent of `P` and `n_t`. Also added: a
+**caption requirement** that every figure reporting absolute `D_eff` carries the
+lower-bound note, not just the methods section.
+
+**4. MDE at 5 vs 8 seeds** — uniformly **25.4% tighter for +1.7 h wall**
+(α 3.78 → 2.82%, `D_eff` 2.55 → 1.90%, `R_eff` 1.01 → 0.75%, `Ψ_eff` 2.81 → 2.09%,
+`ρ_c` 1.96 → 1.46%). 8 seeds adopted. **Stated as a lower bound**: these floors are
+estimator Monte-Carlo variance at fixed manifolds and exclude network-init and
+stream variability; recompute from the Phase 0 pilot before the Day-14 table.
+
+**5. Grid discrepancy found and resolved.** The `05` brief's figure (10 streams ×
+5 seeds = 1,200 runs, 48,000 evals, 2.8 h) disagrees with `01` Phase 1 (20 streams
+× 8 seeds = 3,840 runs, 153,600 evals, **9.0 h**). Both fit; the larger stands.
+
+**Compute is no longer the binding constraint — engineering time is.** Next:
+`src/models/` → training loop → Phase 0, no further validation detours. Phase 0's
+own runs are cheap, so Gate-2 alignment and the time-reparameterization test get
+run properly rather than minimally even though both feed cut hypotheses.

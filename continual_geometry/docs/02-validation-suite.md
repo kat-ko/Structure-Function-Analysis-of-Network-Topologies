@@ -54,7 +54,7 @@ real error source between them:
 
 | Quantity | Source | Error it exposes |
 |---|---|---|
-| `α_sim` | simulation, bisection on N (ground truth); **works at any `y`** | — |
+| `α_sim` | simulation, bisection on N; **works at any `y`**. Reference standard **at small `N`**, not unconditional ground truth — see the drift note below | its own ambient-`N` artifact |
 | `α_mf` | replica mean-field (`replicaMFT`) — **label-invariant, β = 0 only** | does mean-field theory hold at our P, M, N? |
 | `α_core` | our GLUE core (`src/glue/core.py`), ambient anchors under shared `y` | does our three-factor estimator recover ground truth, at any β? |
 
@@ -86,6 +86,17 @@ test_mean_field_validity:
                     compare alpha_sim  vs  alpha_core                # core only
     record mean and max relative error per beta -> results/mft_validity.json
 ```
+
+**`α_sim` is the reference standard, not unconditional truth (amended 2026-08-11).**
+Re-running `α_sim` on a **single point cloud zero-padded** to larger `N` — identical
+geometry, isometrically embedded, so capacity is invariant by construction — gives
+0.434 → 0.435 → **0.461** across `N = 300/600/1200` (**+6.2%**), while `α_core`
+gives 0.439 → 0.434 → 0.437 (**−0.3%**). `α_sim`'s ambient-`N` dependence is an
+**estimator artifact** (bisection range and projection statistics both scale with
+`N`). Consequence for this gate: `α_sim` anchors the comparison **at the design
+point**, where `N` is smallest, agreement is best and its scatter is tightest; at
+larger `N`, disagreement must **not** be attributed to `α_core` by default. Report
+both. `results/estimator_followups.json`.
 
 **Ran 2026-08-11 at β = 0 over `P ∈ {8,16,32} × N ∈ {300,600,1200}`**
 (`scripts/run_gate_2a.py` → `results/gate_2a.json`). At the design point
