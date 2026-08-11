@@ -28,6 +28,10 @@ from dataclasses import asdict, dataclass, field
 
 import numpy as np
 
+from src import provenance
+
+_SOURCE = provenance.register(__file__)
+
 FACTORS = ("utility", "radius", "dimension")
 GEOMETRY = ("alpha", "D_eff", "R_eff", "Psi_eff", "rho_c_glue", "rho_c_signed")
 
@@ -37,15 +41,26 @@ GEOMETRY = ("alpha", "D_eff", "R_eff", "Psi_eff", "rho_c_glue", "rho_c_signed")
 # while D_eff stays flat to 0.38%, so on synthetic manifolds the radius absorbs
 # center correlation essentially alone, exactly as the duality says.
 #
-#     log R_eff = RHO_R_INTERCEPT + RHO_R_EXPONENT · (−log(1 − ρ_c_glue))
+#     log R_eff = RHO_R_INTERCEPT + RHO_R_EXPONENT · (−log(1 − ρ_c_signed))
 #
-# i.e. R_eff ∝ (1 − ρ_c)^(−0.355), which fits the five sweep points at R² = 0.99986.
-# Refitted and pinned by `tests/test_analysis_attribution.py`.
-RHO_R_EXPONENT = 0.35484
-RHO_R_INTERCEPT = 0.012613
-RHO_R_R2 = 0.99986
-RHO_R_CONVENTION = "rho_c_glue"
+# i.e. R_eff ∝ (1 − ρ_c)^(−0.365), fitting the five sweep points at R² = 0.9997.
+#
+# **The convention is `rho_c_signed`, and that is load-bearing rather than a
+# preference.** `rho_c_glue` is unnormalized by definition (`00` §6.1 C3), so it is not
+# a correlation and is not confined to [0, 1): measured on Phase 1 representations it
+# runs to **1.49**, where `1 − ρ` is negative and this form is undefined. It stayed
+# inside [0, 1) on the synthetic sweep only because there the two conventions nearly
+# coincide (0.038/0.043, 0.220/0.236, …), which is exactly why fitting on the wrong one
+# survived review. `rho_c_signed` is normalized to [−1, 1] and sits at 0.33–0.48 on the
+# same representations — inside the fitted range.
+RHO_R_EXPONENT = 0.36483
+RHO_R_INTERCEPT = 0.002911
+RHO_R_R2 = 0.99970
+RHO_R_CONVENTION = "rho_c_signed"
 RHO_R_PROVENANCE = "glue_core_recovery.json:center_correlation/n_t=200,policy=all"
+# The sweep's ρ range. Outside it the conversion extrapolates a form that diverges at
+# ρ → 1, so it is refused rather than reported.
+RHO_FIT_RANGE = (0.0427, 0.8029)
 
 # `R_eff` Monte-Carlo noise floor, CV 0.50% (`results/cost_model.json`), in log units.
 # Radius changes below this are unresolvable, so they cannot be a ratio's denominator.
@@ -151,9 +166,35 @@ def attribute(
     )
 
 
+def rho_in_domain(rho: float, *, tol: float = 0.05) -> bool:
+    """Is `rho` close enough to the sweep that the calibration is interpolation?
+
+    `tol` allows a small margin past the fitted endpoints; beyond that the form is
+    extrapolating toward its divergence at ρ → 1 and its output is not a measurement.
+    """
+    lo, hi = RHO_FIT_RANGE
+    return bool(lo - tol <= rho <= hi + tol)
+
+
 def radius_from_rho(rho: float) -> float:
-    """`R_eff` predicted by center correlation alone, per the measured calibration."""
-    rho = float(np.clip(rho, 0.0, 0.995))
+    """`R_eff` predicted by center correlation alone, per the measured calibration.
+
+    Raises outside the fitted range rather than clipping. An earlier version clamped
+    to 0.995, which turned an out-of-domain input into a plausible finite number: fed
+    `rho_c_glue` values up to 1.49 it silently returned the value at 0.995 and reported
+    center-collapse shares of 15–38, which read as a substantive result and were
+    entirely an artifact of the clamp. Callers that expect out-of-range values should
+    test with `rho_in_domain` first.
+    """
+    rho = float(rho)
+    if not rho_in_domain(rho):
+        lo, hi = RHO_FIT_RANGE
+        raise ValueError(
+            f"rho={rho:.4f} is outside the calibration range [{lo:.4f}, {hi:.4f}]; the "
+            f"conversion diverges at rho -> 1 and would not be a measurement here. "
+            f"Note {RHO_R_CONVENTION} is the required convention — rho_c_glue is "
+            f"unnormalized and routinely exceeds 1."
+        )
     return float(np.exp(RHO_R_INTERCEPT + RHO_R_EXPONENT * -np.log1p(-rho)))
 
 
@@ -174,14 +215,21 @@ def center_collapse_share(
     anisotropy rather than center collapse. **Above 1** means centers collapsed more
     than the radius reflects, so something else offset it.
 
-    Three caveats, all of which keep this a reported attribution rather than a
-    correction. The calibration is fitted on synthetic manifolds where `ρ_C` is the
-    *only* thing varying, so it is an upper bound on how much a representation's
-    `ρ_c` movement can explain — in a representation, radius and centers move
-    together. It is fitted on `rho_c_glue` and is not valid for the signed
-    convention, whose sign carries information the absolute calibration cannot see.
-    And it is monotone in `ρ_c` only, so it says nothing when `ρ_c` is unchanged;
-    `attributable` is then reported as `None` rather than 0.
+    Four caveats, all of which keep this a reported attribution rather than a
+    correction.
+
+    The calibration is fitted on synthetic manifolds where `ρ_C` is the *only* thing
+    varying, so it is an upper bound on how much a representation's `ρ_c` movement can
+    explain — in a representation, radius and centers move together.
+
+    **It requires `rho_c_signed`, the normalized convention.** `rho_c_glue` is
+    unnormalized and exceeds 1 on real representations, where `(1 − ρ)^−k` is
+    undefined; see the note on `RHO_R_CONVENTION`.
+
+    It is monotone in `ρ_c` only, so it says nothing when `ρ_c` is unchanged;
+    `attributable` is then `None` rather than 0. It is likewise `None` when either
+    endpoint falls outside the fitted range, since the fitted form diverges at ρ → 1
+    and extrapolating it produces large numbers that look like findings.
 
     **The denominator is floored at the `R_eff` noise floor.** A ratio whose
     denominator is a radius change smaller than the estimator can resolve is
@@ -191,19 +239,29 @@ def center_collapse_share(
     radius did not measurably move, so there is nothing to attribute.
     """
     dlog_R = float(np.log(after.R_eff) - np.log(before.R_eff))
-    drho = after.rho_c_glue - before.rho_c_glue
-    predicted = float(np.log(radius_from_rho(after.rho_c_glue))
-                      - np.log(radius_from_rho(before.rho_c_glue)))
+    rho_before, rho_after = before.rho_c_signed, after.rho_c_signed
+    drho = float(rho_after - rho_before)
 
     out = {
         "dlog_R_eff_observed": dlog_R,
-        "dlog_R_eff_predicted_from_rho_c": predicted,
-        "d_rho_c_glue": float(drho),
-        "d_rho_c_signed": float(after.rho_c_signed - before.rho_c_signed),
+        "d_rho_c_signed": drho,
+        "d_rho_c_glue": float(after.rho_c_glue - before.rho_c_glue),
         "calibration_convention": RHO_R_CONVENTION,
+        "min_dlog_R": float(min_dlog_R),
     }
-    out["min_dlog_R"] = float(min_dlog_R)
-    if abs(drho) < 1e-12:
+
+    in_domain = rho_in_domain(rho_before) and rho_in_domain(rho_after)
+    out["rho_in_calibration_range"] = in_domain
+    predicted = (float(np.log(radius_from_rho(rho_after))
+                       - np.log(radius_from_rho(rho_before))) if in_domain else None)
+    out["dlog_R_eff_predicted_from_rho_c"] = predicted
+
+    if not in_domain:
+        lo, hi = RHO_FIT_RANGE
+        out["attributable_fraction"] = None
+        out["reason"] = (f"rho_c_signed outside calibration range [{lo:.3f}, {hi:.3f}] "
+                         f"(before {rho_before:.3f}, after {rho_after:.3f})")
+    elif abs(drho) < 1e-12:
         out["attributable_fraction"] = None
         out["reason"] = "rho_c unchanged — no conversion to report"
     elif abs(dlog_R) < min_dlog_R:

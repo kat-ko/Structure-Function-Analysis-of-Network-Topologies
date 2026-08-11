@@ -141,3 +141,56 @@ def test_float64_and_no_global_rng_use():
     mans = _gaussian_manifolds(4, 30, 2, 1.0, rng)
     S, active = core.anchor_matrix(mans, np.array([1.0, 1, -1, -1]), rng.standard_normal(30))
     assert S.dtype == np.float64 and active.dtype == np.bool_
+
+
+# --------------------------------------------------------------------------
+# Column-generation solver: must be exact, not merely close
+# --------------------------------------------------------------------------
+
+
+def _random_manifolds(P=8, M=60, N=120, seed=0):
+    rng = np.random.default_rng(seed)
+    return [rng.standard_normal((N, M)) + 3.0 * rng.standard_normal((N, 1))
+            for _ in range(P)], rng
+
+
+@pytest.mark.parametrize("seed", [0, 1, 2])
+def test_colgen_reproduces_scipy_nnls_exactly(seed):
+    """`colgen` is a speedup, not an approximation — anchors must match to ~1e-14.
+
+    It solves on a candidate subset and then checks the *full* KKT conditions, adding
+    violators until none remain, so on termination it satisfies the same optimality
+    conditions as the full solve. This pins that claim: a difference here means the
+    KKT check is wrong, and every geometry measured with it would be quietly off.
+    """
+    manifolds, rng = _random_manifolds(seed=seed)
+    y = np.array([1.0, -1.0] * (len(manifolds) // 2))
+    for _ in range(3):
+        t = rng.standard_normal(manifolds[0].shape[0])
+        S_ref, act_ref = core.anchor_matrix(manifolds, y, t, solver="nnls")
+        S_new, act_new = core.anchor_matrix(manifolds, y, t, solver="colgen")
+        assert np.allclose(S_ref, S_new, atol=1e-12)
+        assert np.array_equal(act_ref, act_new)
+
+
+def test_colgen_matches_on_the_full_measure_pipeline():
+    manifolds, _ = _random_manifolds(seed=5)
+    kw = dict(n_t=40, center_policy="all")
+    a = core.glue_measures(manifolds, np.random.default_rng(3), solver="nnls", **kw)
+    b = core.glue_measures(manifolds, np.random.default_rng(3), solver="colgen", **kw)
+    for field in ("alpha", "D_eff", "R_eff", "Psi_eff", "rho_c_glue", "rho_c_signed"):
+        assert getattr(a, field) == pytest.approx(getattr(b, field), rel=1e-10)
+
+
+def test_colgen_falls_back_when_there_are_fewer_columns_than_the_seed_set():
+    """Small problems must not be broken by the subset logic."""
+    manifolds, rng = _random_manifolds(P=4, M=10, N=30, seed=9)
+    y = np.array([1.0, -1.0, 1.0, -1.0])
+    t = rng.standard_normal(30)
+    S_ref, _ = core.anchor_matrix(manifolds, y, t, solver="nnls")
+    S_new, _ = core.anchor_matrix(manifolds, y, t, solver="colgen")
+    assert np.allclose(S_ref, S_new, atol=1e-12)
+
+
+def test_colgen_is_the_default():
+    assert core.DEFAULT_SOLVER == "colgen"

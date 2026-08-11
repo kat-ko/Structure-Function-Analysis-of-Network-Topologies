@@ -15,10 +15,18 @@ Taking `nproc − 2` was silently running the grid at 73% of its own peak throug
 
 from __future__ import annotations
 
+import multiprocessing as mp
 import os
 from concurrent.futures import ProcessPoolExecutor
 
 MAX_WORKERS = 128
+
+# `spawn`, not the Linux default `fork`. A forked worker inherits the parent's
+# already-imported modules, so a pool launched after an edit runs the *old* code while
+# the repository holds the new — which is how an 8-arm pilot came to time a superseded
+# solver. `spawn` re-imports from disk in every worker. It costs a second of startup
+# per worker against arms that run for tens of minutes.
+START_METHOD = "spawn"
 
 _PIN = {
     "OMP_NUM_THREADS": "1",
@@ -47,5 +55,6 @@ def pmap(fn, jobs, *, cap: int | None = None, chatty: bool = True):
         print(f"  [{workers} workers x {len(jobs)} jobs]", flush=True)
     if workers == 1:
         return [fn(j) for j in jobs]
-    with ProcessPoolExecutor(max_workers=workers) as ex:
+    ctx = mp.get_context(START_METHOD)
+    with ProcessPoolExecutor(max_workers=workers, mp_context=ctx) as ex:
         return list(ex.map(fn, jobs))

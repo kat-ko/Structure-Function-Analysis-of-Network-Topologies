@@ -989,3 +989,122 @@ scale with core count on a shared-memory machine past the bandwidth limit. Anyon
 sizing a GLUE run from a single-process timing will over-project by roughly an order of
 magnitude. Chou et al.'s `M = 50` puts the working set at ~5 MB, inside L3 — their
 subsampling has a performance rationale as well as a statistical one.
+
+---
+
+## Where the 26 h actually came from, and a calibration bug the pilot caught
+
+### The 9.3× decomposed
+
+The projection was 2.82 h: 48,000 evals × 52.4 s/eval ÷ **248 workers**. The measured
+figure was 26.1 h. Multiplying out:
+
+| term | factor | note |
+|---|---|---|
+| grid size 48,000 → 48,640 | **1.01×** | essentially nothing |
+| workers 248 → 128 | **1.94×** | the cap imposed after the scaling measurement |
+| per-eval cost 52.4 s → ~247 s | **4.72×** | contention at 128 workers |
+
+1.01 × 1.94 × 4.72 = 9.24, and 2.82 h × 9.24 = 26.1 h. ✓
+
+**The grid did not grow — it is 1.3% larger than planned.** The entire overrun is
+memory-bandwidth contention, and the worker cap is not a separate cause but a symptom
+of the same one: throughput peaked at 128 because beyond that the memory system
+saturated, so the cap was the best available response to contention, not an independent
+choice. The original model's error was to measure per-eval cost single-threaded in
+isolation and assume linear scaling to 248 workers. For a memory-bandwidth-bound
+estimator that assumption is worth a factor of ~9.
+
+The practical consequence inverts the obvious reading: **cutting the grid is a weak
+lever and the solver is a strong one.** Halving the grid halves the cost, once. But
+per-eval cost is inflated 4.7× by bandwidth, so shrinking the estimator's working set
+attacks the dominant term — and should pay more in parallel than it does alone.
+
+### Solver change: speed only, exact to machine precision
+
+`_nnls_colgen` replaces the dense active-set solve with column generation over the
+anchor matrix. On real Phase 1 data, single-threaded, clean process, current code:
+
+| solver | s/eval | α | D_eff | R_eff |
+|---|---|---|---|---|
+| `nnls` (previous) | 54.4 | 0.316013 | 5.055807 | 0.960511 |
+| `colgen` (current) | **21.3** | 0.316013 | 5.055807 | 0.960511 |
+
+Identical to every digit reported, and to 3.7e-15 under test. **2.55× faster.** The
+54.4 s also confirms the 52.4 s baseline held — per-eval cost never regressed. So the
+pilot's geometry stands (it ran the reference solver); only its *timings* describe
+superseded code. Contended throughput at 128 workers is the number that resizes the
+grid and is still to be measured.
+
+### The stale fork, made structural
+
+The pilot's workers ran the pre-change solver: the parent imported the module, the edit
+landed, and `fork` handed every worker the parent's already-imported copy. Two changes,
+neither relying on vigilance:
+
+1. **`spawn`, not `fork`** (`scripts/_par.py`). Workers re-import from disk. Costs about
+   a second of startup against arms that run tens of minutes.
+2. **Version stamps** (`src/provenance.py`). Every result record carries the git SHA,
+   the dirty flag, and a per-module source hash; `assert_current()` at worker start
+   refuses to run stale.
+
+The part that is easy to get wrong: **the hash must be taken at import time.** Hashing
+the file at worker start cannot detect this failure, because the forked child re-reads
+the *new* bytes from disk while executing the *old* bytes in memory, and would report
+agreement. Only a value frozen at import travels with the fork.
+`tests/test_provenance.py` asserts this by actually forking.
+
+### The pilot's real find: the ρ_c calibration was fitted on the wrong convention
+
+The first draft figure reported center-collapse shares of **15–38**, where 1.0 means the
+radius change is entirely center collapse. That is not a finding, it is an artifact, and
+the artifact check (`AGENTS.md` §8.2) found it:
+
+- `radius_from_rho` uses R_eff ∝ (1 − ρ_c)^−0.355, which needs ρ ∈ [0, 1).
+- It was fitted on **`rho_c_glue`**, which is **unnormalized** (`00` §6.1 C3) and so is
+  not a correlation. On Phase 1 representations it runs to **1.487**, median 1.235, with
+  **71% of measurements above the fitted maximum of 0.809**.
+- A `np.clip(rho, 0, 0.995)` then turned every out-of-domain input into a large finite
+  number. The domain violation produced no error, just plausible-looking results.
+
+Why it survived the B.5 validation: on synthetic manifolds the two conventions almost
+coincide (0.038/0.043, 0.220/0.236, 0.409/0.426, 0.609/0.614, 0.809/0.803). They
+separate only on representations. **A calibration validated on synthetic data was
+carrying an assumption the synthetic data could not test.**
+
+Fixed by refitting on `rho_c_signed`, the normalized convention, which on the same
+representations sits at **0.331–0.481 — inside the fitted range**:
+
+    log R_eff = 0.002911 + 0.36483 · (−log(1 − ρ_c_signed)),  R² = 0.9997
+
+and by replacing the clip with a hard refusal outside `RHO_FIT_RANGE`. Corrected
+center-collapse shares are **0.28–0.76**: between a third and three quarters of the
+radius change is accounted for by center collapse, the rest being anisotropy. That is
+an interpretable result where 15–38 was not.
+
+Also structural: `summarize` now **re-derives attribution from stored geometry** rather
+than reusing what the worker computed. Geometry is the measurement, attribution is
+analysis over it, so a calibration correction is now a re-summarize rather than a 26 h
+re-run — which is exactly what this fix needed.
+
+### Draft Figure 2 (γ=10, S-HL/S-LL, 4 of 8 pilot arms)
+
+`results/figures/attribution_pilot.png`. Plumbing confirmed end to end: Tier-2 output
+reaches the attribution code in the right shape, the identity closes (max residual
+0.0), and the figure script runs.
+
+At γ₀=10, retained capacity falls by Δlog α ≈ −1.10 to −1.52 (a 3.0–4.6× drop), and the
+split is stable across lag: **utility ≈ 48%, dimension ≈ 44%, radius ≈ 8%**. Most of the
+loss is present by lag 3 and deepens slowly. The lazy arm is still running.
+
+On the encoding problem: signed contributions cannot use a naive stacked area, since
+`−Δ log D_eff` is negative by construction. The figure stacks positives up from zero and
+negatives down from zero and overlays `Δ log α` as a line at the signed total, so the
+line reads correctly whether or not the terms share a sign. In this arm all three happen
+to be negative; mixed signs are handled and will appear in the lazy arm.
+
+### Pilot sizing
+
+8 arms and 304 evals was not the single-cell pilot intended — one γ, one condition, one
+seed, ~38 evals. The de-risking value was reached at the first completed arm. Size
+pilots to the smallest unit that exercises the whole path.

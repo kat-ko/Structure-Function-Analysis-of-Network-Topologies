@@ -13,10 +13,16 @@ from src.analysis import attribution as A
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def _point(D=4.0, R=1.0, Psi=0.8, rho=0.1, rho_s=0.1, label=""):
+def _point(D=4.0, R=1.0, Psi=0.8, rho=0.1, rho_s=None, label=""):
+    """`rho_s` defaults to `rho`: on synthetic manifolds the two conventions coincide.
+
+    That coincidence is the reason the calibration was briefly fitted on the wrong one,
+    so tests that care about the distinction set `rho_s` explicitly.
+    """
     alpha = Psi * (1.0 + R**-2) / D
     return A.GeometryPoint(alpha=alpha, D_eff=D, R_eff=R, Psi_eff=Psi,
-                           rho_c_glue=rho, rho_c_signed=rho_s, label=label)
+                           rho_c_glue=rho, rho_c_signed=rho if rho_s is None else rho_s,
+                           label=label)
 
 
 def test_identity_closes_exactly():
@@ -67,12 +73,14 @@ def test_rho_calibration_matches_the_recovery_sweep_it_was_fitted_on():
     """Pin the hardcoded constants to their source, so a refit cannot drift silently."""
     d = json.loads((ROOT / "results" / "glue_core_recovery.json").read_text())
     sweep = d["sweeps"]["center_correlation"]["n_t=200,policy=all"]
-    rho = np.array([p["rho_c_glue"]["mean"] for p in sweep])
+    rho = np.array([p[A.RHO_R_CONVENTION]["mean"] for p in sweep])
     R = np.array([p["R_eff"]["mean"] for p in sweep])
 
     slope, intercept = np.polyfit(-np.log1p(-rho), np.log(R), 1)
     assert slope == pytest.approx(A.RHO_R_EXPONENT, rel=1e-3)
     assert intercept == pytest.approx(A.RHO_R_INTERCEPT, rel=1e-2, abs=1e-4)
+    # The declared range must be the sweep's, or `rho_in_domain` guards nothing.
+    assert A.RHO_FIT_RANGE == pytest.approx((rho.min(), rho.max()), abs=1e-3)
 
     pred = np.log([A.radius_from_rho(r) for r in rho])
     r2 = 1 - np.sum((np.log(R) - pred) ** 2) / np.sum((np.log(R) - np.log(R).mean()) ** 2)
@@ -152,3 +160,57 @@ def test_from_result_accepts_dicts_and_objects():
     assert A.GeometryPoint.from_result(d, "x").D_eff == 5.0
     assert A.GeometryPoint.from_result(p, "x").rho_c_signed == -0.3
     assert A.GeometryPoint.from_result(d).alpha_from_identity == pytest.approx(p.alpha)
+
+
+# --- the calibration's domain -------------------------------------------------
+# `rho_c_glue` is unnormalized (`00` §6.1 C3) and reaches 1.49 on Phase 1
+# representations, where `(1 - rho)^-k` is undefined. The calibration was briefly
+# fitted on it and clamped at 0.995, which converted every out-of-domain input into a
+# plausible finite number and produced center-collapse shares of 15-38 that read as a
+# result. These tests pin the convention and the refusal.
+
+
+def test_the_calibration_uses_the_normalized_convention():
+    assert A.RHO_R_CONVENTION == "rho_c_signed"
+
+
+def test_out_of_domain_rho_raises_rather_than_clamping():
+    lo, hi = A.RHO_FIT_RANGE
+    A.radius_from_rho(0.5 * (lo + hi))  # interior is fine
+    for bad in (1.2349, 1.4867, 0.999, -0.5):  # the first two are measured values
+        with pytest.raises(ValueError, match="outside the calibration range"):
+            A.radius_from_rho(bad)
+
+
+def test_unnormalized_rho_above_one_is_reported_as_out_of_domain_not_as_a_finding():
+    """The exact pilot case: rho_c_glue ~1.2-1.5, rho_c_signed ~0.33-0.48.
+
+    Reading the unnormalized convention gave 'the radius change is 38x what centers
+    explain'. Reading the normalized one gives an in-range, interpretable number.
+    """
+    before = _point(R=1.00, rho=0.196, rho_s=0.331)
+    after = _point(R=1.05, rho=1.487, rho_s=0.481)
+
+    out = A.center_collapse_share(before, after)
+    assert out["rho_in_calibration_range"] is True
+    assert out["attributable_fraction"] is not None
+    assert 0.0 < out["attributable_fraction"] < 100.0
+    # It must have read the signed convention, not the unnormalized one.
+    assert out["d_rho_c_signed"] == pytest.approx(0.150, abs=1e-6)
+    assert out["d_rho_c_glue"] == pytest.approx(1.291, abs=1e-6)
+
+
+def test_rho_outside_the_fitted_range_declines_to_report():
+    before = _point(R=1.0, rho_s=0.30)
+    after = _point(R=1.5, rho_s=0.97)  # past the fitted maximum
+    out = A.center_collapse_share(before, after)
+    assert out["attributable_fraction"] is None
+    assert out["dlog_R_eff_predicted_from_rho_c"] is None
+    assert "outside calibration range" in out["reason"]
+
+
+def test_attribute_survives_out_of_domain_rho():
+    """An out-of-range rho must not take down the decomposition around it."""
+    a = A.attribute(_point(D=4.0, rho_s=0.30), _point(D=6.0, rho_s=0.99))
+    assert abs(a.residual) < 1e-12
+    assert a.center["attributable_fraction"] is None

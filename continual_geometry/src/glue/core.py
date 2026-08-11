@@ -32,8 +32,22 @@ from typing import Iterable, Literal, Sequence
 import numpy as np
 from scipy.optimize import lsq_linear, nnls
 
+from src import provenance
+
+# Hash of this file as it was when imported. A forked worker inherits the parent's
+# value, which is how `provenance.assert_current` detects that it is running an older
+# estimator than the working tree holds (`src/provenance.py`).
+_SOURCE = provenance.register(__file__)
+
 DEFAULT_RCOND = 1e-10
 DEFAULT_N_T = 200
+
+# `"colgen"` is exact — it returns the same optimum as `"nnls"` to machine precision
+# (pinned by `tests/test_glue_core.py`) and is 2.7× faster single-threaded, because the
+# anchor QP's solution uses ~64 of its 2400 columns. It also shrinks the working set
+# from 5.8 MB to 288 KB, which matters far more than the serial speedup: the estimator
+# is memory-bandwidth-bound under parallelism (`results/scaling.json`).
+DEFAULT_SOLVER = "colgen"
 DUAL_MASS_TOL = 1e-9
 
 InactivePolicy = Literal["zero", "maxproj"]
@@ -136,10 +150,63 @@ def _solve_duals(Gt: np.ndarray, t: np.ndarray, solver: str) -> np.ndarray:
     if solver == "nnls":
         lam, _ = nnls(Gt, t)
         return lam
+    if solver == "colgen":
+        return _nnls_colgen(Gt, t)
     if solver == "lsq":
         res = lsq_linear(Gt, t, bounds=(0.0, np.inf), method="trf", tol=1e-10)
         return np.maximum(res.x, 0.0)
     raise ValueError(f"unknown solver {solver!r}")
+
+
+def _nnls_colgen(
+    Gt: np.ndarray, t: np.ndarray, *, n_init: int = 120, n_add: int = 60,
+    tol: float = 1e-9, max_rounds: int = 50,
+) -> np.ndarray:
+    """NNLS by column generation — the same optimum as `scipy.nnls`, several × faster.
+
+    The anchor QP has `P·M` columns (2400 at the design point) but its solution is
+    extremely sparse: measured, **64 nonzeros**. At most `N` columns can be active, and
+    only points near the margin can be anchors at all, so solving over all 2400 wastes
+    almost all of the work.
+
+    Solve on a candidate subset, then check the **full** KKT conditions. For
+    `min_{λ≥0} ‖Aλ − t‖²` the optimum is characterised by `g = Aᵀ(Aλ − t) ≥ 0`
+    everywhere, with `g_i = 0` wherever `λ_i > 0`. The sub-solve gives the second
+    condition on the subset by construction; the first is checked on every column at
+    the cost of one mat-vec, and any violators are added and the subset re-solved.
+    On termination the full problem's KKT conditions hold, and NNLS is convex, so
+    **this is the exact optimum, not an approximation.**
+
+    Seeded with the columns of largest `Aᵀt`, since the gradient at `λ = 0` is `−Aᵀt`
+    and those are the only columns that can enter first.
+    """
+    n_col = Gt.shape[1]
+    if n_col <= n_init:
+        lam, _ = nnls(Gt, t)
+        return lam
+
+    scores = Gt.T @ t
+    J = np.argpartition(scores, -n_init)[-n_init:]
+    J.sort()
+    lam = np.zeros(n_col)
+
+    for _ in range(max_rounds):
+        sub, _ = nnls(Gt[:, J], t)
+        lam[:] = 0.0
+        lam[J] = sub
+        grad = Gt.T @ (Gt[:, J] @ sub - t)
+        grad[J] = np.inf                       # already stationary on the subset
+        violators = np.flatnonzero(grad < -tol)
+        if violators.size == 0:
+            return lam
+        if violators.size > n_add:
+            violators = violators[np.argsort(grad[violators])[:n_add]]
+        J = np.union1d(J, violators)
+
+    raise RuntimeError(
+        f"column generation did not converge in {max_rounds} rounds "
+        f"({J.size} of {n_col} columns active) — fall back to solver='nnls'"
+    )
 
 
 def anchor_matrix(
@@ -148,7 +215,7 @@ def anchor_matrix(
     t: np.ndarray,
     *,
     inactive: InactivePolicy = "zero",
-    solver: str = "nnls",
+    solver: str = DEFAULT_SOLVER,
     dual_tol: float = DUAL_MASS_TOL,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Anchor points `S ∈ R^{P×N}` (rows) for one `(y, t)` sample.
@@ -252,7 +319,7 @@ def glue_measures(
     rcond: float = DEFAULT_RCOND,
     inactive: InactivePolicy = "zero",
     center_policy: CenterPolicy = "all",
-    solver: str = "nnls",
+    solver: str = DEFAULT_SOLVER,
 ) -> GlueResult:
     """Three-factor decomposition of manifold capacity for a chosen ensemble `Y`.
 

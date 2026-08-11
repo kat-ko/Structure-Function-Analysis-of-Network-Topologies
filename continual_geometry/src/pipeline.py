@@ -36,6 +36,10 @@ from src.models import MODULES, ScalingConfig, TwoModuleNet, paired_init
 from src.models.alignment import aligned_init, center_subspace
 from src.train.loop import TrainConfig, flatten_task, manifold_accuracy, train_task
 
+from src import provenance
+
+_SOURCE = provenance.register(__file__)
+
 EVAL_BUDGET = 40  # `01` §4 cost model: 153,600 evals over 3,840 runs
 
 
@@ -226,6 +230,7 @@ def run_arm(spec: Phase1Spec, *, verbose: bool = False) -> dict:
     return {
         "spec": asdict(spec),
         "key": spec.key,
+        "code": provenance.code_stamp(),
         "usable": usable,
         "n_evals": len(geometry),
         "eval_budget": EVAL_BUDGET,
