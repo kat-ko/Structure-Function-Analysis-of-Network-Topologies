@@ -288,8 +288,45 @@ The dominant cost is the QP for the anchor points, **not** this linear algebra
 α       = P / E[a]
 D_eff   = (1/P) · E[b]
 R_eff   = sqrt( E[c] / E[b − c] )
-Ψ_eff   = E[c] / E[a]                 # "effective utility" ∈ [0,1]
+Ψ_eff   = E[c] / E[a]                 # "effective utility"; ∈ [0,1] generic only
 ```
+**The `Ψ_eff ∈ [0,1]` range is a property of the label average, not of the
+estimator — measured 2026-08-12.** It holds for the generic ensemble, where the
+expectation runs over random dichotomies, and that is the form the source papers
+state. Under a **fixed-`y` (retained or tilted) ensemble it can and does exceed 1**:
+the grid puts 21.6% of retained measurements above 1, to a maximum of 1.78.
+
+**The mechanism is center alignment with the dichotomy, and fixing `y` is necessary
+but not sufficient.** The two pseudo-inverses differ by center–axis cross-terms —
+`a` uses `(S_y S_yᵀ)†`, `c` uses `(S_{y,0}S_{y,0}ᵀ + S_{y,1}S_{y,1}ᵀ)†` — and those
+terms vanish under `E_y` while surviving at fixed `y`. But surviving is not the same
+as being large: what makes them large is the arrangement actually being *organized
+for* that labeling. You cannot align with a dichotomy you are averaging over, so
+fixing `y` is the necessary condition; the sufficient condition is geometric.
+
+Demonstrated on ground truth in `scripts/run_psi_bound_check.py --synthetic`, which
+holds the arrangement fixed and varies only how far centers are separated *along* `y`:
+
+| centers sep / radius | generic `Ψ_eff` | fixed-`y` `Ψ_eff` |
+|---|---|---|
+| 0.0 | 0.4709 | **0.8559** |
+| 0.5 | 0.4637 | 1.1638 |
+| 1.0 | 0.4908 | 1.7312 |
+| 2.0 | 0.4939 | 2.3876 |
+| 4.0 | 0.5030 | **3.6555** |
+
+Generic `Ψ_eff` never leaves the bound; fixed-`y` `Ψ_eff` crosses 1 only once centers
+align, and at zero alignment **sits below 1**. Identity closes at 1e-16 in every row.
+So `Ψ_eff > 1` is not an artifact of the tilt being permitted — it is a *measurement
+of task-specific geometric organization*, with a monotone dose–response on ground
+truth.
+
+Read fixed-`y` `Ψ_eff > 1` as **task-specific utility relative to the
+random-dichotomy normalization**, not as an error. `α` is unaffected — `α_sim` at
+fixed `y` agrees with the GLUE `α` to 1.5% on a real γ=10 arm with `Ψ_eff = 1.49`
+(`results/psi_bound_check.json`), and the three-factor identity closes regardless.
+This is a **known divergence from the range stated in the source papers**, on our
+empirical basis; the papers do not discuss the fixed-`y` case.
 **Aggregation rule (pinned).** Wherever an estimator returns a *per-manifold*
 capacity vector `α_i` (replicaMFT does), reduce with the **harmonic mean**
 `α = 1 / mean(1/α_i)` — **never** the arithmetic mean. Rationale: `α = P/N_crit`

@@ -37,8 +37,10 @@ with `02` §2b testing its fidelity at a 15% threshold.
 equivalently  N_crit = P · D_eff / (Ψ_eff · (1 + R_eff⁻²)),   α = P / N_crit
 ```
 
-There is a **third measure, effective utility Ψ_eff ∈ [0,1]**, that the spec omits
-entirely.
+There is a **third measure, effective utility Ψ_eff**, that the spec omits entirely.
+The papers give its range as `[0,1]`; we have since measured that this holds for the
+generic (random-dichotomy) ensemble only and that fixed-`y` values legitimately exceed
+1 — see `00` §6.2 for the mechanism and the ground-truth demonstration.
 
 **And the relation is exact, not an approximation.** With the paper's definitions
 
@@ -144,7 +146,8 @@ the cross-module anisotropy problem (see C5).
 
 ### Notation collision — fix in the glossary now
 
-`Ψ_eff` (effective utility, scalar in [0,1], a factor in α) and `ψ_{μ,ν}`
+`Ψ_eff` (effective utility, a scalar factor in α; in [0,1] for the generic ensemble,
+unbounded above at fixed `y` — `00` §6.2) and `ψ_{μ,ν}`
 (center–axis alignment, pairwise) are **different quantities with near-identical
 symbols.** Mandate in `AGENTS.md` §3:
 

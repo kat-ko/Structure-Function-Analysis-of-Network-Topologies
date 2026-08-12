@@ -70,8 +70,18 @@ c(y,t) = (S_{y,1} t)ᵀ (S_{y,0} S_{y,0}ᵀ + S_{y,1} S_{y,1}ᵀ)† (S_{y,1} t)
 α      = P / E[a]
 D_eff  = (1/P) · E[b]
 R_eff  = sqrt( E[c] / E[b − c] )
-Ψ_eff  = E[c] / E[a]                # "effective utility", ∈ [0,1]
+Ψ_eff  = E[c] / E[a]                # "effective utility"; ∈ [0,1] generic only
 ```
+
+**The `[0,1]` range holds under the label average only** (`00` §6.2, measured
+2026-08-12). At fixed `y` — retained and tilted ensembles — `Ψ_eff` can exceed 1,
+because `a`'s `(S_y S_yᵀ)†` and `c`'s `(S_{y,0}S_{y,0}ᵀ + S_{y,1}S_{y,1}ᵀ)†` differ by
+center–axis cross-terms that vanish under `E_y` and survive at fixed `y`. Fixing `y`
+is necessary but not sufficient: the excess appears only as centers **align with the
+dichotomy**, and at zero alignment fixed-`y` `Ψ_eff` is 0.856, below the bound. Read
+`Ψ_eff > 1` as a measurement of task-specific geometric organization relative to the
+random-dichotomy normalization. The identity below closes either way, so `α` and the
+attribution are unaffected.
 
 **Check the identity closes:** `(1 + R_eff⁻²) = 1 + E[b−c]/E[c] = E[b]/E[c]`, so
 `Ψ_eff · (1 + R_eff⁻²) / D_eff = (E[c]/E[a]) · (E[b]/E[c]) · (P/E[b]) = P/E[a] = α`. ✓

@@ -157,6 +157,24 @@ Rules:
 3. This applies to the numbers already written into `00-math-spec.md` and the other
    specs. A cell transcribed from a search snippet is `inferred` until checked
    against the source, regardless of who wrote it.
+4. **Claims about our own record cite where the record lives, or they are marked
+   inference. This binds every participant, human included** (added 2026-08-12, at
+   Kati's instruction, after she presented reconstructed grid results as record —
+   see `results/LOG.md` "Finding 5", closing note). A result stated as measured names
+   the arm count, the file under `results/`, or the script that produced it. A number
+   recalled from memory is `inferred` until it is looked up.
+5. **Structural impossibility is the cheapest check available — run it first.** Two of
+   the fabricated claims were not merely unsupported but impossible: a cross-module CKA
+   value when no CKA code exists in the repo, and a null C1-vs-C2 comparison when every
+   arm on disk is `('A','B')`. Before checking whether a reported number is *right*,
+   check whether the code and data to produce it exist. That is one `rg` and one
+   `Counter` over the specs, and it refutes an entire class of claim outright.
+6. **Accidental correctness does not launder a fabricated claim.** The fabricated
+   Ψ_eff result ("rises in absolute terms during training") supported an interpretation
+   that survived checking, but the real mechanism was different: a retained-versus-generic
+   gap, not an absolute rise. When a claim turns out unsupported, re-derive the
+   conclusion from the real measurement rather than keeping the conclusion and swapping
+   in the new evidence.
 
 ## 8.2 Artifact check — mandatory before interpreting any measurement
 

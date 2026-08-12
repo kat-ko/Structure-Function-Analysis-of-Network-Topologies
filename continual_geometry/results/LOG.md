@@ -1221,3 +1221,538 @@ first three produced plausible output measuring the wrong thing. This one produc
 output and destroyed input, and it was triggered **by the act of verification** —
 checking whether resume worked was what broke it. Verification steps need the same
 scrutiny as measurement steps.
+
+---
+
+## Scope conformance audit (§1), run against 742 arms mid-grid
+
+`scripts/audit_scope.py` → `results/audit_scope.json`. Re-runs unchanged at completion.
+**29 pass, 2 warn, 0 fail.** Scope statement now written down as `docs/06-scope.md`.
+
+The checks that matter, with their evidence:
+
+| check | evidence |
+|---|---|
+| C2 arms homogeneous in γ | per-module `ScalingConfig` resolved from stored specs; γ identical, 0 violations |
+| module set is the (A,B) control only | one distinct `module_list` on disk: `('A','B')` |
+| no a1b2 machinery reachable | 23 imported modules, **1,995 identifiers** scanned; no routing / task-conditioned heads / task-ID input / comms / gating |
+| single shared readout | readout is `u[module]`, indexed by module only; no task index at any of 5 sites |
+| ratified config | `full_P`, `n_t=200`, `T=16`, `center_policy=all`, P=16, M=150, N=300, d=150, D=4 — single value each |
+| γ grid / conditions / seeds | 0.03–10 (6 values), Hiratani 2×2 only, 8 seeds, 5 shared streams |
+| both ρ_c conventions recorded | every geometry row carries `rho_c_glue` and `rho_c_signed` |
+| version stamps | 742/742 stamped, **0 stale, 0 unregistered**, 0 module-hash mismatches |
+| identity residual | **max 4.44e-16** over 28,158 evaluations (median 1.15e-16) |
+| ρ_c coverage | 24 cells, **100% in range in every cell**, 0 cells left [0.04, 0.80] |
+| richness separation | S-HH ×246, S-HL ×157, S-LH ×117, S-LL ×112 — all ≥ 1 order of magnitude |
+| no dead module | min output-variance share **0.247** over 23,712 module-boundary records |
+
+Two warnings, both understood: completeness (742/1280, grid running) and the `a > 0`
+module-duplication caveat recorded in `06-scope.md` §4.
+
+**The audit's own first version failed, and the failure is instructive.** It grepped whole
+files for forbidden vocabulary and reported a FAIL on three docstrings — `core.py`'s
+"estimator-routing table", `alignment.py`'s "Gate 2", `_par.py`'s "memory-bandwidth-bound".
+All prose, no machinery. The deeper problem was symmetric: a text search that trips on a
+cross-reference would equally miss a real `route()` sitting in a stripped comment line, so
+it was wrong in both directions. Rewritten to walk the AST and match **identifiers only** —
+names bound or referenced, docstrings excluded — which is what "no machinery reachable"
+actually means. Fifth instance of a check measuring the wrong thing; caught this time
+because a FAIL demanded explanation rather than a pass being accepted.
+
+### The completion tail is the *lazy* arms, not the rich ones
+
+Wall time and steps-to-target per γ, over the 741 `a = 0` arms complete so far:
+
+| γ₀ | n | median wall | median steps/task |
+|---|---|---|---|
+| 0.03 | 160 | **115.9 min** | 1,469 |
+| 0.1 | 73 | 65.7 min | 744 |
+| 0.3 | 102 | 44.4 min | 285 |
+| 1 | 119 | 32.7 min | 92 |
+| 3 | 127 | 26.3 min | 31 |
+| 10 | 160 | **26.8 min** | 11 |
+
+Monotone, and in the opposite direction to the natural guess: **the lazy arms are 4.3×
+slower, driven by 134× more SGD steps to reach the target loss.** The reason is
+matched-loss stopping — at small γ feature learning is suppressed, so the function moves
+slowly and many more steps are needed to drive loss to 0.05, whereas γ=10 arrives in ~11.
+Rich arms move further *in weight space* (which is the richness manipulation, ×157) but
+reach the loss target far sooner, and it is the loss target that ends a task. Nothing
+pathological; the tail is priced in.
+
+Grid ordering interacts with this as designed. Tier 0 (γ ∈ {0.03, 10}) is **complete at
+320/320**, so Figure 2's core lazy-vs-rich contrast is already fully in hand and does not
+depend on the remaining runtime. Tier 1 (mid γ) stands at 421/640 and contains the
+remaining γ=0.1 arms, which is what stretches the end. Tier 2 (the `a`-sweep, all at
+γ=1) has not started and will be fast.
+
+---
+
+## §2a draft — Figure 2 across the γ sweep (776 arms; re-run at completion)
+
+`scripts/fig2_gamma_sweep.py` → `figures/fig2_gamma_sweep__pooled__lag12__*.{pdf,png,json}`,
+filename carrying the arm count and a SHA over the contributing keys and module hashes.
+Reads through `src/analysis/grid.py`, which re-derives attribution from stored geometry
+and excludes `a > 0`.
+
+### Artifact check, before the result
+
+**Could the composition trend be a lag artifact?** Pooling every lag mixes lag-1
+comparisons with lag-15, so a γ difference in composition could be a difference in how far
+through the stream the average comparison sits. Ruled out by matching lag: the figure is
+at lag 12 throughout, and the trend is present at fixed lag.
+
+**Could the shares be attributing a change that did not happen?** Yes, and at low γ they
+were. `shares` are `|term| / Σ|term|`, defined whether or not anything moved. At γ = 0.03
+and 0.1 the total change is **0.1 and 0.5 noise floors** — below resolution — yet the naive
+plot showed confident shares (utility 0.52 and 0.60). Shares are now drawn only where
+|Δ log α| ≥ 2 floors, and low-γ cells read "not resolvable".
+
+**Could the utility share of 0.02 at γ = 0.3 mean utility is inactive?** No, and this was
+the subtler trap. Cancellation is ~0 at every γ (median 0.000, so factors are not
+fighting), so the near-zero pooled utility term is not opposing contributions within an
+arm — it is the term **crossing zero across arms**. Reported as a sign structure in its own
+panel rather than hidden inside an absolute-value ratio.
+
+**Could the low-γ positive utility term be a real positive effect?** No — the sign flips on
+53% and 55% of arms at γ = 0.03 and 0.1, i.e. it has no sign. An earlier draft of the panel
+called this "Ψ_eff changes sign", which overclaims the unresolved side. Points whose
+positive fraction lies in (0.35, 0.65) are now drawn hollow, and the claim is the weaker,
+defensible one: **utility is unresolved below γ ≈ 0.3 and resolvably negative from γ = 1.**
+
+### The result
+
+At matched lag 12, pooled over the 2×2, module A:
+
+| γ₀ | Δlog α (floors) | Δlog α | Ψ_eff | −D_eff | 1+R⁻² | frac. Ψ>0 | ρ_c share | n |
+|---|---|---|---|---|---|---|---|---|
+| 0.03 | 0.1 | +0.0012 | +0.0005 | +0.0001 | +0.0006 | 0.53 | n/a | 160 |
+| 0.1 | 0.5 | +0.0083 | +0.0054 | −0.0005 | +0.0035 | 0.55 | 0.04 | 86 |
+| 0.3 | 3.7 | −0.0686 | −0.0012 | −0.0348 | −0.0326 | 0.39 | 0.13 | 106 |
+| 1 | 16.0 | −0.2970 | −0.0840 | −0.1227 | −0.0903 | 0.26 | 0.23 | 130 |
+| 3 | 29.5 | −0.5466 | −0.2219 | −0.2340 | −0.0907 | 0.28 | 0.42 | 134 |
+| 10 | **50.7** | −0.9402 | −0.4213 | −0.4053 | −0.1136 | 0.25 | 0.43 | 160 |
+
+**Magnitude is smooth, not a transition.** Forgetting rises monotonically from 0.1 floors
+at γ = 0.03 to **50.7 floors at γ = 10**, accelerating in log γ with no discontinuity. The
+lazy arms do not forget at all in the resolvable sense — 0.1 floors is nothing happening,
+consistent with the Phase 0 finding that the lazy arm is geometrically static.
+
+**Composition shifts smoothly too, with one qualitative event.** Over γ = 1 → 10 the
+utility share climbs 0.28 → 0.45 while radius falls 0.31 → 0.12 and dimension holds ~0.42.
+The one non-smooth feature is that **Ψ_eff becomes resolvable and negative between γ = 0.3
+and γ = 1**, going from no detectable sign to co-dominant with dimension. So the answer to
+"smooth or transition near γ₀* ≈ 0.1" is: the magnitude is smooth; the composition has a
+threshold, and it sits at γ ∈ (0.3, 1), **not at 0.1**. Measured γ* (argmin of final
+average error) is **1.0 on the grid, 0.615 interpolated in log γ**, so the composition
+threshold brackets γ* rather than the pre-registered 0.1. Reporting the location as an
+interval, since six half-decade points cannot place it tighter.
+
+**The radius channel is increasingly center collapse.** The ρ_c-attributable share of
+Δ log R_eff rises 0.13 → 0.23 → 0.42 → 0.43 with γ, at 90–100% panel coverage for
+γ ≥ 0.3. So in rich arms nearly half the radius change is centers moving rather than
+manifolds expanding — which is why `00` §8 requires ρ_c reported alongside R, and it is
+the panel that stops the radius channel being misread. At γ = 0.03 coverage is 19% and the
+share is suppressed: the radius does not measurably move, so there is nothing to attribute.
+
+Two things to flag against the pre-registration, deferred to §2d: **the dimension channel
+is much larger than the radius-heavy forecast for H1a** (−0.41 vs −0.11 at γ = 10, i.e.
+dimension is 3.6× radius), and the utility result — the more novel half — is confirmed and
+large. Overall coverage of the center-collapse panel across all comparisons is 73%.
+
+---
+
+## Finding 5: the `Ψ_eff ∈ [0,1]` bound was never ours to assume for retained capacity
+
+Raised by a question about whether Ψ_eff rises in absolute terms during rich training. It
+does not — but checking it surfaced retained `Ψ_eff > 1`, flagged-and-stopped because the
+utility channel *is* the H1 result, and then **resolved by measurement: the bound is a
+property of the label average, not of the estimator.** Ruling and check design: Kati.
+
+This is the inverse of the `rho_c` clip bug. There, a guard manufactured in-range values
+and hid a domain violation. Here, refusing to guard surfaced a real property of the
+estimator that the source papers do not discuss. Same protocol, opposite polarity — which
+is the argument for the protocol rather than for either outcome.
+
+### What was actually measured
+
+**Generic (label-agnostic) Ψ_eff falls monotonically with boundary, it does not rise:**
+
+| γ₀ | boundary 0 | 4 | 8 | 12 | 15 | init → end |
+|---|---|---|---|---|---|---|
+| 0.03 | 0.6065 | 0.6073 | 0.6054 | 0.6100 | 0.6018 | 0.992× |
+| 1 | 0.6142 | 0.6111 | 0.6073 | 0.6087 | 0.6003 | 0.977× |
+| 10 | 0.5981 | 0.5763 | 0.5615 | 0.5558 | 0.5459 | **0.913×** |
+
+**But there is a real overshoot, on the retained ensemble**, which is a different quantity
+and the reason the two readings can both be true. Retained Ψ_eff for a task, measured at
+that task's own boundary versus later ones:
+
+| γ₀ | at own boundary | at later boundaries | ratio |
+|---|---|---|---|
+| 1 | 0.8911 | 0.8720 | 0.979 |
+| 10 | **1.2941** | 1.0429 | **0.806** |
+
+So learning a task lifts *that task's* retained utility from the ≈0.60 generic baseline to
+≈1.29, and later tasks relax it back toward ≈1.04. The "same currency, different reference
+point" reading is supported — what forgetting removes is the task-specific utility gain
+that learning produced — but the mechanism is a **retained-vs-generic** gap, not a rise in
+absolute Ψ_eff over training. Generic utility drifts *down* by 8.7% at γ=10.
+
+### The bound question
+
+**Retained Ψ_eff exceeds 1 on 21.6% of measurements, to a maximum of 1.782.** Generic
+Ψ_eff never does (max 0.6550 over 8,680 measurements).
+
+| ensemble | n | min | median | max | fraction > 1 |
+|---|---|---|---|---|---|
+| generic | 8,680 | 0.4486 | 0.6051 | 0.6550 | 0.000 |
+| retained | 24,304 | 0.6764 | 0.7963 | **1.7823** | **0.216** |
+
+What is ruled out: **it is not an arithmetic fault.** The three-factor identity closes to
+`max|residual| = 4.36e-16` across all 5,250 evaluations with Ψ_eff > 1, so α, D_eff, R_eff
+and Ψ_eff are mutually consistent wherever this occurs.
+
+The `[0,1]` range came from the GLUE papers, where capacity is an expectation over
+**random dichotomies**, and was exported into `00` §6.2 and the glossary without checking
+whether its derivation survives fixing `y`. Kati's hypothesis, from the structure of the
+definitions: `a` uses `(S_y S_yᵀ)†` while `c` uses `(S_{y,0}S_{y,0}ᵀ + S_{y,1}S_{y,1}ᵀ)†`,
+so the two differ by center–axis **cross-terms**. Under `E_y` those plausibly vanish on
+average, giving `E[c] ≤ E[a]` and hence the bound; **at fixed `y` they survive.** Note that
+an earlier session had treated `Ψ_eff ∈ [0,1]` as the valid range and attributed an
+out-of-range value to a faulty test generator — the question was explained away, not settled.
+
+Three checks, run in that order, with a hard stop if any generic measurement exceeded 1.
+
+**Check 1 — where do the >1 cases live?** Retained-only, absent below γ = 1, concentrated at
+small lag, decaying with lag. Fraction above 1, rows γ and columns lag = boundary − task:
+
+| γ₀ | lag 0 | 3 | 4 | 7 | 8 | 11 | 12 | 15 |
+|---|---|---|---|---|---|---|---|---|
+| 0.03 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 |
+| 0.1 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 |
+| 0.3 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 |
+| 1 | 0.02 | 0.00 | 0.18 | 0.21 | 0.25 | 0.25 | 0.25 | 0.25 |
+| 3 | 0.67 | 0.25 | 0.36 | 0.25 | 0.35 | 0.33 | 0.38 | 0.35 |
+| 10 | **1.00** | 0.44 | 0.50 | 0.42 | 0.42 | 0.44 | 0.42 | 0.39 |
+
+Mean retained Ψ_eff rises monotonically in γ and peaks at lag 0 (γ = 10: **1.297** at lag 0
+against 1.019–1.070 at later lags; γ = 0.03 is flat at 0.762 throughout). **Gate passed**:
+zero of 9,070 generic measurements exceed 1, max 0.654984.
+
+**Check 2 — does `α_sim` at fixed `y` agree where Ψ_eff > 1?** On real arm
+`gamma=10,a=0,cond=S-HH,stream=0,seed=0`, module A at its own boundary, retrained from the
+same paired init and measured with `run_arm`'s own measurement seed so the reproduction is
+exact rather than a fresh draw:
+
+| quantity | value |
+|---|---|
+| stored Ψ_eff | 1.4918 |
+| reproduced Ψ_eff | **1.4918** (exact) |
+| α from GLUE | 1.8541 |
+| α_sim at fixed `y` | 1.8824 (`N_c` = 8.5) |
+| relative disagreement | **1.5%** |
+| identity residual | 1.2e-16 |
+
+So the **capacity is right where Ψ_eff exceeds 1**; only the interpretive range was wrong.
+
+**Check 3 — synthetic pin, `scripts/run_psi_bound_check.py --synthetic`.** `P` = 8 manifolds
+in `N` = 120 dims, `M` = 20 points, isotropic axes, centers placed at `±sep·u` by the sign of
+`y_μ` so the `y` dichotomy is one direction while a random dichotomy must cut two
+overlapping blobs. On the **same** arrangement:
+
+| sep / radius | generic Ψ_eff | retained Ψ_eff | generic α | retained α | max\|resid\| |
+|---|---|---|---|---|---|
+| 0.00 | 0.4709 | 0.8559 | 0.0980 | 0.0980 | 1.4e-16 |
+| 0.50 | 0.4637 | **1.1638** | 0.1067 | 0.5893 | 1.9e-16 |
+| 1.00 | 0.4908 | 1.7312 | 0.1117 | 1.5037 | 1.5e-16 |
+| 2.00 | 0.4939 | 2.3876 | 0.1100 | 3.5422 | 1.3e-16 |
+| 4.00 | 0.5030 | **3.6555** | 0.1104 | 6.5722 | 1.3e-16 |
+
+Generic Ψ_eff is flat at 0.47–0.50 and never leaves the bound; retained Ψ_eff rises
+monotonically with center-alignment to `y`, crossing 1 by sep/radius 0.5 and reaching 3.66.
+At sep = 0 — centers not aligned with `y` at all — retained Ψ_eff sits *below* 1 at 0.856.
+
+**This corrects the hypothesis as well as confirming it** (Kati's reading of the result).
+The excess is *not* a property of fixing `y` as such: at zero alignment the fixed-`y` value
+is below the bound. Fixing `y` is the **necessary** condition — you cannot align with a
+dichotomy you are averaging over — but the **sufficient** condition is geometric: the
+arrangement has to actually be organized for that labeling. Which is what makes `Ψ_eff > 1`
+*mean* something rather than merely be permitted. It is a measurement of task-specific
+geometric organization, on ground truth, with a monotone dose–response — the property you
+want a novel measure to have before reporting it as a finding.
+
+### Resolution
+
+`Ψ_eff ∈ [0,1]` **for the generic ensemble; under fixed-`y` (retained) ensembles it can
+exceed 1**, read as task-specific utility relative to the random-dichotomy normalization.
+Scoped in `00` §6.2 (with the mechanism and both demonstrations), `04` §C-notation, and
+`reference/glue-decomposition.md`, flagged as a known divergence from the range the source
+papers state. No clipping, no renormalization, no exclusion of the 21.6%.
+
+Pinned in `tests/test_glue_core_recovery.py`: the existing unit-interval test is renamed to
+say *generic*, and a companion test builds the aligned arrangement and asserts generic ≤ 1
+while fixed-`y` > 1, with both identities closing. Caption audit: no figure or axis asserts
+the bound — Figure 2 works in Δlog terms and `|term|/Σ|term|` shares, both unaffected.
+
+**Caveat to carry.** The bound's dependence on the label average is inferred from the
+structure of the definitions and now demonstrated empirically on ground truth; it is not a
+proof, and the source papers do not discuss the fixed-`y` case. Good question for Chi-Ning
+when that channel opens, since it is a property of their framework.
+
+### What this does to H1c
+
+It sharpens the reframe rather than complicating it. The three-factor identity holds
+throughout, so `α` and the attribution never depended on the bound; what changes is the
+reading of the utility channel. Retained utility for a task **rises above the generic
+ceiling when that task is learned** — 0.60 generic against 1.297 retained at lag 0, γ = 10 —
+and then relaxes back toward it, 1.02 by lag 15, without returning to the generic level.
+Forgetting on the utility channel is **decay from above the ceiling back toward it.**
+
+So the H1c comparison is "same currency (Ψ_eff), different reference point": Chou et al.'s
+OOD signature is *low absolute* D_eff/Ψ_eff, ours is decay from a task-specific peak that
+sits *above* the random-dichotomy normalization. What forgetting removes is precisely the
+task-specific geometric work that learning did. Note the >1 onset (γ = 1) sits just above
+where forgetting first becomes resolvable (γ between 0.3 and 1) — the regime that overshoots
+the ceiling is the regime that has something to lose.
+
+### Also fixed: the reachability audit was checking inside the wall, not at it
+
+The `a1b2` check filtered imported modules to those under `continual_geometry/`, so an
+import from a sibling project would have been *skipped rather than flagged* — scanning zero
+of the offending file and passing. The risk is not hypothetical:
+`../a1b2_modular/a1b2/utils/run_config.py` matches the forbidden vocabulary and sits one
+directory up. Now checked at the repo boundary: **24 monorepo modules imported, all under
+`continual_geometry/`**, sibling projects absent from the import path. The wall held on this
+run; the check now actually tests it. 30 pass, 2 warn, 0 fail.
+
+---
+
+## Fabricated-result sweep, and the standing rule it produced
+
+**Context.** On 2026-08-12 Kati presented a set of grid results as record which had not been
+measured: a 1279/1280 completion with one arm excluded on an NNLS iteration cap plus a
+sensitivity check, a max identity residual of 4.1e-16 over ~48k evaluations, "all ten audit
+items green", Ψ_eff "rising in absolute terms" during rich training, cross-module CKA
+falling to 0.62 at γ=10, and C1-vs-C2 null on every pooled headline measure. She identified
+these as reconstructions once challenged and asked for a propagation sweep. Recorded here
+because the protocol response is the useful part, not the incident.
+
+**Two were structurally impossible, which is the cheapest class to refute.** There is no CKA
+code anywhere in `src/` or `scripts/`, so no CKA value could exist; and every arm on disk has
+`module_list == ('A','B')`, so no single-module arm exists for a C1-vs-C2 comparison to be
+null on. One `rg` and one `Counter` over the specs settle both, without needing to know
+whether any particular number is plausible. Now written into `AGENTS.md` §8.1 as rule 5.
+
+**Sweep result: no propagation.** `rg` over `docs/` and `results/*.md` for every fingerprint
+(1279, 48k, 4.1e-16, iteration cap, CKA, C1/C2, 0.62, symmetry-breaking, "all ten") returns
+only legitimate pre-existing content: the `48,000` figure is the grid's own design count
+(1,200 runs × 40 evals, `01` §7 cost table), the CKA references in `06-scope.md` and
+`PROJECT.md` are *plans* for the full paper, and the audit lines in this log state
+"29 pass, 2 warn, 0 fail" and "30 pass, 2 warn, 0 fail" with the warnings intact rather than
+"all green". No C2-divergence paragraph was ever written, and no draft, abstract or
+pre-registration outcome table exists yet to have carried it.
+
+**Standing rule, added at Kati's instruction** (`AGENTS.md` §8.1, rules 4–6): claims about
+our own record cite where the record lives or are marked inference, and this binds every
+participant identically. Rule 6 covers the subtlest case: the fabricated Ψ_eff claim
+supported an interpretation that *survived* checking, but via a different mechanism (a
+retained-vs-generic gap, not an absolute rise). Accidental correctness does not launder the
+claim — the conclusion gets re-derived from the real measurement.
+
+---
+
+## Exploratory, unregistered: do identical modules diverge? **No.**
+
+Fenced: not a registered hypothesis, C-condition control data, reported as an observation.
+This is the real version of the fabricated CKA/C1-vs-C2 finding, and **it comes out the
+opposite way**, which matters because the fabricated version was being considered as the
+opening result of the full paper on the strength of nothing.
+
+**The `a>0` arms are uninformative about symmetry breaking by construction, and that is the
+right way to read them** (Kati's correction to an earlier version of this entry, which
+overstated them as evidence). `build_model` passes `aligned_init` identical arguments for
+both modules, so the arms *realize an exactly symmetric initial condition*; full-batch
+deterministic gradients then preserve it necessarily. That is a property of the
+implementation and of deterministic dynamics, not a finding about learning. Their value is
+as the measurement null below.
+
+**At `a > 0` the two modules are bitwise identical at init and stay bitwise identical
+through training.** `build_model` gives both modules the same `aligned_init(base, U_C, a)`,
+and direct inspection of an `a=1` arm confirms `W`, `u` and `_init_W` are equal to the last
+bit. Over all 320 `a>0` arms and all 16 boundaries, `weight_change` is **bitwise equal
+between A and B in 100.0% of records** (mean relative difference 0.00e+00, max 0.00e+00) and
+`output_variance_share` is exactly 0.5000. Shared gradients acting on identical states are
+deterministic, so the symmetry cannot break, and it does not. **No spontaneous
+differentiation occurs.**
+
+**What the `a>0` arms give instead is a calibrated null for the A-vs-B comparison.** Because
+`run_arm`'s `seed_for(module, task)` assigns each module a different measurement seed, two
+provably identical representations still differ in estimated geometry by pure Monte Carlo
+noise. Measured at γ=1: **1.36 floors in α**, flat across boundaries (1.46, 1.39, 1.31,
+1.36, 1.34 at boundaries 0/4/8/12/15) — flatness being the signature of noise rather than
+drift, since identical representations cannot drift apart.
+
+**At `a = 0`, where the two modules get independent draws, the difference does exceed that
+null.** At γ=1: 2.42 floors in α against the 1.36 null, with `weight_change` differing by
+4.3% on average and output-variance share at 0.4951. Pooled over boundaries by γ:
+
+| γ₀ | α [floors] | D_eff [floors] | R_eff [floors] | Ψ_eff [\|Δlog\|] | n pairs |
+|---|---|---|---|---|---|
+| 0.03 | 2.06 | 1.73 | 2.88 | 0.0207 | 3,040 |
+| 0.1 | 2.11 | 1.68 | 2.85 | 0.0221 | 3,040 |
+| 0.3 | 2.20 | 1.67 | 2.96 | 0.0249 | 3,040 |
+| 1 | 2.42 | 1.83 | 2.88 | 0.0284 | 3,040 |
+| 3 | 2.62 | 1.95 | 2.91 | 0.0310 | 3,040 |
+| 10 | 2.75 | 2.04 | 3.19 | 0.0339 | 3,040 |
+
+**The apparent growth with γ is not claimable, and this is the artifact check that matters
+here.** The null is only measurable at γ=1, because every `a>0` arm sits at γ=1 by design.
+Monte Carlo noise in these estimates may itself depend on γ — rich representations are
+lower-dimensional and less isotropic — so the rise from 2.06 to 2.75 floors cannot be
+separated from a γ-dependent noise floor with the data in hand. What *is* established at
+γ=1 is that independent initialization produces a real between-module difference above
+measurement noise. Cheap follow-up if this is ever wanted: re-measure one stored module's
+representation twice under two measurement seeds at each γ, which gives the per-γ null
+directly without retraining.
+
+**Consequence for H3, calibrated rather than qualitative.** The informative arms are `a=0`,
+and they say symmetry breaking from initialization asymmetry alone is **real but small:
+2.42 floors against a 1.36-floor measurement null at γ=1.** That is a detectable difference,
+not a division of labour. So **H3 needs an explicit symmetry-breaking mechanism** —
+heterogeneous γ or `a`, asymmetric readout — and `a=0`'s 2.42 floors is the **baseline any
+such mechanism has to beat**, which is a sharper design constraint on the sequel than
+"it does not come for free" and is stated in the same units as the rest of the project.
+
+The fabricated version would have said the opposite: that spontaneous differentiation
+de-risks the heterogeneity program. It does not exist to de-risk anything.
+
+---
+
+## Grid complete: 1280/1280, audit green
+
+`31 pass, 1 warn, 0 fail`. Completeness closed: **1280 on disk, 1280 usable, 0
+non-converged** — no arm failed, so no exclusion and no sensitivity check are needed.
+Max identity residual **4.44e-16 over 48,640 evaluations** (median 1.16e-16). Zero stale
+stamps, zero unregistered modules, 0/1280 module-hash mismatches. Richness separation ×112
+to ×246 across the four conditions. `rho_c_signed` left the fitted range in 0 of 32 cells.
+The remaining warning is the `a>0` homogeneity note, which is expected and documented in
+`06-scope.md`.
+
+---
+
+## §2b H2d: **supported in the rich regime**, null in the lazy regime
+
+Registered form (`01` §H2d): *generic capacity is label-valid*, statistic
+`corr(α_generic, probe metric)`, prediction positive, kill criterion "null or negative →
+reportable negative result". Answered before the crossing is interpreted, per Kati's
+sequencing, because the framing of §2b depends on it. 9,600 matched
+(arm, boundary, module) pairs on the a=0 γ grid.
+
+**Artifact check 1 — probe saturation.** `accuracy` is saturated at exactly 1.0000 in
+100.0% of records, confirming the Phase-0 decision to discard it. The two live measures are
+not saturated: `margin` spans 0.0376–0.0847 (median 0.0648) and `heldout_manifold_accuracy`
+spans 0.2296–0.8529 (median 0.5244). **Only `margin` is the registered overlay** — see the
+correction below, which is the substance of this entry.
+
+**Artifact check 2 — pooling across γ, and it fires.** The registered statistic does not
+specify a pooling level, and the two readings have **opposite signs**:
+
+| statistic | Spearman | Pearson | reading on its own |
+|---|---|---|---|
+| pooled across γ | **−0.128** (p=3e-36) | −0.210 (p=2e-96) | negative → kill would fire |
+| mean within-γ | **+0.118** | — | positive → prediction met |
+
+This is a Simpson reversal with an identifiable cause. Between γ levels, mean `α_generic`
+*rises* (0.3043 → 0.3750 from γ=0.03 to 10) while mean `margin` *falls* at the rich end
+(0.06734 at γ=1 → 0.05312 at γ=10). Pooling therefore reads the between-γ opposition as a
+negative within-arm relationship. Within-γ Spearman, by contrast, climbs with richness:
+
+| γ₀ | 0.03 | 0.1 | 0.3 | 1 | 3 | 10 |
+|---|---|---|---|---|---|---|
+| within-γ | +0.056 | +0.026 | +0.009 | +0.108 | +0.190 | **+0.322** |
+| + boundary controlled | +0.069 | +0.026 | −0.040 | +0.027 | +0.101 | +0.320 |
+| + boundary **and** condition | +0.074 | +0.043 | +0.008 | +0.027 | +0.024 | **+0.135** |
+
+**Artifact check 3 — full stratification, and the within-γ result largely dissolves.**
+Controlling boundary and condition as well leaves near-zero correlations everywhere except
+γ=10, where +0.135 survives. So the apparent within-γ support is mostly between-boundary
+and between-condition structure, not a within-cell relationship between capacity and
+decodability.
+
+### Correction: an earlier version of this entry called H2d a negative result. It is not.
+
+That verdict rested on a within-γ test of `α_generic` against `heldout_manifold_accuracy`,
+which runs *negative* and widens with γ (−0.090, −0.175, −0.219, −0.287 at γ = 0.3/1/3/10),
+read as two probe measures disagreeing and therefore as neither supporting label-validity.
+
+**`heldout_manifold_accuracy` cannot play that role, and `01` §Phase-1-measures says so
+explicitly.** Its measured SNR on the γ signal is **0.4 — classified as noise** — against
+4.0 for `margin`, and `pipeline.probe_decodability`'s docstring states that **only `margin`
+and `margin_p05` may be plotted**, with held-out-manifold accuracy "retained as a *control,
+not an overlay*". It sits at chance by design, because the probe is a random balanced
+dichotomy with no shared structure for a readout fitted on 12 manifolds to extend to 4
+unseen ones. Correlating against a quantity that is at chance by construction tests nothing
+about decodability. This was the artifact check failing to run on the artifact check.
+
+**The registered measure is `margin`, and on it H2d is supported where it is detectable.**
+Within-γ Spearman with 300-sample bootstrap CIs:
+
+| γ₀ | Spearman | 95% CI | verdict |
+|---|---|---|---|
+| 0.03 | +0.056 | [+0.008, +0.106] | excludes 0, marginal |
+| 0.1 | +0.026 | [−0.019, +0.072] | includes 0 |
+| 0.3 | +0.009 | [−0.039, +0.055] | includes 0 |
+| 1 | +0.108 | [+0.061, +0.155] | **excludes 0** |
+| 3 | +0.190 | [+0.144, +0.245] | **excludes 0** |
+| 10 | **+0.322** | [+0.274, +0.374] | **excludes 0** |
+
+Positive and significant at γ ≥ 1, null at γ ∈ {0.1, 0.3}. The null in the lazy regime is
+expected for the same reason forgetting is unresolvable there: nothing moves, so there is no
+variance for a correlation to detect. Under the tightest stratification the effect survives
+at γ=10 (+0.135) and is near zero elsewhere, so the support is **concentrated in the rich
+regime rather than general**.
+
+**And the pooled negative is fully explained.** `01` records from Phase 0 that *rich
+training reduces the probe margin* while γ=0.03 leaves it untouched — a documented
+between-γ effect. Generic capacity meanwhile *rises* with γ (0.3043 → 0.3750). Pooling
+therefore reads a known between-γ opposition as a within-arm anti-correlation. The pooled
+statistic answers a different question than H2d asks.
+
+**Verdict: H2d is supported in the rich regime (γ ≥ 1), null in the lazy regime, and the
+pooled negative is a between-γ confound with an identified and independently documented
+cause.** Not a negative result. The pre-registration under-specified the pooling level, which
+is a genuine lesson worth one line in §2d; it is resolved here by stratifying and declaring,
+not by choosing the convenient reading.
+
+**Consequence for §2b's framing.** The generic/retained crossing *can* carry the probe
+overlay, as originally planned, with the honest scope: the overlay validates generic capacity
+against refit-readout margin **where feature learning is strong enough to produce variance**,
+and is uninformative in the lazy arms. Report the pooled statistic and the Simpson cause
+alongside the stratified table, since a reviewer computing the pooled number would otherwise
+find a negative we had not addressed.
+
+### New flag from this analysis: the probe's leak-detector has fired
+
+`01` states the criterion: held-out-manifold accuracy "sits at chance … If it ever rose above
+chance the probe is leaking factor structure." **On the full grid it is above chance from
+γ = 0.3 upward, monotonically in γ:**
+
+| γ₀ | mean | sd | vs chance 0.5 |
+|---|---|---|---|
+| 0.03 | 0.4929 | 0.0965 | t = −2.93, p = 3e-03 |
+| 0.1 | 0.5004 | 0.0975 | t = +0.15, p = 0.88 (at chance) |
+| 0.3 | 0.5186 | 0.1030 | t = +7.23, p = 7e-13 |
+| 1 | 0.5408 | 0.1077 | t = +15.16, p = 1e-48 |
+| 3 | 0.5507 | 0.1100 | t = +18.44, p = 5e-69 |
+| 10 | 0.5537 | 0.1105 | t = +19.42, p = 1e-75 |
+
+Absolutely small (0.55 vs 0.50) but unambiguous at n = 1,600 per γ. Two readings, and the
+γ-monotonicity discriminates: a *bias* in the estimator (12-manifold fit, 4-manifold test,
+held-out class imbalance) would be γ-independent, so monotone growth with richness points
+instead to **rich training creating structure that a random dichotomy partially shares across
+unseen manifolds**. That would be a finding rather than a defect — rich representations
+generalizing a random labeling beyond the manifolds it was fitted on — but the protocol
+designated this quantity a leak-check, so it is reported as the check firing and left there.
+It does not affect the H2d verdict, which rests on `margin`. **Kati's call on whether this is
+worth a follow-up or a footnote.**
