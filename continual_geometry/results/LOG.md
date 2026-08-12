@@ -2468,3 +2468,66 @@ an unusable off-design arm cannot slip through and set the precedent.
 Six tests in `tests/test_grid_offdesign.py` pin it, including the `N=600` case, which is the
 nastier one because the filename does not even collide. Registered grid still loads 960 `a=0`
 arms over γ ∈ {0.03, 0.1, 0.3, 1, 3, 10}; 130 tests pass.
+
+---
+
+## γ=30 probe: the decorrelation extends, and additivity turns out to be range-bounded
+
+64 arms, four corners × 4 streams × 4 seeds, **741 s wall** — against a projection of 45–55 min.
+The projection was 3.8× too pessimistic: it applied the width run's 96-worker contention factor
+to a 64-worker wave on 256 cores, and γ=30 arms need very few SGD steps to matched loss. Worth
+recording as the *third* cost-model miss in this project, this time in the safe direction.
+
+**Declared artifact checks, all clear.** 64/64 usable; max |identity residual| 4.08e-16; **0 of
+1024 tasks failed to converge**; `rho_c_signed` spans [0.2493, 0.5073], inside the [0.043, 0.803]
+calibration window, so even center-collapse share stays valid at this richness.
+
+**The regime is sane, not an extrapolation into breakdown.** At lag 12 the Figure 2 story
+continues smoothly: 31.3 → 50.7 → **71.1 floors** at γ = 3 → 10 → 30, utility share 0.407 →
+0.448 → 0.482, radius 0.164 → 0.121 → 0.102. And the generic-capacity half of the corner
+mechanism extends without qualification — `α(γ)/α(0.03)` goes S-HL 1.48 → **1.76**, S-HH 1.22 →
+1.35, S-LL 1.28 → 1.42, with **S-LH still the only corner below 1** (0.95 → 0.94).
+
+### Outcome 1 (pre-declared): the S-HL decorrelation extends and strengthens
+
+| γ | Δρ_c at S-HL | ±sem | median per-arm ρ_S | % declining |
+|---|---|---|---|---|
+| 3 | +0.0034 | 0.0019 | −0.049 | 50% (p=1.0) |
+| 10 | −0.0550 | 0.0033 | −0.788 | **100%** |
+| 30 | **−0.0956** | 0.0041 | −0.837 | **100%** |
+
+More negative than −0.055, which by the table fixed in `docs/07-writeup.md` before these numbers
+were read licenses exactly this: **γ=10 is not an edge artifact**, the decorrelation strengthens
+across the two richest points, and it stays one appendix sentence.
+
+### Outcome 2 (pre-declared): additivity is a property of the registered range
+
+| γ | readout | feature | interaction | f/r ratio | additive predicts S-HH | measured |
+|---|---|---|---|---|---|---|
+| 1 | +0.0243 | −0.0150 | −0.0027 | −0.62 | +0.0426 | +0.0372 |
+| 3 | +0.0543 | −0.0359 | −0.0015 | −0.66 | +0.0592 | +0.0562 |
+| 10 | +0.1043 | −0.0606 | +0.0059 | −0.58 | +0.0434 | +0.0551 |
+| 30 | +0.1258 | −0.0647 | **+0.0160** | −0.51 | +0.0142 | +0.0461 |
+
+The γ=30 interaction is **resolved, not a 16-arm artifact**: 3.9 SEM from zero with a bootstrap
+95% CI of [+0.0082, +0.0238], entirely above the drift band's lower edge. The γ=10 value for
+comparison is 1.9 SEM with CI [+0.0001, +0.0118], overlapping the band — which is what "at the
+resolution limit" meant. The additive prediction for `S-HH` degrades from off-by-0.012 to
+**off-by-0.032**.
+
+**Why**: the two main effects *saturate* while the interaction grows. From γ=3 to 10 both roughly
+doubled; from 10 to 30 readout gains only 21% and feature only 7%, for a 3× richness increase.
+Per the pre-declared table, §5.4's additivity claim therefore gains **"over the registered
+range"** — and that is a real restriction, not a hedge.
+
+**A third thing, unpredicted: `S-LL` changes sign.** +0.0379 → +0.0114 → **−0.0149** at γ = 3 →
+10 → 30 (75% declining, p = 0.077, marginal). At extreme richness even the low-feature,
+low-readout corner trends toward decorrelation. This is the same phenomenon as the growing
+interaction seen from a different angle: something beyond the two similarity axes decorrelates
+centers at high richness. It is one marginal cell in an appendix probe and is logged, not
+claimed.
+
+**The value of having fixed the status first.** The favourable outcome (the decorrelation
+extends) arrived together with an unfavourable one (additivity is range-bounded). Had the reading
+not been fixed in advance, the temptation to report the first at length and the second in a
+subordinate clause would have been real. Both get the same prominence, as committed.

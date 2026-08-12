@@ -108,6 +108,15 @@ at float scale, and ρ_c may leave the `[0.04, 0.80]` calibration window at this
 would invalidate any *center-collapse share* at γ = 30 but not Δρ_c itself, since the latter
 needs no calibration.
 
+**Outcome, and what it licensed.** Two rows of that table fired, in opposite directions. The
+`S-HL` decorrelation **extended and strengthened** (−0.055 at γ = 10 → −0.096 at γ = 30, 100% of
+arms declining at both), so γ = 10 is not an edge artifact. And the **interaction grew past the
+drift band** (+0.006 at 1.9 SEM to +0.016 at 3.9 SEM, bootstrap CI [+0.008, +0.024]), because
+both main effects saturate above γ = 10 while it does not — so the additivity claim is bounded to
+the registered range. Artifact checks were clean: 64/64 usable, 0 of 1024 tasks unconverged,
+residual 4.1e-16, ρ_c inside the window. Both outcomes are reported at the same length, as
+committed above; the numbers are in `results/LOG.md`.
+
 ---
 
 ## D. Figure 4 caption draft
@@ -128,16 +137,22 @@ needs no calibration.
 > largest is `S-LH`, twice the size. (e) Read as two main effects, readout similarity drives
 > convergence (+0.104) and feature similarity drives decorrelation (−0.061), with an
 > interaction at the resolution limit (+0.006) and an additive model predicting `S-HH` to
-> within 0.012; both effects grow with richness at a roughly constant ratio, so richness sets
-> the gain and the design sets the sign. (f) Both main effects survive a 4× change in load
-> (N = 150, 300, 600). Error bars are ±1 SEM over arms; 40 arms per corner in (a)–(e), 4 per
-> corner at N = 150 and 600 in (f).
+> within 0.012; across the registered range both effects grow with richness at a roughly
+> constant ratio, so richness sets the gain and the design sets the sign. (f) Both main effects
+> survive a 4× change in load (N = 150, 300, 600). Error bars are ±1 SEM over arms; 40 arms per
+> corner in (a)–(e), 4 per corner at N = 150 and 600 in (f).
 
 **What §5.4 says, in order.** Center correlation moves in opposite directions across the 2×2;
-the two similarity axes act almost separately, with richness setting the gain and the design
-setting the sign; both pre-registered center-geometry predictions fail; and in the one corner
-that decorrelates, the movement is progressive over the stream, which is the form the human
-result takes. **The limit stated in the same breath**: the decorrelation is absent at γ₀ = 3
-(+0.003, p = 1.0) and present at γ₀ = 10, so it rests on one point at the edge of the swept
-range. It is defensible as the crossing of two smoothly growing effects — the feature effect
-grows monotonically across the whole sweep — rather than as a trend in its own right.
+**over the registered richness range** the two similarity axes act almost separately, with
+richness setting the gain and the design setting the sign; both pre-registered center-geometry
+predictions fail; and in the one corner that decorrelates, the movement is progressive over the
+stream, which is the form the human result takes.
+
+**The two limits, stated in the same breath as the claims they bound.** The decorrelation is
+absent at γ₀ = 3 (+0.003, p = 1.0) and appears at γ₀ = 10, so within the registered sweep it
+rests on a single point; the appendix probe at γ₀ = 30 finds it stronger again (−0.096, 100% of
+arms declining), which is why we describe it as the crossing of two smoothly growing effects
+rather than a threshold. Separately, additivity is a property of that registered range: at
+γ₀ = 30 the interaction becomes resolved (+0.016, 3.9 SEM) because both main effects saturate
+above γ₀ = 10 while it does not. Neither limit is a hedge — each names the range over which the
+sentence before it holds.
