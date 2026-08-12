@@ -2322,3 +2322,63 @@ the closest analogue to their similar-structure condition — is the one whose c
 progressively over the stream, on every arm, and more strongly at larger width. The
 disanalogies stay in the text: their decorrelation is over practice within a condition and ours
 is a between-corner contrast at matched training, and ours needs γ=10.
+
+---
+
+## W5: the lag statement, decontaminated — and the confound was bigger than the effect
+
+Pure re-pooling, no compute. Pooling by lag mixes lag with task index, because only task 0
+can have lag 15 while lag 4 draws on tasks 0, 4, 8 and 12. Both were measured separately.
+
+**W5a — within task 0 only, lag varying.** Magnitude grows with lag and **saturates**:
+
+| γ | lag 4 | lag 8 | lag 12 | lag 15 |
+|---|---|---|---|---|
+| 1 | 12.5 floors | 14.9 | 16.7 | 17.0 |
+| 3 | 23.8 | 28.4 | 31.3 | 32.0 |
+| 10 | 39.0 | 46.9 | 50.7 | 52.1 |
+
+Channel composition is near-invariant to lag: at γ=10 utility runs 0.480 → 0.445, radius
+0.101 → 0.122, dimension 0.419 → 0.433 from lag 4 to 15. **The earlier claim — γ sets the
+mechanism, lag sets the magnitude — survives with the confound removed**, and now also says
+the magnitude is asymptotic rather than linear in lag.
+
+**W5b — the confound, measured.** At lag 4 held fixed, varying which task is being forgotten:
+γ=10 gives **39.0 / 27.8 / 23.1 floors for tasks 0 / 4 / 8**, and γ=1 gives 12.5 / 8.6 / 7.0.
+So the task-index effect (×1.7) is **larger than the whole lag effect within task 0** (×1.34).
+Anything pooled by lag alone therefore *overstates* lag dependence, since high lags are
+necessarily early tasks and both push the same way. Composition also shifts with task index at
+γ=1 (utility 0.296 → 0.215, radius 0.301 → 0.382) but not at γ=10 (0.480 → 0.464).
+
+**Most of the task-index effect is distance above a common level, not the primacy of task 0.**
+Later tasks begin with less retained capacity — at γ=10, α at a task's own boundary is 1.874 /
+1.357 / 1.176 / 1.078 for tasks 0 / 4 / 8 / 12 — and after the same lag they land far closer
+together (1.100 / 0.967 / 0.874) than they started. Regressing across (task, lag) cell means
+gives an implied common asymptote α_∞ ≈ 0.81 at γ=10 and 0.43 at γ=1.
+
+**The number that would have been misleading, and the honest version.** That cell-mean
+regression has r² = 0.889, and reporting "89% of forgetting is explained by starting distance"
+would have been wrong: cell means average away arm-to-arm variation, so their r² is not
+variance explained in the data. **At the arm level the same two predictors give R² = 0.099.**
+Both numbers are real and answer different questions — the systematic trend is clean, and it is
+a small part of the spread.
+
+**What does explain the spread (γ=10, 1600 observations):**
+
+| predictors | R² |
+|---|---|
+| distance + lag | 0.099 |
+| **condition alone** | **0.814** |
+| stream instantiation alone | 0.000 |
+| initialization seed alone | 0.005 |
+| condition + distance + lag | 0.943 |
+| + stream + seed | 0.948 |
+
+**Which corner of the 2×2 you are in explains 81% of how much gets forgotten**; adding distance
+and lag reaches 94%. Stream instantiation and seed contribute **nothing measurable** (0.000 and
+0.005) — a strong reproducibility statement, and retrospective justification for the paired-init
+and shared-stream design. Residual sd is 0.141 log units against a total of 0.620, still 7.6
+noise floors, so real structure remains unmodelled; the obvious candidate is the interaction
+between corner and task index visible in the γ=1 composition shift above.
+
+W5 is closed. Remaining cheap items: the width Figure-2 equivalent, then W4.
