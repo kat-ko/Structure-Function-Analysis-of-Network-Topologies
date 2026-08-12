@@ -32,6 +32,7 @@ from typing import Iterable, Literal, Sequence
 import numpy as np
 from scipy.optimize import lsq_linear, nnls
 
+from src.numerics import clip_to_noise
 from src import provenance
 
 # Hash of this file as it was when imported. A forked worker inherits the parent's
@@ -154,7 +155,9 @@ def _solve_duals(Gt: np.ndarray, t: np.ndarray, solver: str) -> np.ndarray:
         return _nnls_colgen(Gt, t)
     if solver == "lsq":
         res = lsq_linear(Gt, t, bounds=(0.0, np.inf), method="trf", tol=1e-10)
-        return np.maximum(res.x, 0.0)
+        # `lsq_linear` enforces the bound, so any negativity here is float error; a
+        # materially negative dual would mean the solve failed rather than drifted.
+        return clip_to_noise(res.x, 0.0, None, atol=1e-8, what="anchor QP dual λ")
     raise ValueError(f"unknown solver {solver!r}")
 
 

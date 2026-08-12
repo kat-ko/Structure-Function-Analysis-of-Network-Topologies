@@ -1163,3 +1163,61 @@ Center-collapse share is `n/a` throughout the lazy arm — Δlog R_eff ≈ 0.004
 the 0.005 noise floor, so the guard declines to report a ratio. Working as intended.
 
 `results/figures/attribution_pilot.png`.
+
+---
+
+## Pre-launch hardening, and a destructive default that cost the pilot
+
+### The `np.clip` audit
+
+Four hits in the measurement path. Two are not guards: `network.py:79` is the ReLU, and
+`core.py:366` is a divide-by-zero guard already made dead by an enclosing `np.where`. The
+other two were real instances of the ρ_c pattern — legitimate absorbers of float error
+that never checked the violation *was* float error:
+
+- `alignment.py:74`, `arccos(clip(s, −1, 1))` on cosines of principal angles.
+- `core.py:157`, `maximum(res.x, 0)` on duals from a bound-constrained solve.
+
+Both are correct in intent: `arccos(1 + 2e-16)` is a NaN and propagating it is worse than
+clipping. What was missing is that neither could distinguish 2e-16 from 0.5. Both now go
+through `numerics.clip_to_noise`, which clips **and asserts nothing moved by more than a
+stated tolerance**. A clip can no longer change meaning from "absorb rounding" to
+"manufacture a value" without failing. `tests/test_numerics.py` includes the pilot's own
+`rho_c` values as a case: fed to the old bounds they now raise instead of returning 15–38.
+
+### ρ_c coverage is now logged per condition
+
+`summarize` → `rho_coverage` reports, per (γ, `a`, condition): the range of both
+conventions, how many `rho_c_glue` values exceed 1, and the fraction of measurements
+inside `RHO_FIT_RANGE`. Out-of-range points report `n/a` and are never extrapolated. On
+the pilot, coverage is **100%** in all four cells, with `rho_c_signed` at 0.29–0.52 —
+mid-range, so the grid has room either side. The unnormalized convention meanwhile
+reaches **1.928, above 1 in 39 of 56 measurements** in the rich arm, which is the clearest
+statement yet of why it cannot feed a bounded-domain formula.
+
+### The default was the destructive branch, and it deleted the pilot
+
+Verifying checkpoint-resume before the 4 h launch was the right instinct and found a real
+defect the hard way. `--resume` was **opt-in**, and the default branch ran
+`_path(s).unlink()` over every arm in the grid before starting. So invoking `--pilot` *to
+test resume* deleted all eight completed arms and began recomputing them. With
+`results/phase1/` in `.gitignore` there was no way back. The pooled summary and figure
+survived, and the full grid subsumes those cells, so nothing was lost that the grid will
+not regenerate — but on the 4 h grid the same keystroke would have destroyed the run.
+
+The fault is not that resume was broken; the skip logic was correct, including the
+tuple/list round-trip subtlety. It is that **the default was the destructive branch.**
+Fixed by inverting it: resuming is now the default, `--resume` is accepted and ignored,
+and `--fresh` discards by **moving arms to `results/phase1/.trash-<timestamp>/`** rather
+than deleting. `tests/test_phase1_resume.py` drives `main()` through the branch that did
+the damage, which the first version of the test did not — it used `--summarize-only` and
+so would have passed against the bug.
+
+Verified end to end on the smoke grid: the second invocation reports `2 already on disk,
+resuming`, recomputes nothing, finishes in 0.83 s, identical residual.
+
+This is a fourth member of the silent-failure family, with a twist worth naming. The
+first three produced plausible output measuring the wrong thing. This one produced *no*
+output and destroyed input, and it was triggered **by the act of verification** —
+checking whether resume worked was what broke it. Verification steps need the same
+scrutiny as measurement steps.

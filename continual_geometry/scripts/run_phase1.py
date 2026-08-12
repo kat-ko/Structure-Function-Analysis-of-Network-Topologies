@@ -17,6 +17,7 @@ import argparse
 import itertools
 import json
 import sys
+import time
 from dataclasses import asdict
 from pathlib import Path
 
@@ -32,6 +33,7 @@ import numpy as np  # noqa: E402
 from _par import pmap  # noqa: E402
 from src import pipeline as pl  # noqa: E402
 from src import provenance  # noqa: E402
+from src.analysis import attribution as AT  # noqa: E402
 from src.analysis.attribution import (  # noqa: E402
     Attribution, GeometryPoint, attribute, attribution_table)
 
@@ -124,6 +126,48 @@ def _reattribute(rec: dict) -> list[tuple[str, int, int, Attribution]]:
     return out
 
 
+def rho_coverage(recs: list[dict]) -> dict:
+    """Per-condition ρ_c range, and how much of it the calibration actually covers.
+
+    The ρ_c → R_eff calibration is fitted on synthetic manifolds over
+    `attribution.RHO_FIT_RANGE` and is refused outside it, so the bottom row of Figure 2
+    is populated only where representations land inside. The pilot landed at 0.33–0.48,
+    but it spanned two γ values out of six and one `a`, so the grid will visit conditions
+    it did not. Reporting coverage per condition here means the answer comes from a log
+    after 4 hours rather than from counting gaps in a figure — and if a large fraction
+    falls outside, that is a finding about representations, not a plotting problem.
+
+    Both conventions are reported. `rho_c_signed` is the calibration's input; the range
+    of `rho_c_glue` is recorded too, since it is what §8 requires alongside R and its
+    excursion past 1 is exactly what made the unnormalized convention unusable here.
+    """
+    lo, hi = AT.RHO_FIT_RANGE
+    groups: dict[tuple, list[dict]] = {}
+    for r in recs:
+        if not r["usable"]:
+            continue
+        sp = r["spec"]
+        for g in r["geometry"]:
+            if g["task"] is not None:
+                groups.setdefault((sp["gamma_0"], sp["a"], sp["condition"]), []).append(g)
+
+    out = {}
+    for k, gs in sorted(groups.items()):
+        signed = np.array([g["rho_c_signed"] for g in gs])
+        glue = np.array([g["rho_c_glue"] for g in gs])
+        inside = (signed >= lo - AT.RHO_DOMAIN_TOL) & (signed <= hi + AT.RHO_DOMAIN_TOL)
+        out["|".join(map(str, k))] = {
+            "n": int(signed.size),
+            "rho_c_signed": {"min": float(signed.min()), "max": float(signed.max()),
+                             "median": float(np.median(signed))},
+            "rho_c_glue": {"min": float(glue.min()), "max": float(glue.max()),
+                           "median": float(np.median(glue)),
+                           "n_above_one": int((glue > 1.0).sum())},
+            "in_calibration_range": float(inside.mean()),
+        }
+    return out
+
+
 def summarize(paths: list[Path]) -> dict:
     """Pool attribution by (γ, `a`, condition, module, lag) and surface the checks."""
     recs = [json.loads(p.read_text()) for p in paths]
@@ -147,6 +191,7 @@ def summarize(paths: list[Path]) -> dict:
         "non_converged": [r["key"] for r in recs if not r["usable"]],
         "max_identity_residual": float(max(resid)) if resid else None,
         "attribution": pooled,
+        "rho_coverage": rho_coverage(recs),
         "forgetting_CFr": {"|".join(map(str, k)): {
             "mean": float(np.mean(v)), "sd": float(np.std(v, ddof=1)) if len(v) > 1 else 0.0,
             "n": len(v)} for k, v in sorted(forgetting.items())},
@@ -160,7 +205,17 @@ def main() -> None:
     ap.add_argument("--pilot", action="store_true",
                     help="8 arms at FULL settings: extreme γ × 2 conditions × 2 seeds. "
                          "The point is to see a real Figure 2 before committing the grid")
-    ap.add_argument("--resume", action="store_true", help="skip arms already written")
+    # Resume is the default, and discarding is explicit. It was the other way round,
+    # which cost the pilot: re-invoking `--pilot` to *test* resume deleted all eight
+    # completed arms before running, because deletion was the default and `--resume` the
+    # opt-in. On a 4-hour grid, with `results/phase1/` in `.gitignore` and so no git
+    # safety net, an accidental re-invocation would have destroyed the run. A default
+    # should not be the destructive branch.
+    ap.add_argument("--resume", action="store_true",
+                    help="accepted and ignored; resuming is the default")
+    ap.add_argument("--fresh", action="store_true",
+                    help="discard existing arms and recompute. Files are moved to "
+                         "results/phase1/.trash-<timestamp>/, not deleted")
     ap.add_argument("--cap", type=int, default=None, help="max worker processes")
     ap.add_argument("--summarize-only", action="store_true")
     args = ap.parse_args()
@@ -178,11 +233,18 @@ def main() -> None:
         specs = arms()
 
     if not args.summarize_only:
-        if not args.resume:
-            for s in specs:
-                _path(s).unlink(missing_ok=True)
+        if args.fresh:
+            existing = [p for p in (_path(s) for s in specs) if p.exists()]
+            if existing:
+                trash = OUT / f".trash-{time.strftime('%Y%m%d-%H%M%S')}"
+                trash.mkdir(parents=True, exist_ok=True)
+                for p in existing:
+                    p.rename(trash / p.name)
+                print(f"--fresh: moved {len(existing)} existing arms to {trash.name}/")
         budget = pl.n_evals(pl.schedule(specs[0].T, specs[0].tracked_stride), specs[0])
-        print(f"{len(specs)} arms x {budget} evals = {len(specs) * budget:,} evaluations")
+        n_done = sum(1 for s in specs if _path(s).exists())
+        print(f"{len(specs)} arms x {budget} evals = {len(specs) * budget:,} evaluations"
+              + (f"  ({n_done} already on disk, resuming)" if n_done else ""))
         done = pmap(_job, specs, cap=args.cap)
         ran = [d for d in done if not d.get("skipped")]
         if ran:
@@ -204,6 +266,26 @@ def main() -> None:
         cen = t["center_attributable_median"]
         print(f"  {key:34s} dlogA {t['dlog_alpha']:+.4f}  {terms}  "
               f"dom {t['dominant']:<9s} center {cen if cen is None else round(cen, 2)}")
+    lo, hi = AT.RHO_FIT_RANGE
+    cov = summary["rho_coverage"]
+    print(f"\nρ_c coverage — calibration fitted on [{lo:.2f}, {hi:.2f}], "
+          f"refused outside (±{AT.RHO_DOMAIN_TOL:.2f}):")
+    for key, c in sorted(cov.items(), key=lambda kv: kv[1]["in_calibration_range"]):
+        s, g = c["rho_c_signed"], c["rho_c_glue"]
+        print(f"  {key:22s} signed [{s['min']:.3f}, {s['max']:.3f}]  "
+              f"glue [{g['min']:.3f}, {g['max']:.3f}] ({g['n_above_one']:4d}/{c['n']:4d} > 1)"
+              f"   in range {100 * c['in_calibration_range']:5.1f}%")
+    if cov:
+        overall = np.mean([c["in_calibration_range"] for c in cov.values()])
+        print(f"  {'OVERALL':22s} {100 * overall:5.1f}% of measurements usable for the "
+              f"center-collapse panel")
+        worst = min(cov.items(), key=lambda kv: kv[1]["in_calibration_range"])
+        if worst[1]["in_calibration_range"] < 0.5:
+            print(f"  NOTE: {worst[0]} is only "
+                  f"{100 * worst[1]['in_calibration_range']:.0f}% in range — the "
+                  f"calibration needs extending before that condition's radius channel "
+                  f"can be attributed.")
+
     print(f"\nwrote results/{name}")
 
 

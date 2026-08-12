@@ -61,6 +61,8 @@ RHO_R_PROVENANCE = "glue_core_recovery.json:center_correlation/n_t=200,policy=al
 # The sweep's ρ range. Outside it the conversion extrapolates a form that diverges at
 # ρ → 1, so it is refused rather than reported.
 RHO_FIT_RANGE = (0.0427, 0.8029)
+# Margin past the fitted endpoints still treated as interpolation.
+RHO_DOMAIN_TOL = 0.05
 
 # `R_eff` Monte-Carlo noise floor, CV 0.50% (`results/cost_model.json`), in log units.
 # Radius changes below this are unresolvable, so they cannot be a ratio's denominator.
@@ -166,7 +168,7 @@ def attribute(
     )
 
 
-def rho_in_domain(rho: float, *, tol: float = 0.05) -> bool:
+def rho_in_domain(rho: float, *, tol: float = RHO_DOMAIN_TOL) -> bool:
     """Is `rho` close enough to the sweep that the calibration is interpolation?
 
     `tol` allows a small margin past the fitted endpoints; beyond that the form is

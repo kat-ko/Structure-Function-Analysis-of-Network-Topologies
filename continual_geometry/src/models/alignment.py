@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from src.numerics import clip_to_noise
 RCOND = 1e-10
 
 
@@ -69,9 +70,16 @@ def grassmann_geodesic(Y: np.ndarray, U: np.ndarray, a: float) -> np.ndarray:
 
 
 def principal_angles(Y: np.ndarray, U: np.ndarray) -> np.ndarray:
-    """Principal angles between two subspaces, ascending."""
+    """Principal angles between two subspaces, ascending.
+
+    The singular values are cosines and so are analytically in [0, 1]; the clip absorbs
+    float error only, and says so, because a value materially above 1 means the inputs
+    are not orthonormal and the angles would be meaningless rather than slightly off.
+    """
     s = np.linalg.svd(np.asarray(Y).T @ np.asarray(U), compute_uv=False)
-    return np.arccos(np.clip(s, -1.0, 1.0))[::-1].copy()
+    s = clip_to_noise(s, -1.0, 1.0, atol=1e-8,
+                      what="singular value of YᵀU (cosine of a principal angle)")
+    return np.arccos(s)[::-1].copy()
 
 
 def aligned_init(

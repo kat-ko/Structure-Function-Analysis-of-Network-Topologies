@@ -1,0 +1,8 @@
+{
+  "n_arms": 1,
+  "n_usable": 1,
+  "max_identity_residual": 0.0,
+  "attribution": {},
+  "rho_coverage": {},
+  "forgetting_CFr": {}
+}

@@ -307,6 +307,41 @@ rather than a fix.
 
 ---
 
+## 5a. What this sheet does *not* certify
+
+Every result above is measured against synthetic manifolds with known ground truth. That
+is the only way to check recovery, and it is a genuine limit on what the checks mean:
+**synthetic validation certifies the estimator, not the behaviour of quantities derived
+from it on real representations.**
+
+This is not hypothetical. The ρ_c → R_eff calibration in §4 was fitted on the §2
+center-correlation sweep, where `rho_c_glue` and `rho_c_signed` track each other to
+within 0.02 across the whole range (0.038/0.043 … 0.809/0.803). Fitted on the
+unnormalized convention it passed every check here at R² = 0.99986. On Phase 1
+representations the conventions separate completely: `rho_c_signed` stays at 0.29–0.52
+while **`rho_c_glue` reaches 1.93, above 1 in 39 of 56 measurements in the rich arm**,
+because it is unnormalized by construction (`00` §6.1 C3) and therefore not a
+correlation. The bounded form `(1 − ρ)^−k` is undefined there, and a `np.clip` intended
+for float safety returned plausible numbers from invalid input — center-collapse shares
+of 15–38 against a ceiling of 1.
+
+The synthetic suite could not have caught this, because the degeneracy it depends on
+(the two conventions coinciding) is a property of the synthetic generator. Two
+consequences now enforced in code:
+
+- Any calibration fitted here **declares its fitted range and refuses to extrapolate**
+  (`attribution.RHO_FIT_RANGE`, `rho_in_domain`). Out-of-range input reports `n/a`.
+- Clipping in a measurement path **asserts the violation it absorbs is at float scale**
+  (`numerics.clip_to_noise`), so a guard cannot silently change meaning from "absorb
+  rounding" to "manufacture a value".
+
+The general rule for reading this sheet: a passing check here licenses the estimator's
+*outputs*. Anything fitted on those outputs must be re-checked against the range
+representations actually occupy — which the Phase 1 grid now logs per condition
+(`summarize` → `rho_coverage`).
+
+---
+
 ## 6. Reproducing everything here
 
 ```

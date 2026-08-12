@@ -29,6 +29,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
+# The modules whose version a measurement depends on. Declared rather than inferred,
+# because `_AT_IMPORT` only contains what a process happened to import — so an empty
+# `stale` would otherwise mean either "nothing is stale" or "nothing was checked", and
+# those must not look alike. `code_stamp` reports which of these are missing.
+EXPECTED = ("core", "pipeline", "attribution")
+
 # module name -> (source path, hash captured when that module was first imported)
 _AT_IMPORT: dict[str, tuple[Path, str]] = {}
 
@@ -81,12 +87,17 @@ def stale_modules() -> dict[str, dict[str, str]]:
 
 
 def code_stamp() -> dict:
-    """Attach to every result record."""
+    """Attach to every result record.
+
+    `unregistered` lists any `EXPECTED` module absent from the registry, so a stamp
+    cannot claim currency for code it never looked at.
+    """
     return {
         "git_sha": git_sha(),
         "git_dirty": git_dirty(),
         "modules": {n: d for n, (_, d) in sorted(_AT_IMPORT.items())},
         "stale": stale_modules(),
+        "unregistered": [n for n in EXPECTED if n not in _AT_IMPORT],
     }
 
 
@@ -96,6 +107,14 @@ def assert_current(*, strict: bool = True) -> dict:
     Called at worker start. `strict=False` warns instead, for interactive use where
     an edit mid-session is expected and harmless.
     """
+    missing = [n for n in EXPECTED if n not in _AT_IMPORT]
+    if missing and strict:
+        raise RuntimeError(
+            f"cannot certify this process: {missing} were never registered, so their "
+            f"version is unknown. An empty staleness report here would mean 'not "
+            f"checked', not 'not stale'. Import them before measuring, or amend "
+            f"`provenance.EXPECTED` if they are genuinely not in the measurement path."
+        )
     stale = stale_modules()
     if stale and strict:
         detail = ", ".join(

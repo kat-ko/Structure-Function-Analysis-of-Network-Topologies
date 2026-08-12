@@ -17,7 +17,16 @@ from src import provenance
 
 @pytest.fixture
 def fake_module(tmp_path, monkeypatch):
-    """A file registered as if it were an estimation module, that we can then edit."""
+    """A file registered as if it were an estimation module, that we can then edit.
+
+    The real modules are imported first so the copied registry always satisfies
+    `EXPECTED`; otherwise whether these tests pass depends on import order elsewhere in
+    the session.
+    """
+    import src.analysis.attribution  # noqa: F401
+    import src.glue.core  # noqa: F401
+    import src.pipeline  # noqa: F401
+
     path = tmp_path / "estimator_stub.py"
     path.write_text("VERSION = 1\n")
     monkeypatch.setattr(provenance, "_AT_IMPORT", dict(provenance._AT_IMPORT))
@@ -95,5 +104,38 @@ def test_code_stamp_is_json_ready_and_identifies_the_commit():
 
     stamp = provenance.code_stamp()
     json.dumps(stamp)
-    assert set(stamp) == {"git_sha", "git_dirty", "modules", "stale"}
+    assert set(stamp) == {"git_sha", "git_dirty", "modules", "stale", "unregistered"}
     assert isinstance(stamp["git_dirty"], bool)
+
+
+# --- "nothing checked" must not look like "nothing stale" ----------------------
+# Found while auditing the running grid: a script that imported `provenance` without the
+# estimation modules reported an empty module set and an empty staleness report, which
+# read as a clean bill of health for code it had never hashed.
+
+
+def test_a_process_missing_expected_modules_cannot_be_certified(monkeypatch):
+    monkeypatch.setattr(provenance, "_AT_IMPORT", {})
+    with pytest.raises(RuntimeError, match="never registered"):
+        provenance.assert_current()
+    stamp = provenance.code_stamp()
+    assert set(stamp["unregistered"]) == set(provenance.EXPECTED)
+    assert stamp["stale"] == {}, "an unchecked process must not also look stale"
+
+
+def test_a_fully_imported_process_reports_nothing_unregistered():
+    import src.analysis.attribution  # noqa: F401
+    import src.glue.core  # noqa: F401
+    import src.pipeline  # noqa: F401
+
+    assert provenance.code_stamp()["unregistered"] == []
+    provenance.assert_current()
+
+
+def test_expected_is_what_the_records_actually_carry():
+    """Guards against `EXPECTED` drifting away from what is registered in practice."""
+    import src.analysis.attribution  # noqa: F401
+    import src.glue.core  # noqa: F401
+    import src.pipeline  # noqa: F401
+
+    assert set(provenance.EXPECTED) <= set(provenance._AT_IMPORT)
