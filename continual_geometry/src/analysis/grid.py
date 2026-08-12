@@ -32,12 +32,36 @@ _SOURCE = provenance.register(__file__)
 ROOT = Path(__file__).resolve().parents[2]
 ARMS = ROOT / "results" / "phase1"
 
+# The registered Phase 1 design (`docs/01-experiments.md`). Anything else in `ARMS` is an
+# off-design arm that no headline figure agreed to include.
+REGISTERED_GAMMAS = (0.03, 0.1, 0.3, 1.0, 3.0, 10.0)
+REGISTERED_N = 300
+
 
 def load(a_zero_only: bool = True, arms_dir: Path | None = None) -> list[dict]:
-    """Every usable arm on disk, by default the homogeneous γ grid only."""
+    """Every usable arm on disk, by default the homogeneous γ grid only.
+
+    **Refuses off-design arms in the registered directory.** `Phase1Spec.key` carries γ but
+    not `N`, so an exploratory arm dropped into `results/phase1/` either collides with a grid
+    arm's filename or, worse, does not — and is then silently *adopted* by every figure, the
+    scope audit included, with nothing failing and no diff to notice. That is the same failure
+    class as the stale fork: no error, wrong artifact. Off-design runs live in their own
+    directory and are loaded by passing `arms_dir` explicitly, which is a visible act.
+    """
+    registered = arms_dir is None
     recs = []
     for p in sorted((arms_dir or ARMS).glob("*.json")):
         r = json.loads(p.read_text())
+        if registered:
+            g, n = r["spec"]["gamma_0"], r["spec"].get("N", REGISTERED_N)
+            if g not in REGISTERED_GAMMAS or n != REGISTERED_N:
+                raise ValueError(
+                    f"{p.name} is an off-design arm in the registered grid directory "
+                    f"(γ={g:g}, N={n}; registered: γ∈{REGISTERED_GAMMAS}, N={REGISTERED_N}). "
+                    f"Left there it would be adopted by every figure without any failure. "
+                    f"Move it to its own directory under results/ and load it with "
+                    f"`load(arms_dir=...)`."
+                )
         if not r.get("usable"):
             continue
         if a_zero_only and r["spec"]["a"] != 0:

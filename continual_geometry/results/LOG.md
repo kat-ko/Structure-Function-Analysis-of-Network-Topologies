@@ -2449,3 +2449,22 @@ moment the figure moved to matched lag; both now compute from the plotted data.
 the wrong number and the right one), the methods note on the variance decomposition and what it
 says about the paired-init and shared-stream design, and the Figure 4 caption with §5.4's
 argument order and its γ-range limit stated in the same breath.
+
+---
+
+## Structural: off-design arms can no longer be adopted by the registered grid
+
+`grid.load()` now **refuses** any arm in `results/phase1/` whose γ is outside the registered
+sweep or whose `N` is not 300, naming the file and telling you to load it via `arms_dir`.
+
+The hazard is not a collision, it is the absence of one. `Phase1Spec.key` carries γ but not
+`N`, so an exploratory arm written into the grid directory either overwrites a grid arm — which
+at least perturbs a number someone might notice — or, if its γ or `N` differs, quietly *joins*
+the grid. Every figure, `phase1_summary.json` and the scope audit then include it, with no
+exception, no warning, and no diff to inspect. **Same failure class as the stale fork: nothing
+errors and the artifact is wrong.** The refusal deliberately precedes the `usable` filter, so
+an unusable off-design arm cannot slip through and set the precedent.
+
+Six tests in `tests/test_grid_offdesign.py` pin it, including the `N=600` case, which is the
+nastier one because the filename does not even collide. Registered grid still loads 960 `a=0`
+arms over γ ∈ {0.03, 0.1, 0.3, 1, 3, 10}; 130 tests pass.
