@@ -2244,6 +2244,16 @@ most in generic capacity and is the only corner whose centers decorrelate, at ev
 `S-LH` is the only corner whose generic capacity falls and has the largest convergence, at
 every width. The `S-HL` decorrelation even strengthens mildly with width (−0.045 → −0.054).
 
+> **Correction, added when Figure 4 supplied a baseline for ρ_c.** The `S-LL` column of the
+> `Δρ_c` rows above (+0.0254/+0.0210/+0.0201) must not be read as convergence. Those are
+> 4-arm cells; with all 40 arms at N=300 the value is **+0.0114**, which against the
+> lazy-arm drift band of [+0.005, +0.010] is **1.1× baseline, sign test p=0.15 — an
+> unresolved non-effect**. The 4-arm estimate ran ~2× high. The three claims in the
+> paragraph above are unaffected, since each concerns `S-HL` or `S-LH`, both of which are
+> 10× baseline. But "the ordering is identical at all three widths" should be read as a
+> statement about the three resolved corners: `S-LL`'s rank is not meaningful because
+> `S-LL` does not move.
+
 **Consequence.** "One architecture" is no longer the paper's most obvious vulnerability: the
 attribution magnitude, the utility share, the γ-reorganization, and the unregistered corner
 mechanism all survive a 4× change in load. The remaining generalizability exposure is depth,
@@ -2382,3 +2392,60 @@ noise floors, so real structure remains unmodelled; the obvious candidate is the
 between corner and task index visible in the γ=1 composition shift above.
 
 W5 is closed. Remaining cheap items: the width Figure-2 equivalent, then W4.
+
+---
+
+## Figure 2 is a task-0 figure, and its caption has to say so
+
+**Lag 12 exists only for task 0.** With measurement boundaries at 0, 4, 8, 12, 15, the only
+comparison with twelve intervening tasks is the one from task 0: **960 of 960 lag-12
+attribution records are task 0**. Which tasks contribute to each lag, over all 9,600 records:
+
+| lag | 3 | 4 | 7 | 8 | 11 | 12 | 15 |
+|---|---|---|---|---|---|---|---|
+| tasks | 12 | 0, 4, 8 | 8 | 0, 4 | 4 | **0** | **0** |
+
+Two consequences. Figure 2, drawn at lag 12, is **immune to the W5 lag/task-position confound**
+by construction — there is nothing to stratify. And because task 0 is the most-forgotten task
+in the stream (W5: 39.0 floors against 23.1 for task 8 at matched lag), the figure reports the
+**maximum-forgetting task, not the grid average**, which is a scoping statement the caption must
+carry. Both facts are in the script's docstring, and the figure now prints its own task set into
+the subtitle (`lag 12, task 0`) so a later `--lag 4` run cannot inherit a task-0 caption.
+
+Figure 2 re-run on the completed grid (960 `a=0` arms, was 776 at the draft): 0.1 / 0.4 / 5.2 /
+16.7 / 31.3 / **50.7 floors** at γ = 0.03 → 10, Ψ_eff becoming resolvable and negative between
+γ = 0.1 and 0.3. No change in shape from the draft.
+
+## Width robustness in Figure 2's form
+
+`scripts/fig_width_invariance.py`, four panels, matched lag 12 and matched sampling (streams
+0–1, seeds 0–1 at every width, so the N=300 line is not an average over 10× more arms than its
+neighbours). At matched lag the invariance is **tighter than the lag-pooled version above**:
+
+| N | γ=1 floors | γ=10 floors | utility | radius | dimension | radius+dimension |
+|---|---|---|---|---|---|---|
+| 150 | 16.3 | **47.9** | 0.472 | 0.139 | 0.389 | 0.528 |
+| 300 | 16.6 | **48.2** | 0.460 | 0.118 | 0.422 | 0.540 |
+| 600 | 15.1 | **47.5** | 0.438 | 0.112 | 0.450 | 0.562 |
+
+**1.5% spread in magnitude at γ=10** across a 4× load change. The one genuine N-dependence has
+its own panel rather than a footnote: the radius share falls (0.139 → 0.112) while dimension
+rises (0.389 → 0.450) and **their sum stays put** (0.528 → 0.562). The utility/non-utility
+division is width-invariant; what moves is how the non-utility part is spent.
+
+The matched-subset diagnostic is in the figure's JSON and behaves as it should. At γ=1 and 10
+the 16-arm subset and the 160-arm full grid agree (Δlog α −0.3074 vs −0.3088 and −0.8922 vs
+−0.9402; utility share 0.292 vs 0.284 and 0.460 vs 0.448). At γ=0.03 they disagree wildly
+(utility share 0.948 vs 0.430) — the unresolvable cell at 0.1 floors, which is exactly what the
+`MIN_FLOORS` gate refuses. A 16-arm subset cannot estimate the composition of a change that did
+not happen, and neither can 160.
+
+Two hardcoded numbers in that figure's panel titles ("2% spread", "0.440–0.460") were wrong the
+moment the figure moved to matched lag; both now compute from the plotted data.
+
+## Write-up prose has its own file
+
+`docs/07-writeup.md`: the aggregation-artifacts appendix subsection (three artifacts, each with
+the wrong number and the right one), the methods note on the variance decomposition and what it
+says about the paired-init and shared-stream design, and the Figure 4 caption with §5.4's
+argument order and its γ-range limit stated in the same breath.

@@ -6,6 +6,13 @@ Four panels: the magnitude of forgetting per γ in noise-floor units; the channe
 composition where it is resolvable; the signed utility term, whose zero crossing is the
 qualitative change in the sweep; and the center-collapse share of the radius channel.
 
+**What the default lag means.** `--lag 12` is not one lag among many pooled over tasks: in a
+16-task stream with boundaries at 0, 4, 8, 12, 15, a lag of 12 exists **only for task 0**
+(verified: 960 of 960 records). So this figure is a task-0 figure by construction, immune to
+the lag/task-position confound of W5 — and, because task 0 is the most-forgotten task in the
+stream, it reports the largest forgetting in the grid rather than its average. Both belong in
+the caption.
+
 **The gate that makes this honest.** Channel shares are `|term| / Σ|term|`, which is
 defined whether or not anything moved — so at γ ≤ 0.1, where total capacity change is
 0.06–0.48 noise floors, a naive plot shows confident-looking shares attributing a change
@@ -107,8 +114,11 @@ def main() -> None:
 
     fig, axes = plt.subplots(2, 2, figsize=(10.5, 7.6))
     lab = args.condition if cond else "pooled over the 2×2"
+    tasks = sorted({t for spec, _m, t, lg, _a in G.attributions(recs, module="A")
+                    if lg == args.lag and (not cond or spec["condition"] == cond)})
+    tlab = f"task {tasks[0]}" if len(tasks) == 1 else f"tasks {tasks} pooled"
     fig.suptitle(f"Forgetting decomposes exactly; the channel mix shifts with richness "
-                 f"  ({lab}, lag {args.lag}, module A)", fontsize=11)
+                 f"  ({lab}, lag {args.lag}, {tlab}, module A)", fontsize=11)
 
     # (a) magnitude, in noise floors
     ax = axes[0][0]
