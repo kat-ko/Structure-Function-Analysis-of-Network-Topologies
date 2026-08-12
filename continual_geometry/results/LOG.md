@@ -2531,3 +2531,64 @@ claimed.
 extends) arrived together with an unfavourable one (additivity is range-bounded). Had the reading
 not been fixed in advance, the temptation to report the first at length and the second in a
 subordinate clause would have been real. Both get the same prominence, as committed.
+
+---
+
+## W4: the α floor is γ-flat, and the R_eff floor is wrong in two ways
+
+`scripts/run_measurement_null.py`, 1,188 s. One arm per registered γ, trained once, then the
+**same trained network on the same manifolds** re-measured under 4 measurement seeds, so the only
+thing varying is the estimator's anchor draw. 6/6 converged.
+
+**How precisely a 4-seed CV can be read.** A coefficient of variation from n=4 carries its own
+relative uncertainty of about `1/√(2(n−1))` ≈ 41%. So ratios below roughly 2× are *not* resolved
+by this design, and only larger ones should be spoken about. This bounds every reading below.
+
+Registered global floor against measured per-γ floors, retained ensemble — the one attribution
+uses, since forgetting is measured on a retained task:
+
+| channel | registered | measured range | γ-variation | vs registered |
+|---|---|---|---|---|
+| `alpha` | 0.0187 | [0.0149, 0.0203] | 1.4× (**not resolved**) | 1.1× |
+| `D_eff` | 0.0126 | [0.0078, 0.0142] | 1.8× (**not resolved**) | 1.1× |
+| `R_eff` | 0.0050 | [0.0016, 0.0116] | **6.7×** | **2.3×** |
+| `Psi_eff` | *none* | [0.0060, 0.0160] | 2.0× | — |
+
+### The headline claims are safe
+
+**`alpha`'s floor is flat across γ within the resolution of this test, and matches the registered
+value to 1.1×.** Every floor-denominated headline number is α-denominated — Figure 2's magnitude
+curve, the ±2-floor resolution threshold, the width invariance, the W5 lag and task-position
+series. Those all stand as written, and the worst case is a ±10% rescaling of a quantity where
+nothing hinges on 50.7 versus 46 floors. `D_eff` is the same story. **No restatement is needed
+and I have made no changes.**
+
+### The `R_eff` floor is a real problem, and it is narrow
+
+Two separate defects. It is **2.3× too small** at γ=10 (measured 0.0116 against a registered
+0.0050), and it is **γ-dependent by 6.7×** within the retained ensemble (0.0016 at γ=0.03 rising
+monotonically to 0.0116 at γ=10) — the one channel where the ruler genuinely stretches with the
+thing being measured. In the generic ensemble it is 3.1× too small across the board
+([0.0107, 0.0153]).
+
+What this touches, precisely:
+
+- **`attribution.MIN_DLOG_R` = 0.004988**, which is the registered 0.005 in log units. It floors
+  the denominator of `center_collapse_share` specifically to stop sub-noise radius changes
+  producing unbounded ratios. If the true floor at high γ is 2.3× larger, that guard is **too
+  permissive exactly where it is most used** — Figure 2 panel (d) reports center-collapse shares
+  at 91% coverage for γ = 3 and 10. This is the same failure mode the guard was introduced to
+  fix, one step further out.
+- Any statement quoting an **`R_eff` excursion in noise floors**.
+
+What it does **not** touch: channel *shares*. Those are `|term|/Σ|term|` gated on total
+`|Δ log α|`, which is α-denominated and safe — so Figure 2 panel (b), the width figure's
+radius/dimension split (0.139 → 0.112 with a stable sum), and the composition invariance all
+stand independent of the `R_eff` floor.
+
+**No remediation attempted, per instruction.** The options, for the decision: refit `MIN_DLOG_R`
+and `NOISE_FLOOR_CV['R_eff']` to the measured per-γ values and re-derive panel (d) — cheap,
+because attribution re-derives from stored geometry, so this is a re-summarize and not a re-run —
+or drop panel (d) to the appendix and state the radius channel's resolvability only in aggregate.
+Also worth noting: `Psi_eff` has **no registered floor at all**, which is why `grid.floors()`
+raises rather than borrowing another channel's; W4 now supplies one if it is ever wanted.
