@@ -1864,3 +1864,138 @@ result, and H2c's statistic was conditional on H2a. Both should be recorded in t
 pre-registration table as *prediction wrong* rather than *kill fired*, with the distinction
 stated, since "the kill criterion did not fire but the prediction was refuted" is a different
 epistemic situation from either passing or being killed.
+
+---
+
+## γ\* is **not identified** by this grid — and the 0.615 vs 1.61 discrepancy is why
+
+The interpolated γ\* was reported as 0.615 at ~780 arms and 1.61 on the full grid. Not a
+transposition: both are correct arithmetic on their respective data. The parabola vertex is
+set by the *asymmetry* of the two neighbour gaps around the argmin, and here those gaps are
++0.00775 (γ=0.3 side) against **+0.00048** (γ=3 side), a ratio of 0.062. A vertex determined
+by a 5e-4 difference is determined by nothing.
+
+**Bootstrap over arms, 2,000 resamples:**
+
+| quantity | result |
+|---|---|
+| on-grid argmin | γ=1 in **34.6%**, γ=3 in **34.4%**, γ=0.3 in 15.3%, γ=10 in 15.2% |
+| interpolated γ\* | median 1.268, **95% CI [0.339, 4.426]** |
+| resamples with γ\* < 1 | 37.5% |
+| resamples with no valid vertex | 305/2,000 |
+
+The on-grid argmin is a coin flip between γ=1 and γ=3. **The interpolated value should not be
+reported at all**, and the earlier 0.615 and current 1.61 are both draws from a distribution
+spanning more than a decade.
+
+**Stratifying does not rescue it.** Per-condition SEMs are far smaller than the pooled one
+(0.0001–0.0037 vs 0.0119 — the pooled SEM was mostly between-condition variance), but the
+curves are flat enough near their minima that the argmin is still unresolved in **every**
+condition: best-vs-second-best gap over SEM is 0.18 (S-HH), 1.38 (S-HL), 0.85 (S-LH), 0.42
+(S-LL), all below 2.
+
+| condition | γ=0.03 | 0.1 | 0.3 | 1 | 3 | 10 | argmin |
+|---|---|---|---|---|---|---|---|
+| S-HH | 0.0020 | 0.0006 | 0.0001 | 0.0001 | 0.0001 | 0.0003 | 1 |
+| S-HL | 0.3969 | 0.3846 | 0.3722 | **0.3678** | 0.3702 | 0.3813 | 1 |
+| S-LH | 0.1079 | 0.0367 | 0.0120 | **0.0067** | 0.0078 | 0.0121 | 1 |
+| S-LL | 0.2676 | 0.2064 | 0.1563 | 0.1351 | **0.1336** | 0.1451 | 3 |
+
+Note also that **pooling final-average error across the 2×2 is not meaningful in the first
+place**: S-HH sits at 0.0001 and S-HL at 0.37, a factor of ~3,000. The pooled curve is
+essentially S-HL's.
+
+**Consequence: the utility-onset replacement hypothesis cannot rest on γ\*.** "The behavioral
+optimum coincides with the onset of the utility channel" requires γ\* to be located to better
+than [0.34, 4.43], and it is not. The hypothesis is not refuted; it is untestable on this
+grid. Reporting the on-grid argmin as "γ\* ≈ 1–3, not resolvable further" is the defensible
+form.
+
+---
+
+## The two γ=1 "thresholds" are separable, and one of them is not a threshold
+
+Kati asked whether Ψ_eff resolvability and retained-Ψ_eff-above-1 are one threshold observed
+twice. They are separable, and the answer corrects an earlier claim in this log. Measured per
+(arm, module, task) triple with both an own-boundary and a later measurement (n = 7,680):
+*overshoot* = retained Ψ_eff at the task's own boundary minus generic Ψ_eff there; *decay* =
+log retained Ψ_eff at own boundary minus log at the last boundary.
+
+| γ₀ | mean overshoot | fraction retained > 1 | mean decay | corr(overshoot, decay) |
+|---|---|---|---|---|
+| 0.03 | **+0.1540** | 0.000 | −0.0003 | −0.120 |
+| 0.1 | +0.1605 | 0.000 | −0.0010 | −0.097 |
+| 0.3 | +0.1869 | 0.000 | +0.0040 | −0.099 |
+| 1 | +0.2821 | 0.023 | +0.0422 | +0.115 |
+| 3 | +0.4601 | 0.672 | +0.1320 | +0.155 |
+| 10 | +0.7225 | 1.000 | +0.2680 | +0.114 |
+
+**The overshoot above the generic baseline exists at every γ and grows smoothly** — already
++0.154 at γ=0.03, with no threshold anywhere. What has a threshold is the *fraction exceeding
+1*, and that is an artifact of where the constant 1 sits relative to a smoothly growing
+quantity: generic Ψ_eff ≈ 0.60, so retained crosses 1 once the overshoot passes ≈0.40, which
+happens near γ=3. **"Retained Ψ_eff first exceeds 1 at γ=1" is not a property of the
+phenomenon.**
+
+This **corrects the earlier statement in this log** that "the >1 onset (γ=1) sits just above
+where forgetting first becomes resolvable — the regime that overshoots the ceiling is the
+regime that has something to lose." The overshoot is not confined to the rich regime; only its
+magnitude grows. The scoping of the `[0,1]` bound is unaffected — that remains a real property
+of the label average — but the bound's location carries no dynamical meaning.
+
+**The real threshold is the decay.** Mean decay is indistinguishable from zero at γ ≤ 0.3
+(−0.0003, −0.0010, +0.0040) and turns on between γ=0.3 and 1 (+0.0422, +0.1320, +0.2680),
+matching where forgetting becomes resolvable in Figure 2 — which is the same measurement, so
+not independent confirmation.
+
+And the decay is **not** determined by the overshoot's size: within-γ correlation is +0.115 at
+γ=10 and negative at low γ. The pooled +0.325 is once again between-γ structure. So an arm
+that organizes more strongly for a task does not thereby lose more of it — the two are
+separately determined, which is what makes "forgetting is relaxation of the task-specific
+surplus" a claim rather than a tautology.
+
+**Net for the abstract: there is one real threshold (utility decay onset, between γ=0.3 and
+1), not three coinciding.** γ\* is unidentified and the >1 crossing is incidental.
+
+---
+
+## The 2×2 mechanism is confirmed — and the trade-off does *not* relocate across conditions
+
+All four corners, generic and retained capacity (retained at each task's own boundary), with
+the γ=10 / γ=0.03 ratio:
+
+| condition | feat / rdt | generic γ=0.03 → 10 | ×  | retained γ=0.03 → 10 | × |
+|---|---|---|---|---|---|
+| S-HL | high / low | 0.3046 → **0.4507** | **1.48** | 0.3083 → 1.5264 | **4.95** |
+| S-LL | low / low | 0.3056 → 0.3899 | 1.28 | 0.3141 → 1.2837 | 4.09 |
+| S-HH | high / high | 0.3033 → 0.3697 | 1.22 | 0.3161 → 1.5574 | 4.93 |
+| S-LH | low / high | 0.3038 → **0.2898** | **0.95** | 0.3130 → 1.1167 | 3.57 |
+
+**Kati's mechanism holds, and readout similarity is the primary axis.** Ordering generic
+growth by readout similarity separates cleanly — low readout similarity (S-HL 1.48, S-LL
+1.28) above high (S-HH 1.22, S-LH 0.95) — with feature similarity adding within each level
+(S-HL > S-LL; S-HH > S-LH). Reading: **tasks demanding different rules force a
+representation that supports many dichotomies, which is generic capacity; tasks sharing rules
+permit specialization, and generic capacity then falls.** S-LH is the only corner where it
+falls, and it is the corner with the least demand for generality.
+
+**But the trade-off does not relocate to across-conditions, and this is the sharper result.**
+S-HL was predicted to pay for its generic capacity in retention. It does not: its retained
+growth is **4.95, the highest of the four**, statistically indistinguishable from S-HH's 4.93
+— while its final error is **0.3813 against S-HH's 0.0003, a factor of ~1,200**. Two
+conditions with the same retained-capacity growth and the same generic ordering differ by
+three orders of magnitude in behaviour.
+
+So capacity growth does not predict behavioural outcome across stream conditions. That is the
+**third independent instance of one methodological theme**, and together they say something
+specific:
+
+1. **Between γ:** generic capacity rises 11.3 floors while refit-probe margin falls.
+2. **Within γ:** the two agree (H2d, +0.322 at γ=10).
+3. **Across conditions:** retained-capacity growth is equal in S-HH and S-HL; behaviour
+   differs ~1,200×.
+
+**Label-agnostic and label-aware capacity measures track behaviour within a stratum and fail
+to track it across strata.** That is a more precise caution than "these measures can mislead",
+it is an empirical instance of arXiv:2605.09044's counterexample class, and it identifies the
+stratification structure as the mechanism. §5.2.
