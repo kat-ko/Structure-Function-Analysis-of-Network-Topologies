@@ -102,6 +102,17 @@ in variable names.
 - Every result artifact records the full config, the git SHA, and the estimator
   version. Geometry numbers computed under different estimator versions must
   never be pooled.
+- **Any run projected over ~30 minutes gets one measured arm first.** Time a
+  single arm end-to-end, then scale by arms/workers. This is a rule, not a
+  lesson: cost has been mis-projected three times in this project — the Phase 1
+  grid by 9× (3 h projected, 26 h actual), the scaling curve by measuring at
+  `n_t=20` while the grid ran at `n_t=200`, and the γ=30 extension by 3.8× in the
+  safe direction (45–55 min projected, 741 s actual, from applying a 96-worker
+  contention factor to a 64-worker wave). Every miss came from projecting;
+  measuring first has been right every time it was applied. Contention, not
+  per-arm work, is what the projection gets wrong, and it does not extrapolate
+  across worker counts — so the measured arm must be re-measured if the worker
+  count changes materially.
 
 ## 6. Things that are known to be uncertain
 
