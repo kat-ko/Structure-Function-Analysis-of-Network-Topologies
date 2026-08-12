@@ -1999,3 +1999,187 @@ specific:
 to track it across strata.** That is a more precise caution than "these measures can mislead",
 it is an empirical instance of arXiv:2605.09044's counterexample class, and it identifies the
 stratification structure as the mechanism. §5.2.
+
+---
+
+## §2c Figure 4: **H1d and H6 are both killed** — and the corner mechanism replaces them
+
+Last two registered hypotheses, on the full 1,280-arm grid. Both fail, and the pattern
+underneath them is more coherent than either prediction.
+
+### H1d: killed. Centers *converge* over the stream, they do not decorrelate
+
+Registered: `rho_c_signed` decreasing over the stream, faster in rich; kill criterion "flat or
+increasing". Measured: **`rho_c_signed` increases in 22 of 24 (γ, condition) cells**, and the
+pooled mean change is positive at every γ (+0.0026, +0.0034, +0.0099, +0.0279, +0.0417,
++0.0250 for γ = 0.03 → 10). **The kill criterion fires.** The Menghi progressive-decorrelation
+prediction is refuted as a general claim.
+
+The magnitude grows with γ, so the effect is real and not a floor artifact — 6.5 to 24.4 noise
+floors at γ ≥ 1 — it simply has the opposite sign to the prediction. Centers move *together*
+over a stream, and more so with richer feature learning.
+
+**This is consistent with our own panel (d)**, which is the reassuring part: center collapse
+means manifolds moving toward one another, which is exactly an *increase* in center
+correlation. H1d's registered direction contradicted a finding we had already made, and
+nobody noticed until the trajectory was plotted. Worth one line in §2d as a
+pre-registration-hygiene point.
+
+**The single exception is the one that matters.** `S-HL` at γ=10 is the only cell with a
+resolvable *decrease*: **−0.0612, 17.5 floors** (and −0.0027 at γ=3, 0.7 floors, not
+resolvable). Every other cell converges.
+
+### H6: killed on the testable half. Max |Δρ_c| is at S-LH, not S-HL
+
+Registered statistic is "rotation, Δρ_c across the four corners", predicted max at `S-HL`,
+kill "max elsewhere". **Rotation is not testable from stored data** — no rotation or
+principal-angle measure is recorded per arm, and computing it needs the representations, i.e.
+a re-run. So H6 is answered on Δρ_c only, and that should be stated rather than glossed.
+
+| γ₀ | ranked \|Δρ_c\| | max at |
+|---|---|---|
+| 1 | S-LH 0.0476 > S-HH 0.0306 > S-LL 0.0233 > **S-HL 0.0099** | S-LH |
+| 10 | S-LH 0.1050 > **S-HL 0.0612** > S-HH 0.0502 > S-LL 0.0058 | S-LH |
+
+**The kill fires**: the maximum is at `S-HL` in neither case, and at γ=1 `S-HL` is the
+*smallest* of the four. Note also that the registered statistic `|Δρ_c|` is sign-blind, which
+is what conceals the actual structure — `S-LH` has the largest *convergence* and `S-HL` the
+largest *divergence*, and taking absolute values makes those commensurable when they are
+opposite phenomena.
+
+### What replaces H6: the corner mechanism, now supported by two independent measures
+
+`S-HL` **is** geometrically special, just not in the way H6 predicted, and the same mechanism
+that explains the generic-capacity ordering explains the ρ_c sign:
+
+| condition | feat / rdt | generic capacity ×(γ=10/0.03) | Δρ_c at γ=10 | reading |
+|---|---|---|---|---|
+| **S-HL** | high / low | **1.48** (largest rise) | **−0.0612** (only decrease) | same stimuli, different rules → manifolds must be held **apart**, and a representation supporting many dichotomies is built |
+| S-LL | low / low | 1.28 | +0.0058 | — |
+| S-HH | high / high | 1.22 | +0.0502 | — |
+| **S-LH** | low / high | **0.95** (only fall) | **+0.1050** (largest increase) | different stimuli, same rule → collapse onto a shared rule axis, generality not demanded |
+
+Two independently measured quantities — label-agnostic capacity and signed center correlation
+— order the four corners the same way and by the same mechanism. **The similarity structure of
+the experience stream determines whether feature learning builds general-purpose or
+special-purpose geometry**, and it does so visibly in both the capacity channel and the
+center-geometry channel. That is a stronger and more specific result than "the catastrophic
+corner is geometrically worst", and it is about sequentiality rather than about a stress test.
+
+Recall the dissociation from §2b that keeps this honest: `S-HL` builds the most generic
+capacity *and* the most retained capacity (×4.95) while having ~1,200× the final error of
+`S-HH`. Building general-purpose geometry is not the same as retaining, and this grid
+separates them cleanly.
+
+### Panel (d) forward-link: weakly consistent, not resolvable
+
+The check Kati asked for — do the conditions with fastest center-collapse-share growth have
+the strongest ρ_c movement? Center-collapse share is `center_attributable_median`, coverage
+505–800 comparisons per cell.
+
+| γ₀ | S-HH | S-HL | S-LH | S-LL |
+|---|---|---|---|---|
+| 1 | 0.419 | 0.145 | 0.323 | 0.181 |
+| 3 | 0.485 | 0.274 | 0.455 | 0.367 |
+| 10 | 0.579 | **0.420** | 0.541 | 0.574 |
+
+**The γ trend is robust**: center-collapse share rises with γ in all four conditions, which
+confirms the pooled panel-(d) finding condition by condition rather than as an averaging
+artifact.
+
+**The cross-condition correspondence is weak.** corr(Δρ_c, center-collapse share) over the 12
+cells is Spearman **+0.455**, Pearson +0.327 — right sign, but n=12 and not resolvable. The
+within-γ ordering does *not* match: at γ=10, `S-HH` has the highest collapse share (0.579) on
+middling convergence, and `S-LL` has 0.574 on essentially zero convergence (+0.0058). The one
+clean correspondence is that **`S-HL`, the only decorrelating corner, has the lowest collapse
+share (0.420)** — consistent in direction with its centers moving apart rather than together.
+
+So the two panels tell a consistent story about γ and about `S-HL`, and do not support a
+quantitative cross-condition mapping. Report the γ trend and the `S-HL` correspondence; do not
+claim the ranking.
+
+---
+
+## Lag-dependence: forgetting grows in magnitude but **does not change character**
+
+Zero new compute, stored geometry only. Figure 2 pools lags; this separates them. Channel
+shares by (γ, lag), with lag = boundary − task.
+
+| γ₀ | lag 3 | 4 | 7 | 8 | 11 | 12 | 15 |
+|---|---|---|---|---|---|---|---|
+| **utility share, γ=10** | 0.447 | 0.469 | 0.435 | 0.452 | 0.430 | 0.447 | **0.445** |
+| utility share, γ=3 | 0.331 | 0.393 | 0.330 | 0.393 | 0.349 | 0.407 | 0.406 |
+| utility share, γ=1 | 0.182 | 0.258 | 0.172 | 0.257 | 0.191 | 0.288 | 0.290 |
+| \|Δlog α\| floors, γ=10 | 18.4 | 30.0 | 27.6 | 38.9 | 33.4 | 50.8 | **52.2** |
+
+**The magnitude grows with lag — 18.4 to 52.2 floors at γ=10 — while the mix stays flat.** At
+γ=10 the utility share varies between 0.430 and 0.469 across the whole lag range, with radius
+0.104–0.137 and dimension 0.426–0.436. The channel composition is set by **γ, not by how long
+ago the task was learned**: forgetting accumulates without changing mechanism. At γ=3 and γ=1
+there is a mild drift toward utility with lag (0.331 → 0.406, 0.182 → 0.290), so the
+invariance is cleanest deep in the rich regime.
+
+Rows for γ ≤ 0.3 are erratic (0.006–0.558) and should not be read: those are the arms where
+total forgetting is below the resolution floor, so the shares are ratios of noise — the same
+gating Figure 2 applies.
+
+**Artifact to carry if this becomes a panel:** lag and task index are confounded by the
+measurement schedule. Tracked tasks are 0/4/8/12 and boundaries 0/4/8/12/15, so lags 3, 7 and
+11 all terminate at boundary 15 and originate from *later* tasks, while lags 4, 8, 12 end at
+mid-stream boundaries. The magnitude ordering therefore mixes lag with task index and with
+how many tasks followed. The share *flatness* is robust to this — it holds across both
+families — but any claim about magnitude-versus-lag needs the within-task-0 series
+(lags 4, 8, 12, 15) rather than the pooled one.
+
+---
+
+# Follow-up plan (post-grid, 5 days to deadline)
+
+State of the register: **H1 confirmed and sharpened; H2b and H2d supported; H2a, H2c, H1d and
+H6 refuted; γ\* not identified.** Four of eight registered predictions failed, three of the
+four failures have better replacements, and the estimator layer is clean (residual 4.44e-16
+over 48,640 evaluations, 31/1/0 audit).
+
+## Running now
+
+**W1. Width robustness** (`scripts/run_width.py`, launched). N ∈ {150, 600} against the
+completed N=300, γ ∈ {0.03, 1, 10}, all four conditions, 2 streams × 2 seeds = 96 arms in one
+96-worker wave. Cost measured rather than projected, per the 9× cost-model error: an isolated
+γ=10 arm is 450 s at N=150 and 857 s at N=600, and wall time across γ spans only 3.96× (28 →
+111 min under contention) because per-arm measurement is a fixed cost — 96 arms fit one wave,
+so total wall ≈ one slowest arm, ~2–3 h. **Question:** does the channel reorganization survive
+a 4× change in load `P/N`? Everything in the paper is in noise floors and capacity ratios, both
+N-dependent, so this converts the single most obvious vulnerability into a stated result either
+way.
+
+## Zero-compute, done this pass
+
+**W2. Lag-dependence** — done, above. Candidate fourth panel: mechanism set by γ, magnitude by
+lag.
+
+**W3. Four-corner generic and retained trajectories** — done (§2c). Turns the S-HL/S-LH
+mechanism from two numbers into a figure, and it is now supported by two independent measures
+(capacity ordering and signed ρ_c ordering agree).
+
+## Cheap, not yet done, in value order
+
+**W4. Per-γ measurement null.** Re-measure one stored representation under two measurement
+seeds at each γ. No retraining. This is what would let the module A-vs-B γ-dependence be
+claimed or dropped — currently the null exists only at γ=1 (1.36 floors) because every `a>0`
+arm sits there. Also gives a per-γ noise floor for any A/B comparison in the sequel.
+
+**W5. Within-task-0 lag series.** Removes the lag/task-index confound above (lags 4, 8, 12, 15
+from task 0 only) so the magnitude-versus-lag statement can be made cleanly. Pure re-pooling.
+
+**W6. Rotation measure for H6.** H6's registered statistic is "rotation, Δρ_c" and **rotation
+is not stored**, so half the hypothesis is currently unanswerable. `models.alignment` already
+has `principal_angles` and `center_subspace`; adding a per-boundary subspace-distance record
+needs a re-run to populate, so this is a sequel item unless H6 is to be reported as
+half-tested — which is the honest current state.
+
+## Explicitly not now
+
+Split-CIFAR100 (new pipeline, and P=10 changes the estimation regime), depth variation
+(changes the `γ^(2/L)` parameterization, so it is a different experiment rather than a
+robustness arm), T=40, heterogeneity. These are the sequel's content, and the sequel is where
+the naturalistic and architectural evidence belongs.
