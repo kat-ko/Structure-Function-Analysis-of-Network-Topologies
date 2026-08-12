@@ -1747,12 +1747,120 @@ chance the probe is leaking factor structure." **On the full grid it is above ch
 | 3 | 0.5507 | 0.1100 | t = +18.44, p = 5e-69 |
 | 10 | 0.5537 | 0.1105 | t = +19.42, p = 1e-75 |
 
-Absolutely small (0.55 vs 0.50) but unambiguous at n = 1,600 per γ. Two readings, and the
-γ-monotonicity discriminates: a *bias* in the estimator (12-manifold fit, 4-manifold test,
-held-out class imbalance) would be γ-independent, so monotone growth with richness points
-instead to **rich training creating structure that a random dichotomy partially shares across
-unseen manifolds**. That would be a finding rather than a defect — rich representations
-generalizing a random labeling beyond the manifolds it was fitted on — but the protocol
-designated this quantity a leak-check, so it is reported as the check firing and left there.
-It does not affect the H2d verdict, which rests on `margin`. **Kati's call on whether this is
-worth a follow-up or a footnote.**
+Absolutely small (0.55 vs 0.50) but unambiguous at n = 1,600 per γ. The γ-monotonicity
+appeared to rule out an estimator bias, since a bias from the 12-manifold fit / 4-manifold
+test split would be γ-independent, and to point instead at rich training creating structure
+that a random dichotomy partially shares across unseen manifolds — a Johnston & Fusi-adjacent
+abstraction reading.
+
+**That reading is ruled out by the 2×2 breakdown**, which Kati asked for before it was
+written down. The departure from chance is **not a function of γ, and not of feature
+similarity — it tracks *readout* similarity, and it takes both signs**:
+
+| γ₀ | S-HH (rdt high) | S-LH (rdt high) | S-LL (rdt low) | S-HL (rdt low) |
+|---|---|---|---|---|
+| 0.03 | −0.0029 | −0.0003 | +0.0056 | −0.0259 |
+| 0.3 | +0.0434 | +0.0360 | +0.0101 | −0.0224 |
+| 1 | +0.0741 | +0.0674 | +0.0140 | −0.0169 |
+| 10 | **+0.0846** | **+0.0942** | +0.0077 | **−0.0103** |
+
+Pooled over γ: readout-similarity high **+0.0489** vs low **−0.0049**, while feature
+similarity barely separates and separates the *wrong* way (high +0.0148, low +0.0292).
+**S-HL sits significantly below chance at every γ** (t = −9.3 to −3.2), and γ moves it
+*toward* chance rather than away.
+
+A single mechanism in which rich training manufactures generalizable abstraction cannot
+produce a below-chance corner: below chance means the readout fitted on 12 manifolds
+*systematically mislabels* the 4 held out, which is an anti-alignment between the fitted
+direction and the held-out labels, not absent or present structure. The two-signed,
+readout-similarity-dependent pattern instead says **the held-out estimator's baseline is not
+0.5 and depends on the arrangement's dichotomy geometry**, with γ amplifying whichever sign
+that geometry sets.
+
+**So this is a calibration caveat about the control, not a finding, and not an abstraction
+thread.** It does not affect the H2d verdict, which rests on `margin`. Reported here; one
+footnote in §2b as a limitation of the leak-check's chance baseline; **nothing in §3** — the
+family-dependence follow-up (single-factor vs XOR vs random probes) would be worth doing only
+after the baseline is characterised, since with a two-signed baseline a family difference
+would not be interpretable either.
+
+This is the second interpretation in two turns that the artifact check caught before it
+reached prose, and in both cases the check that mattered was a stratification the pooled
+number concealed.
+
+---
+
+## §2b H2a–H2c: **there is no crossing.** H2a and H2c fail, H2b passes
+
+Registered: H2a generic capacity *falls* with γ (kill: non-monotone or flat); H2b retained
+capacity rises (kill: non-monotone or flat); H2c `argmax(α_generic × α_retained)` equals
+`argmin(final average error)` within one grid step. Retained measured at each task's own
+boundary; generic at the same boundaries; a=0 γ grid, 1,280 arms.
+
+| γ₀ | `α_generic` | `α_retained` (lag 0) | product | retained − generic |
+|---|---|---|---|---|
+| 0.03 | 0.3043 | 0.3129 | 0.0952 | +0.0086 |
+| 0.1 | 0.3061 | 0.3344 | 0.1024 | +0.0283 |
+| 0.3 | 0.3109 | 0.3991 | 0.1241 | +0.0883 |
+| 1 | 0.3217 | 0.5620 | 0.1808 | +0.2403 |
+| 3 | 0.3404 | 0.8474 | 0.2884 | +0.5070 |
+| 10 | **0.3750** | **1.3710** | 0.5142 | +0.9960 |
+
+**H2a fails, in the direction rather than the shape.** `α_generic` is monotone
+**increasing**, not decreasing. The registered kill criterion named "non-monotone or flat",
+which does not cover a clean monotone trend with the opposite sign — the prediction is simply
+wrong. And the rise is resolvable, not noise: **11.3 noise floors** from γ=0.03 to γ=10
+(0.3 / 1.1 / 3.0 / 6.0 / 11.3 floors at γ = 0.1 / 0.3 / 1 / 3 / 10).
+
+**H2b passes**, and strongly: retained capacity rises monotonically by 4.4×, 0.3129 → 1.3710.
+
+**H2c fails, and its statistic turns out to be ill-posed once H2a fails.** With `α_generic`
+rising and `α_retained` rising, the product is monotone increasing, so `argmax` sits at the
+**grid edge (γ=10) by construction** rather than at an interior optimum. Measured
+`argmin(final average error)` is γ=1 on-grid (interpolated γ\* = 1.61, mean error 0.1274),
+so the two are 2 grid steps apart and the kill fires. But the deeper point is that the
+registered statistic presupposes an interior maximum, which requires generic capacity to
+fall; H2c was never independent of H2a.
+
+**And there is no crossing anywhere in the grid.** Retained capacity exceeds generic at
+*every* γ, including the laziest (+0.0086 at γ=0.03), with the gap widening monotonically to
++0.9960. Figure 3 was designed around a crossing whose location carried the prediction. The
+object does not exist, so the panel becomes "both rise, at very different rates".
+
+**Artifact check — is the generic rise one corner of the 2×2?** Partly, and instructively.
+It is not uniform, and **one corner moves the way H2a predicted**:
+
+| γ₀ | S-HH | S-HL | S-LH | S-LL |
+|---|---|---|---|---|
+| 0.03 | 0.3033 | 0.3046 | 0.3038 | 0.3056 |
+| 1 | 0.3219 | 0.3349 | 0.3038 | 0.3262 |
+| 10 | 0.3697 | **0.4507** | **0.2898** | 0.3899 |
+
+`S-LH` (low feature similarity, high readout similarity) is the only corner where generic
+capacity **falls** with γ. `S-HL`, the predicted catastrophic corner, rises most. So H2a's
+prediction survives in one of four conditions, and the pooled failure is not an averaging
+artifact hiding a uniform effect — the sign genuinely depends on the stream's similarity
+structure.
+
+### The substantive finding underneath the failed predictions
+
+Two label-agnostic measures of "capacity for arbitrary dichotomies" **move in opposite
+directions with richness**. Generic GLUE capacity rises by 11.3 floors from γ=0.03 to γ=10.
+Refit-probe margin *falls* over the same range (0.0673 at γ=1 → 0.0531 at γ=10; `01` records
+the same direction from Phase 0). Yet within a fixed γ they correlate *positively*
+(H2d, +0.322 at γ=10).
+
+So the disagreement is specifically **between** richness levels, not within them, and it is
+the honest headline for §2b: whatever rich training does to the representation, it raises the
+capacity estimate for random dichotomies while lowering the margin a refit readout achieves
+on one. Both are standard label-agnostic diagnostics; they do not agree about the direction
+of the effect. That is a sharper and more useful result than the crossing would have been,
+and it is a caution about label-agnostic geometry measures that the `01` framing anticipated
+("report as a negative finding about label-agnostic geometry measures") without predicting
+this form.
+
+**Open for §2d and Kati:** H2a's kill criterion did not anticipate a wrong-signed monotone
+result, and H2c's statistic was conditional on H2a. Both should be recorded in the
+pre-registration table as *prediction wrong* rather than *kill fired*, with the distinction
+stated, since "the kill criterion did not fire but the prediction was refuted" is a different
+epistemic situation from either passing or being killed.
