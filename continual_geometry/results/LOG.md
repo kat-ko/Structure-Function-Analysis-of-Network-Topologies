@@ -2250,3 +2250,75 @@ mechanism all survive a 4× change in load. The remaining generalizability expos
 manifold generator, `M`, and the absence of naturalistic streams — and depth is a different
 experiment rather than a robustness arm, since it changes the `γ^(2/L)` parameterization.
 W1 is closed; W4 and W5 remain as the cheap items.
+
+---
+
+## Figure 4: H1d and H6 both die, and what replaces them is quantitative
+
+`scripts/fig4_corners_rho_c.py`, six panels, 960 arms, signed `ρ_c` on the generic ensemble.
+
+**Artifact check first, and it changed a number I had already reported.** `ρ_c` has no measured
+Monte-Carlo floor (`NOISE_FLOOR_CV` covers `alpha`, `D_eff`, `R_eff`, `rho_c_glue`, not
+`rho_c_signed`), so the lazy arms supply an empirical one: at γ=0.03 they drift **+0.005 to
++0.010** over the stream rather than zero. That drift is common to all four corners
+(+0.0092/+0.0092/+0.0101/+0.0051) and non-monotone across blocks, so between-corner contrasts —
+the actual claims — are immune to it, but absolute per-corner claims are not. It is drawn as a
+grey band on four panels. **It demotes one result**: I earlier reported `S-LL` convergence of
++0.0246 from arms pooled over γ≥3. At γ=10 alone `S-LL` is **+0.0114, i.e. 1.1× baseline,
+sign test p=0.15** — an unresolved non-effect, not a small convergence. The pooled figure was
+inflated by γ=3, where `S-LL` happens to sit higher.
+
+Second artifact check: all four corners **start together**, at ρ_c = 0.3924/0.3911/0.3924/0.3911
+(the 0.0013 split tracks readout similarity). The divergence is training, not initialization.
+
+### The registered predictions
+
+| corner | Δρ_c at γ=10 | ×baseline | median per-arm ρ_S | % declining | sign test |
+|---|---|---|---|---|---|
+| S-HH  feat↑read↑ | +0.0551 | 5.4 | +0.886 | 0% | 1.8e-12 |
+| S-HL  feat↑read↓ | **−0.0550** | 10.9 | **−0.788** | **100%** | 1.8e-12 |
+| S-LH  feat↓read↑ | **+0.1098** | 10.8 | +0.886 | 0% | 1.8e-12 |
+| S-LL  feat↓read↓ | +0.0114 | 1.1 | +0.062 | 38% | **0.15 (null)** |
+
+**H1d is refuted.** It predicted that richer training decorrelates task centers. Three corners
+converge; only `S-HL` decorrelates. **H6 is refuted.** It predicted the largest |Δρ_c| at
+`S-HL`; the largest is at `S-LH`, twice the size (0.110 vs 0.055).
+
+**The `S-HL` decline is progressive, not an endpoint difference.** Per-arm Spearman of ρ_c
+against block is negative on **40 of 40 arms** with median −0.788. This is the specific thing
+that licenses comparison with practice-related decorrelation in humans, which is a
+within-condition claim over time; an endpoint contrast would not have.
+
+### What replaces them: the 2×2 is approximately additive
+
+Read as two main effects on `Δρ_c` (half-differences, so each is the effect of flipping one
+factor), at γ=10: **readout similarity +0.1043** (drives convergence), **feature similarity
+−0.0606** (drives decorrelation), **interaction +0.0059** — at the resolution limit while the
+main effects are 6–10× it. The additive model predicts `S-HH` = +0.0434 against +0.0551
+measured. Both main effects survive the 4× load change (readout +0.083/+0.104/+0.090, feature
+−0.051/−0.061/−0.054 at N=150/300/600); the interaction is +0.020/+0.006/+0.020, noisiest
+where arms are fewest (4 per corner in the width arm against 40 at N=300).
+
+Both effects grow smoothly with γ while holding a roughly constant ratio (feature/readout =
+−0.62/−0.66/−0.58 at γ=1/3/10). **Richness sets the gain; the 2×2 sets the sign.** That is a
+stronger claim than the corner ordering — an ordering ranks cells, additivity predicts the
+fourth cell from the other three and says the two similarity axes act separately.
+
+### The limit on the S-HL result, stated plainly
+
+**At γ=3, `S-HL` decorrelation does not exist**: +0.0034, 0.3× baseline, 50% of arms declining,
+p=1.0. The effect appears only at **γ=10, the richest point in the sweep**, so it rests on one
+γ value at the edge of the swept range. What makes it credible rather than an edge artifact is
+that the *underlying* feature-similarity effect grows smoothly across the whole sweep
+(+0.002/−0.003/−0.015/−0.036/−0.061 at γ=0.03/0.3/1/3/10): the `S-HL` sign flip is that smooth
+effect overtaking the smooth readout offset in the one cell where the offset is absent, not a
+new mechanism switching on. This is the same structure as the "retained Ψ_eff > 1 threshold" —
+a smoothly growing quantity crossing a constant — and it should be described the same way,
+as a crossing rather than a threshold. A γ point beyond 10 would test it directly.
+
+**Consequence for §5.4.** The Menghi correspondence is now specific enough to state and to
+attack: the corner with high feature and low readout similarity — same stimuli, different rules,
+the closest analogue to their similar-structure condition — is the one whose centers decorrelate,
+progressively over the stream, on every arm, and more strongly at larger width. The
+disanalogies stay in the text: their decorrelation is over practice within a condition and ours
+is a between-corner contrast at matched training, and ours needs γ=10.
