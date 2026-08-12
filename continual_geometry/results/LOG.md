@@ -2183,3 +2183,70 @@ Split-CIFAR100 (new pipeline, and P=10 changes the estimation regime), depth var
 (changes the `γ^(2/L)` parameterization, so it is a different experiment rather than a
 robustness arm), T=40, heterogeneity. These are the sequel's content, and the sequel is where
 the naturalistic and architectural evidence belongs.
+
+---
+
+## W1 complete: the γ result is **width-invariant** across a 4× change in load
+
+96 arms, N ∈ {150, 600}, γ ∈ {0.03, 1, 10}, all four conditions, 2 streams × 2 seeds, in one
+96-worker wave: **3,488 s (58 min) wall**, 94 run + 2 skipped (the timing arms), **48/48 usable
+at every width**, max identity residual 4.0e-16 / 3.7e-16 / 4.4e-16. Compared against the
+completed N=300 grid restricted like-for-like (streams 0–1, seeds 0–1, same three γ), so 48
+arms per width. Load `P/N` spans 0.1067 → 0.0533 → 0.0267.
+
+**Artifact check — is capacity itself comparable across widths?** Mean `α_generic` is 0.3304 /
+0.3288 / 0.3312 at N = 150 / 300 / 600. Essentially identical despite the 4× load change, which
+is the expected behaviour (`α` is a property of the manifold geometry, not of the ambient
+dimension) and is what makes capacity ratios comparable across N at all.
+
+**Artifact check — do the N=300 noise floors transfer?** Proxy: dispersion of `Δlog α` at
+γ=0.03, where nothing happens, so the spread is measurement plus seed noise. SD = 0.00906 /
+0.00749 / 0.00715 at N = 150 / 300 / 600 — comparable, mildly *improving* with width as a
+better-conditioned estimate should. The max/min ratio is 1.27, so quoting all widths in N=300
+floors is safe to ~27%, which changes no conclusion below.
+
+### The channel reorganization holds at every width
+
+| N | γ | Δlog α | floors | utility | radius | dimension |
+|---|---|---|---|---|---|---|
+| 150 | 1 | −0.1883 | 10.2 | 0.265 | 0.392 | 0.343 |
+| 300 | 1 | −0.1826 | 9.9 | 0.243 | 0.355 | 0.402 |
+| 600 | 1 | −0.1771 | 9.6 | 0.224 | 0.335 | 0.441 |
+| 150 | 10 | −0.6028 | 32.5 | **0.460** | 0.156 | 0.383 |
+| 300 | 10 | −0.6072 | 32.8 | **0.450** | 0.121 | 0.428 |
+| 600 | 10 | −0.5936 | 32.0 | **0.440** | 0.103 | 0.457 |
+
+**Magnitude is width-invariant**: 32.0–32.8 floors at γ=10 (2% spread) and 9.6–10.2 at γ=1 (6%).
+**The utility share is width-invariant**: 0.440–0.460 at γ=10. And the reorganization with γ —
+radius share falling as utility rises — holds at all three widths.
+
+**One real N-dependence to report rather than bury.** At γ=10 the radius share *falls* with
+width (0.156 → 0.121 → 0.103) while dimension *rises* (0.383 → 0.428 → 0.457). Their **sum is
+stable** (0.539 / 0.549 / 0.560), so what moves is the internal split between the two
+non-utility channels, not the utility/non-utility division. The γ=0.03 rows are ratios of noise
+(0.0–0.1 floors) and are not read, the same gating Figure 2 applies.
+
+### And both halves of the corner mechanism are width-invariant
+
+Generic capacity ratio `α(γ=10)/α(γ=0.03)`, and signed `Δρ_c` over the stream at γ=10:
+
+| N | S-HH | S-HL | S-LH | S-LL |
+|---|---|---|---|---|
+| capacity ratio, 150 | 1.20 | **1.43** | **0.96** | 1.24 |
+| capacity ratio, 300 | 1.20 | **1.46** | **0.95** | 1.26 |
+| capacity ratio, 600 | 1.21 | **1.48** | **0.95** | 1.26 |
+| Δρ_c, 150 | +0.0628 | **−0.0454** | +0.0931 | +0.0254 |
+| Δρ_c, 300 | +0.0586 | **−0.0508** | +0.0922 | +0.0210 |
+| Δρ_c, 600 | +0.0565 | **−0.0544** | +0.0902 | +0.0201 |
+
+The four-corner ordering is **identical at all three widths on both measures**. `S-HL` rises
+most in generic capacity and is the only corner whose centers decorrelate, at every width;
+`S-LH` is the only corner whose generic capacity falls and has the largest convergence, at
+every width. The `S-HL` decorrelation even strengthens mildly with width (−0.045 → −0.054).
+
+**Consequence.** "One architecture" is no longer the paper's most obvious vulnerability: the
+attribution magnitude, the utility share, the γ-reorganization, and the unregistered corner
+mechanism all survive a 4× change in load. The remaining generalizability exposure is depth,
+manifold generator, `M`, and the absence of naturalistic streams — and depth is a different
+experiment rather than a robustness arm, since it changes the `γ^(2/L)` parameterization.
+W1 is closed; W4 and W5 remain as the cheap items.
