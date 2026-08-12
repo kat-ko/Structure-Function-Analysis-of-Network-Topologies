@@ -80,7 +80,37 @@ appears in the channel composition at γ = 1 but not at γ = 10.
 
 ---
 
-## C. Figure 4 caption draft
+## C. Status of the γ = 30 probe — fixed before its numbers were read
+
+The γ = 30 arms extend the swept richness range by one log step to test whether the `S-HL`
+center decorrelation is more than an edge-of-range effect. **It is a post-hoc extension of the
+design, run to test a post-hoc finding**, and both halves of that sentence are true regardless
+of how it comes out. Its status is therefore fixed here, in advance:
+
+- **Appendix robustness probe.** One sentence in §5.4, one appendix paragraph or table row.
+- **Not promotable.** It does not become a main-text panel, a headline number, or part of the
+  additive-decomposition claim, however favourable it is. The registered sweep is γ ≤ 10, and
+  the paper's γ axis stays that way.
+- **Reported either way**, with the same prominence, at the same length.
+
+What each outcome licenses, decided now so that none of them can be spun later:
+
+| outcome at γ = 30 | what §5.4 may say |
+|---|---|
+| `S-HL` Δρ_c more negative than −0.055 | the decorrelation strengthens across the two richest points, so γ = 10 is not an edge artifact — still one appendix sentence |
+| between −0.055 and 0 | the effect is present but non-monotone in richness; say "non-monotone", not "present" |
+| ≥ 0 | γ = 10 is a single-point excursion; §5.4 must say the decorrelation is not monotone in richness and rest on the smooth *feature main effect* instead |
+| main effects keep growing, interaction stays inside the drift band | additivity is not a γ = 10 coincidence; one appendix sentence |
+| interaction grows past the drift band | additivity is γ-limited, and the §5.4 claim gains "over the registered range" |
+
+Declared artifact checks, before the fact: every arm must be `usable` with an identity residual
+at float scale, and ρ_c may leave the `[0.04, 0.80]` calibration window at this richness — which
+would invalidate any *center-collapse share* at γ = 30 but not Δρ_c itself, since the latter
+needs no calibration.
+
+---
+
+## D. Figure 4 caption draft
 
 > **Center correlation moves in opposite directions across the similarity design, and the two
 > axes act almost separately.** (a) Signed center correlation ρ_c over the task stream at
