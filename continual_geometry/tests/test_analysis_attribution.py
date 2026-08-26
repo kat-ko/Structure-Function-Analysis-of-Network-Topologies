@@ -122,6 +122,37 @@ def test_unresolvable_radius_change_is_not_used_as_a_denominator():
     assert c2["attributable_fraction"] > 1.0
 
 
+def test_the_radius_floor_is_per_gamma_and_defaults_conservatively():
+    """The floor rises with richness, so one constant gated too loosely at high γ.
+
+    A radius change that clears the γ=0.03 floor but not the γ=10 one must be reported at
+    the former and refused at the latter, and refused when γ is unknown.
+    """
+    floors = {g: A.min_dlog_R_for(g) for g in A.R_EFF_FLOOR_CV}
+    assert floors[10.0] > floors[0.03]
+    assert A.min_dlog_R_for(None) == max(floors.values()) == A.MIN_DLOG_R
+    assert A.min_dlog_R_for(7.5) == A.MIN_DLOG_R  # off-sweep γ is not interpolated
+
+    between = float(np.exp(0.5 * (floors[0.03] + floors[10.0])))
+    kw = dict(before=_point(R=1.0, rho=0.2), after=_point(R=between, rho=0.5))
+    assert A.attribute(kw["before"], kw["after"], gamma=0.03).center[
+        "attributable_fraction"] is not None
+    for gamma in (10.0, None, 7.5):
+        c = A.attribute(kw["before"], kw["after"], gamma=gamma).center
+        assert c["attributable_fraction"] is None
+        assert c["reason"] == "radius change below noise floor"
+
+
+def test_the_radius_floor_does_not_touch_the_three_terms():
+    """The floor gates one reported ratio; the identity and its shares are exact."""
+    before, after = _point(D=4.0, R=1.0, Psi=0.8), _point(D=5.5, R=1.4, Psi=0.6)
+    ref = A.attribute(before, after)
+    for gamma in (0.03, 10.0, None):
+        a = A.attribute(before, after, gamma=gamma)
+        assert a.terms == ref.terms and a.shares == ref.shares
+        assert a.dlog_alpha == ref.dlog_alpha
+
+
 def test_center_collapse_is_partial_when_radius_outruns_rho():
     """The realistic case: centers move, radius moves more."""
     rho0, rho1 = 0.2, 0.4

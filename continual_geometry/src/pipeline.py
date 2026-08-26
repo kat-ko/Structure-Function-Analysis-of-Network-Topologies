@@ -105,10 +105,22 @@ def n_evals(sched: dict[int, list[int]], spec: Phase1Spec) -> int:
     return sum(per_boundary) * len(spec.module_list)
 
 
-def build_stream(spec: Phase1Spec, rng: np.random.Generator) -> Stream:
+def stream_rng(stream_id: int) -> np.random.Generator:
+    """Arrangement + dichotomies keyed by `stream_id`, independent of init seed.
+
+    `make_stream` never reads `cfg.stream_id`. The spec (`01` §1, `streams.py`) says
+    streams are generated once per `stream_id` and shared across configs. Passing
+    `paired_init(seed)["stream"]` made `stream_id` a stored no-op: 5 stream ids × 8
+    seeds wrote 8 unique (arrangement, dichotomy, init) triples, each five times.
+    This generator is the blocking factor the filenames already claimed.
+    """
+    return np.random.default_rng([20260817, int(stream_id)])
+
+
+def build_stream(spec: Phase1Spec, rng: np.random.Generator | None = None) -> Stream:
     cfg = StreamConfig(stream_id=spec.stream_id, condition=spec.condition, T=spec.T,
                        P=spec.P, d=spec.d, M=spec.M, D=spec.D, R=spec.R)
-    return make_stream(cfg, rng)
+    return make_stream(cfg, stream_rng(spec.stream_id) if rng is None else rng)
 
 
 def build_model(spec: Phase1Spec, stream: Stream) -> TwoModuleNet:
@@ -182,7 +194,7 @@ def run_arm(spec: Phase1Spec, *, verbose: bool = False) -> dict:
     t_start = time.time()
     streams = paired_init(spec.seed)
     rng_train = streams["data"]      # minibatch order only; unused at full batch
-    stream = build_stream(spec, streams["stream"])
+    stream = build_stream(spec)      # arrangement/dichotomies keyed by stream_id, not seed
     model = build_model(spec, stream)
     sched = schedule(spec.T, spec.tracked_stride)
 
@@ -387,7 +399,7 @@ def attribute_run(geometry: list[GeometryRecord], spec: Phase1Spec) -> list[dict
         base = by_key.get((module, task, task))
         if base is None or boundary == task:
             continue
-        a = attribute(base.point(), rec.point(), strict=False)
+        a = attribute(base.point(), rec.point(), strict=False, gamma=spec.gamma_0)
         out.append({"module": module, "task": task, "boundary": boundary,
                     "lag": boundary - task, **a.to_dict()})
     return out

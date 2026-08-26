@@ -2,7 +2,10 @@
 
 Spec: `docs/00-math-spec.md` §3; config in `docs/01-experiments.md` §3.
 Streams are generated once per ``stream_id`` from ``rng_stream`` and shared
-across configs (blocking factor).
+across configs (blocking factor). ``make_stream`` itself never reads
+``cfg.stream_id`` — the caller must key ``rng`` by ``stream_id``
+(``pipeline.stream_rng``). Passing ``paired_init(seed)["stream"]`` makes
+``stream_id`` a stored no-op.
 """
 
 from __future__ import annotations

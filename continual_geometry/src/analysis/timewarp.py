@@ -35,8 +35,32 @@ from .trajectories import CHANNELS, GeometryTrajectory
 
 # Monte-Carlo CV per channel at n_t = 200 (results/cost_model.json). Converted to
 # a log-space scale, which is what `GeometryTrajectory.matrix` returns.
+#
+# These are the *registered* floors, measured at one setting. They remain the right object for
+# the warp test, which compares trajectories at two different γ and so cannot be denominated in
+# either one's floor. Where a floor is applied within a single γ, use `PER_GAMMA_FLOOR_CV`.
 NOISE_FLOOR_CV = {"alpha": 0.0187, "D_eff": 0.0126, "R_eff": 0.0050,
                   "rho_c_glue": 0.0097}
+
+# Per-γ floors from the measurement null (`scripts/run_measurement_null.py`, W4): the same
+# trained representation re-measured under several measurement seeds, at every registered γ.
+#
+# `alpha` and `D_eff` came back γ-flat within the design's own resolution (a CV from 4 seeds
+# carries ~40% relative uncertainty, so ratios under ~2× are unresolved), which is why every
+# floor-denominated headline in this project is α-denominated and stands as registered.
+#
+# `R_eff` did not: it rises monotonically with richness and reaches 2.3× the registered value
+# at γ=10. Its only live consumer is `attribution.min_dlog_R_for`.
+#
+# `Psi_eff` had no registered floor. **This one is recorded, not used.** Every analysis to date
+# ran the utility channel un-floored, and retro-fitting a gate would move published numbers for
+# no gain; it is here so the next version of this work starts with it.
+PER_GAMMA_FLOOR_CV = {
+    "R_eff": {0.03: 0.00280, 0.1: 0.00307, 0.3: 0.00618,
+              1.0: 0.00808, 3.0: 0.00715, 10.0: 0.01125},
+    "Psi_eff": {0.03: 0.01152, 0.1: 0.01286, 0.3: 0.01660,
+                1.0: 0.01831, 3.0: 0.02187, 10.0: 0.02395},
+}
 
 
 def floor_vector(channels: tuple[str, ...] = CHANNELS) -> np.ndarray:

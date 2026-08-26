@@ -106,6 +106,19 @@ def test_probe_margin_responds_to_a_representation_that_separates_better():
     assert planted["margin"] > rand["margin"]
 
 
+def test_stream_id_keys_the_arrangement_not_the_init_seed():
+    """stream_id is the arrangement draw; seed is init. They must not be confounded."""
+    kw = dict(T=8, P=8, M=20, d=40, D=2)
+    a = pl.build_stream(pl.Phase1Spec(stream_id=0, seed=0, **kw))
+    b = pl.build_stream(pl.Phase1Spec(stream_id=1, seed=0, **kw))
+    c = pl.build_stream(pl.Phase1Spec(stream_id=0, seed=7, **kw))
+    d = pl.build_stream(pl.Phase1Spec(stream_id=0, seed=0, gamma_0=10.0, **kw))
+    assert not np.array_equal(a.S_r, b.S_r)
+    assert not np.array_equal(a.S_f, b.S_f)
+    assert np.array_equal(a.S_r, c.S_r) and np.array_equal(a.S_f, c.S_f)
+    assert np.array_equal(a.S_r, d.S_r) and np.array_equal(a.S_f, d.S_f)
+
+
 def test_run_arm_is_json_ready_and_the_identity_closes(tmp_path):
     import json
 

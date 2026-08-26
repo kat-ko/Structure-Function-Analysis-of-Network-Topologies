@@ -60,13 +60,15 @@ def arms(*, widths=WIDTHS, gammas=GAMMAS, conditions=CONDITIONS,
     return sorted(out, key=lambda s: (s.N, s.gamma_0))
 
 
-def _path(spec: pl.Phase1Spec) -> Path:
-    return OUT / f"N{spec.N}__{spec.key.replace(',', '__').replace('=', '-')}.json"
+def _path(spec: pl.Phase1Spec, out: Path) -> Path:
+    return out / f"N{spec.N}__{spec.key.replace(',', '__').replace('=', '-')}.json"
 
 
-def _job(spec: pl.Phase1Spec) -> dict:
+def _job(payload: tuple[pl.Phase1Spec, str]) -> dict:
+    spec, out_s = payload
     provenance.assert_current()
-    path = _path(spec)
+    out = Path(out_s)
+    path = _path(spec, out)
     if path.exists():
         try:
             stored = json.loads(path.read_text())["spec"]
@@ -87,29 +89,40 @@ def main() -> None:
                    help="one arm per width, report cost, launch nothing")
     p.add_argument("--streams", type=int, default=2)
     p.add_argument("--seeds", type=int, default=2)
+    p.add_argument("--gammas", type=float, nargs="+", default=None,
+                   help="subset of γ; default is the three-point (0.03, 1, 10) grid")
+    p.add_argument("--out", type=str, default="results/width",
+                   help="directory under the project root, or an absolute path. New n=40 "
+                        "cells at a fixed γ must not mix with the 2×2 files whose stream_id "
+                        "did not key the arrangement.")
     p.add_argument("--cap", type=int, default=None, help="max workers (see `_par.pmap`)")
     args = p.parse_args()
-    OUT.mkdir(parents=True, exist_ok=True)
+    gammas = tuple(args.gammas) if args.gammas is not None else GAMMAS
+    out = Path(args.out)
+    if not out.is_absolute():
+        out = ROOT / out
+    out.mkdir(parents=True, exist_ok=True)
 
     if args.time_one:
         for n in WIDTHS:
-            spec = pl.Phase1Spec(gamma_0=max(GAMMAS), a=0.0, condition="S-HL",
+            spec = pl.Phase1Spec(gamma_0=max(gammas), a=0.0, condition="S-HL",
                                  stream_id=0, seed=0, N=n)
             t0 = time.time()
-            _job(spec)
+            _job((spec, str(out)))
             dt = time.time() - t0
             print(f"  N={n:<4d} one arm at γ={spec.gamma_0:g}: {dt:7.1f} s "
                   f"({dt / 60:.1f} min single-threaded-ish)", flush=True)
-        full = len(arms(streams=args.streams, seeds=args.seeds))
-        print(f"\n  full width grid would be {full} arms; scale the per-arm times above by\n"
+        full = len(arms(streams=args.streams, seeds=args.seeds, gammas=gammas))
+        print(f"\n  this width grid would be {full} arms; scale the per-arm times above by\n"
               f"  {full} / n_workers to project, and remember the γ=10 arm timed here is\n"
               f"  the *cheapest* in steps-to-target — lazy arms take more SGD steps.")
         return
 
-    specs = arms(streams=args.streams, seeds=args.seeds)
-    print(f"width grid: {len(specs)} arms over N={WIDTHS}, γ={GAMMAS}", flush=True)
+    specs = arms(streams=args.streams, seeds=args.seeds, gammas=gammas)
+    print(f"width grid: {len(specs)} arms over N={WIDTHS}, γ={gammas} -> "
+          f"{out.relative_to(ROOT) if out.is_relative_to(ROOT) else out}", flush=True)
     t0 = time.time()
-    res = pmap(_job, specs, cap=args.cap)
+    res = pmap(_job, [(s, str(out)) for s in specs], cap=args.cap)
     done = [r for r in res if not r.get("skipped")]
     print(f"\n  {len(done)} run, {len(res) - len(done)} skipped, "
           f"{time.time() - t0:.0f} s wall")

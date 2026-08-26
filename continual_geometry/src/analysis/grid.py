@@ -86,6 +86,10 @@ def attributions(recs: list[dict], *, module: str | None = None
 
     The `before` point is the task's own boundary — the geometry as the task was left,
     which is the only baseline against which "forgetting" means anything.
+
+    The arm's γ is passed through so the center-collapse share is gated by the `R_eff` noise
+    floor measured *at that γ* (W4), rather than by one constant that was too permissive at
+    high richness. Nothing else in the attribution depends on it.
     """
     out = []
     for r in recs:
@@ -99,7 +103,7 @@ def attributions(recs: list[dict], *, module: str | None = None
                 continue
             out.append((r["spec"], mod, task, b - task, attribute(
                 GeometryPoint.from_result(origin), GeometryPoint.from_result(g),
-                strict=False)))
+                strict=False, gamma=r["spec"]["gamma_0"])))
     return out
 
 
@@ -226,18 +230,28 @@ def rho_c_trajectories(recs: list[dict], *, convention: str = "rho_c_signed") ->
 
 # --- noise-floor units --------------------------------------------------------
 
-def floors(delta_log: float, channel: str) -> float:
+def floors(delta_log: float, channel: str, *, gamma: float | None = None) -> float:
     """A log-space change expressed in Monte-Carlo noise floors of its own channel.
 
     The unit that makes "did anything move" answerable: 0.2 floors is nothing happening,
     65 floors is a real excursion. Channels without a measured floor raise rather than
     silently borrowing another channel's.
+
+    Channels whose floor was measured to depend on γ (currently `R_eff`) use the floor at
+    `gamma` when it is given, and the largest measured floor when it is not — a ruler that is
+    too short flatters the result, so the default errs the other way. `alpha` and `D_eff` were
+    measured γ-flat, so their registered floors are used at every γ.
     """
+    per_gamma = timewarp.PER_GAMMA_FLOOR_CV.get(channel)
+    if per_gamma is not None:
+        return float(abs(delta_log) / np.log1p(
+            per_gamma.get(gamma, max(per_gamma.values())) if gamma is not None
+            else max(per_gamma.values())))
     if channel not in timewarp.NOISE_FLOOR_CV:
         raise KeyError(
             f"no measured noise floor for {channel!r}; available: "
-            f"{sorted(timewarp.NOISE_FLOOR_CV)}. Borrowing another channel's floor would "
-            f"make the number meaningless.")
+            f"{sorted(timewarp.NOISE_FLOOR_CV) + sorted(timewarp.PER_GAMMA_FLOOR_CV)}. "
+            f"Borrowing another channel's floor would make the number meaningless.")
     return float(abs(delta_log) / np.log1p(timewarp.NOISE_FLOOR_CV[channel]))
 
 

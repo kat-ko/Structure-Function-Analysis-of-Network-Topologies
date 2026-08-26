@@ -47,6 +47,20 @@ FORBIDDEN = {
     "a1b2 config names": r"mod-shared|mod-feature|a1b2",
 }
 
+# Modules that may legitimately differ between the arms on disk and the current tree,
+# because nothing reported depends on the stored copy of what they produce — every
+# consumer re-derives from stored *geometry*. Each entry must name the change and why
+# measurement is untouched. The exemption is not taken on trust: `audit_rederivation`
+# recomputes the identity from stored geometry and requires the terms to be unchanged,
+# so a drift that did touch measurement fails there instead.
+#
+# `core` is deliberately absent. It produced the stored geometry, and geometry cannot be
+# re-derived without re-running, so drift in it invalidates the grid.
+DERIVATION_DRIFT_DECLARED = {
+    "attribution": "per-γ R_eff floor refit (W4): gates one reported ratio, not the identity",
+    "pipeline": "passes γ to attribute_run for that floor; measurement path unchanged",
+}
+
 RATIFIED = {
     "estimation_mode": "full_P",
     "n_t": 200,
@@ -278,16 +292,55 @@ def audit_provenance(a: Audit, recs: list[dict]) -> None:
     stale = [r["key"] for r in recs if r.get("code", {}).get("stale")]
     unreg = [r["key"] for r in recs if r.get("code", {}).get("unregistered")]
     nostamp = [r["key"] for r in recs if not r.get("code")]
-    mismatch = [r["key"] for r in recs
-                if r.get("code") and r["code"].get("modules") != cur]
     shas = {r.get("code", {}).get("git_sha") for r in recs}
 
     a.check(not nostamp, "every record carries a version stamp",
             f"{len(recs)} records, {len(nostamp)} unstamped; git_sha(s): {sorted(shas)}")
     a.check(not stale, "zero arms report stale code", f"{len(stale)} stale")
     a.check(not unreg, "zero arms report unregistered modules", f"{len(unreg)} unregistered")
-    a.check(not mismatch, "module hashes match the current tree",
-            f"{len(mismatch)}/{len(recs)} differ from {cur}")
+
+    drift: dict[str, set[str]] = defaultdict(set)
+    for r in recs:
+        for name, h in (r.get("code", {}).get("modules") or {}).items():
+            if cur.get(name) != h:
+                drift[name].add(h)
+    undeclared = sorted(set(drift) - set(DERIVATION_DRIFT_DECLARED))
+    detail = "; ".join(
+        f"{n}: arms {sorted(v)} vs tree {cur.get(n)}"
+        f"{'' if n in DERIVATION_DRIFT_DECLARED else ' [UNDECLARED]'}"
+        for n, v in sorted(drift.items())) or "no drift"
+    a.check(not undeclared, "code drift from the arms on disk is declared and derivation-only",
+            f"{detail}. Declared: {sorted(DERIVATION_DRIFT_DECLARED)}")
+
+
+def audit_rederivation(a: Audit, recs: list[dict]) -> None:
+    """Does current code reproduce the identity stored with the arms?
+
+    This is what makes a declared drift in a derivation module safe to accept. The stored
+    `attribution` block was written by the code that ran the grid; re-deriving it from stored
+    geometry with the code as it stands must give the same `Δ log α` and the same three terms,
+    because the identity is exact and no floor enters it. If a change to the derivation path
+    ever alters a term, it shows up here as a number rather than as an argument about which
+    modules were "really" in the measurement path.
+    """
+    worst, n = 0.0, 0
+    for r in recs:
+        stored = {(x["module"], x["task"], x["boundary"]): x for x in r["attribution"]}
+        pts = {(g["module"], g["task"], g["boundary"]): g
+               for g in r["geometry"] if g["task"] is not None}
+        for key, x in stored.items():
+            base = pts.get((key[0], key[1], key[1]))
+            if base is None or key not in pts:
+                continue
+            new = AT.attribute(AT.GeometryPoint.from_result(base),
+                               AT.GeometryPoint.from_result(pts[key]), strict=False,
+                               gamma=r["spec"]["gamma_0"])
+            worst = max(worst, abs(new.dlog_alpha - x["dlog_alpha"]),
+                        *(abs(new.terms[k] - x["terms"][k]) for k in AT.FACTORS))
+            n += 1
+    a.check(worst <= 1e-12, "current code re-derives the stored identity exactly",
+            f"worst |Δ| {worst:.2e} over {n:,} re-derived attributions "
+            f"(Δ log α and all three terms)")
 
 
 def audit_residuals(a: Audit, recs: list[dict]) -> None:
@@ -401,6 +454,7 @@ def main() -> None:
     audit_no_a1b2(a)
     audit_config(a, recs)
     audit_provenance(a, recs)
+    audit_rederivation(a, recs)
     audit_residuals(a, recs)
     cov = audit_rho_coverage(a, recs)
     sep = audit_manipulation(a, recs)

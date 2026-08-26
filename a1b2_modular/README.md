@@ -53,6 +53,8 @@ Requirements: Python ≥3.8, numpy, pandas, scipy, matplotlib, seaborn, torch, t
 
 **Config validation (ablation handoff):** From `a1b2_modular/`, run `python scripts/validate_ablation_continuation.py` (JSON uniqueness, `build_run_id` for depth/dropout/GRU/readout pilots). Add `--forward` if PyTorch is installed for forward smokes.
 
+**Standard primary grid tracker:** `python scripts/regenerate_standard_primary_grid_inventory.py` writes `STANDARD_PRIMARY_GRID_RUN_INVENTORY.md` (same rows as `PRIMARY_GRID_RUN_INVENTORY.md`, explicit name for the storage-policy grid).
+
 ## Analyses
 
 - **Transfer / interference / von Mises**: same methodology as transfer-interference (figures 2–4, `a1b2.analysis.transfer_interference`, `stats`, `participant`).

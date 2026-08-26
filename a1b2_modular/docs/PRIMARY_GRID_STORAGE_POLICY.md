@@ -30,6 +30,18 @@ Single-module primary:
 
 Everything else is ablation.
 
+## Standard primary grid inventory (tracked file)
+
+Regenerate the markdown tracker (only standard-primary rows, scanned under `data/simulations/`):
+
+```bash
+python3 scripts/regenerate_standard_primary_grid_inventory.py
+```
+
+Output: `STANDARD_PRIMARY_GRID_RUN_INVENTORY.md` (project root of `a1b2_modular`).
+
+The legacy-named file `PRIMARY_GRID_RUN_INVENTORY.md` uses the **same row set**; keep both in sync by running either script after config changes.
+
 ## Run commands (future-safe)
 
 From `a1b2_modular`:

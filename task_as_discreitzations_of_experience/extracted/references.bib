@@ -1,0 +1,575 @@
+
+% Literature 
+% bibtex usually copied from Google Scholar (apart from books)
+% + Added Abstract
+
+
+@article{zhang2026attention,
+  title={Attention to task structure for cognitive flexibility},
+  author={Zhang, Xiaoyu K and Senoussi, Mehdi and Verguts, Tom},
+  journal={arXiv preprint arXiv:2604.13281},
+  year={2026}
+  % Humans and artificial agents must often learn and switch between multiple tasks in dynamic environments. Success in such settings requires cognitive flexibility: the ability to retain prior knowledge (cognitive stability) while also transferring it to novel tasks (cognitive generalization). Cognitive flexibility research has largely focused on the role of model architecture to achieve these complementary goals. However, it is less well understood how the structure of the environment itself influences cognitive flexibility, and how it interacts with model architecture. To address this gap, we design a multi-task learning environment in which tasks are defined by a combination of two cue dimensions, allowing us to characterize the environment with graph-theory methods. We also introduce gating-based (multiplicative) and concatenation-based attention models that can decompose tasks into components and can sequentially allocate attention to them. We compare the attention-based models' performance in the multi-task learning environment to multilayer perceptrons. Generalization and stability are systematically evaluated across environments that vary in richness and task connectivity. We observe that richer environments improve both generalization and stability. In addition, a critical novel observation is that (graph theory based) connectivity between the tasks in the environment strongly modulates both stability and generalization, with especially pronounced benefits for attention-based models. These findings underscore the importance of considering not only cognitive architectures but also environmental structure and their interaction in shaping multi-task learning, generalization, and stability.
+}
+
+
+@article{menghi2025impact,
+  title={Impact of Task Similarity and Training Regimes on Cognitive Transfer and Interference},
+  author={Menghi, Nicholas and Vigano’, Simone and Johnston, WJ and Elnagar, Salma and Fusi, S and Doeller, FC},
+  journal={bioRxiv},
+  pages={2025--09},
+  year={2025},
+  publisher={Cold Spring Harbor Laboratory}
+  % Learning depends not only on the content of what we learn, but also on how we learn and on how experiences are structured over time. To investigate how task similarity and training regime interact during learning, we trained participants on spatial and conceptual learning tasks that shared either similar or distinct underlying structures, using either interleaved or blocked regimes. Interleaving the two tasks hindered performance when their structures were similar, compared to when they were different. In contrast, blocked training produced the opposite effect: it improved performance and facilitated transfer across similar tasks. This effect, however, emerged only when participants first learned the conceptual task, followed by the spatial task, suggesting an asymmetric interaction between task order and structural similarity. We also replicated our results using a neural network model, providing converging evidence for the computational principles governing the interplay between training regime and structural similarity in multi-task learning.
+}
+
+
+
+@article{ranjan2025mitigating,
+  title={Mitigating Catastrophic Forgetting in Molecular Property Prediction via Refresh Learning and Pareto Optimization},
+  author={Ranjan, Sakshi and Mishra, Dheeraj and Singh, Sanjay Kumar},
+  journal={IEEE Transactions on Computational Biology and Bioinformatics},
+  year={2025},
+  publisher={IEEE}
+  % Continual Learning (CL) enables Large Language Models (LLMs) to adapt to new episodes and data streams without forgetting previously acquired knowledge, a critical requirement for dynamic fields like Molecular property Prediction (MP). LLMs, however, often face Catastrophic Forgetting (CF), where learning new information erodes prior knowledge, particularly when data distributions shift significantly between episodes, as seen in chemical, genomic, and proteomic datasets. To address CF, the existing replay-based techniques use memory buffers to store past episode data but often overlook the relationships between episodes, resulting in sub-optimal performance when revisiting earlier episodes. To this, the paper proposes a Multi-task Learning (MTL) framework that reconciles existing CL techniques into a unified hierarchical gradient aggregation framework. It builds a novel framework using the ChemBERTa model, namely MTL-PORL (Multi-task Learner-Pareto Optimized Refresh Learning), i.e., Refresh Learning (RL), inspired by neuroscience, where the brain discards outdated information to enhance retention and facilitate new learning with Pareto Optimization (PO) for MP. The hyper-gradient approach in the MTL-PORL leverages unlearning current data before relearning it, acting as a flexible plug-in that enhances existing CL methods. The MTL-PORL exhibits Anytime Average Accuracy (91.63%, 94.89%, and 92.67%), Test Accuracy (92.48%, 96.48%, and 96.86%), and Forgetting Measure (−0.0048, −0.0045, and −0.0063) on the BBBP, bitter, and sweet datasets, respectively. The comprehensive empirical analysis highlighted significant improvements in sequential learning compared to existing methods, addressing the stability-plasticity trade-off and effectiveness of RL.
+}
+
+
+@article{bell2022effect,
+  title={The effect of task ordering in continual learning},
+  author={Bell, Samuel J and Lawrence, Neil D},
+  journal={arXiv preprint arXiv:2205.13323},
+  year={2022}
+  % We investigate the effect of task ordering on continual learning performance. We conduct an extensive series of empirical experiments on synthetic and naturalistic datasets and show that reordering tasks significantly affects the amount of catastrophic forgetting. Connecting to the field of curriculum learning, we show that the effect of task ordering can be exploited to modify continual learning performance, and present a simple approach for doing so. Our method computes the distance between all pairs of tasks, where distance is defined as the source task curvature of a gradient step toward the target task. Using statistically rigorous methods and sound experimental design, we show that task ordering is an important aspect of continual learning that can be modified for improved performance.
+}
+
+
+
+@article{li2025optimal,
+  title={Optimal task order for continual learning of multiple tasks},
+  author={Li, Ziyan and Hiratani, Naoki},
+  journal={arXiv preprint arXiv:2502.03350},
+  year={2025}
+  % Continual learning of multiple tasks remains a major challenge for neural networks. Here, we investigate how task order influences continual learning and propose a strategy for optimizing it. Leveraging a linear teacher-student model with latent factors, we derive an analytical expression relating task similarity and ordering to learning performance. Our analysis reveals two principles that hold under a wide parameter range: (1) tasks should be arranged from the least representative to the most typical, and (2) adjacent tasks should be dissimilar. We validate these rules on both synthetic data and real-world image classification datasets (Fashion-MNIST, CIFAR-10, CIFAR-100), demonstrating consistent performance improvements in both multilayer perceptrons and convolutional neural networks. Our work thus presents a generalizable framework for task-order optimization in task-incremental continual learning.
+}
+
+
+
+@inproceedings{lin2023theory,
+  title={Theory on forgetting and generalization of continual learning},
+  author={Lin, Sen and Ju, Peizhong and Liang, Yingbin and Shroff, Ness},
+  booktitle={International Conference on Machine Learning},
+  pages={21078--21100},
+  year={2023},
+  organization={PMLR}
+  % Continual learning (CL), which aims to learn a sequence of tasks, has attracted significant recent attention. However, most work has focused on the experimental performance of CL, and theoretical studies of CL are still limited. In particular, there is a lack of understanding on what factors are important and how they affect "catastrophic forgetting" and generalization performance. To fill this gap, our theoretical analysis, under overparameterized linear models, provides the first-known explicit form of the expected forgetting and generalization error for a general CL setup with an arbitrary number of tasks. Further analysis of such a key result yields a number of theoretical explanations about how overparameterization, task similarity, and task ordering affect both forgetting and generalization error of CL. More interestingly, by conducting experiments on real datasets using deep neural networks (DNNs), we show that some of these insights even go beyond the linear models and can be carried over to practical setups. In particular, we use concrete examples to show that our results not only explain some interesting empirical observations in recent studies, but also motivate better practical algorithm designs of CL.
+}
+
+
+@article{peng2022continual,
+  title={Continual learning: a feature extraction formalization, an efficient algorithm, and fundamental obstructions},
+  author={Peng, Binghui and Risteski, Andrej},
+  journal={Advances in Neural Information Processing Systems},
+  volume={35},
+  pages={28414--28427},
+  year={2022}
+  % Continual learning is an emerging paradigm in machine learning, wherein a model is exposed in an online fashion to data from multiple different distributions (i.e. environments), and is expected to adapt to the distribution change. Precisely, the goal is to perform well in the new environment, while simultaneously retaining the performance on the previous environments (i.e. avoid catastrophic forgetting'').While this setup has enjoyed a lot of attention in the applied community, there hasn't be theoretical work that even formalizes the desired guarantees. In this paper, we propose a framework for continual learning through the framework of feature extraction---namely, one in which features, as well as a classifier, are being trained with each environment. When the features are linear, we design an efficient gradient-based algorithm DPGrad, that is guaranteed to perform well on the current environment, as well as avoid catastrophic forgetting. In the general case, when the features are non-linear, we show such an algorithm cannot exist, whether efficient or not
+}
+
+
+@incollection{Gozli2019-GOZWIA,
+	author = {Davood Gozli},
+	booktitle = {Experimental Psychology and Human Agency},
+	editor = {Davood Gozli},
+	pages = {83--111},
+	publisher = {Springer Verlag},
+	title = {What is a Task?},
+	year = {2019}
+    % There have been recent attempts by experimental psychologists to explicate the nature of an experimental task. This chapter reviews three such attempts, according to which a task is (1) a goal-directed schema, (2) a rule-based organization of stimulus–response events that shield the actors’ attention against distractors, and (3) a depersonalized goal. These approaches underscore the importance of goals and acknowledge how a task selectively renders parts of a situation visible for the agent performing a task. With reference to goal hierarchies, we can also think of a task in terms of a fixed set of superordinate goals, or from a fixed normative-descriptive perspective, which views actors as equivalent and replaceable. The description of the task can be applied to the activities of experimental psychologists, highlighting the subsequent outcomes, including depersonalized research projects, shields against “distractors,” including questions about societal relevance and theoretical synthesis.
+}
+
+
+
+@article{hiratani2024disentangling,
+  title={Disentangling and mitigating the impact of task similarity for continual learning},
+  author={Hiratani, Naoki},
+  journal={Advances in Neural Information Processing Systems},
+  volume={37},
+  pages={3243--3274},
+  year={2024}
+  % Continual learning of partially similar tasks poses a challenge for artificial neural networks, as task similarity presents both an opportunity for knowledge transfer and a risk of interference and catastrophic forgetting.However, it remains unclear how task similarity in input features and readout patterns influences knowledge transfer and forgetting, as well as how they interact with common algorithms for continual learning.Here, we develop a linear teacher-student model with latent structure and show analytically that high input feature similarity coupled with low readout similarity is catastrophic for both knowledge transfer and retention. Conversely, the opposite scenario is relatively benign. Our analysis further reveals that task-dependent activity gating improves knowledge retention at the expense of transfer, while task-dependent plasticity gating does not affect either retention or transfer performance at the over-parameterized limit. In contrast, weight regularization based on the Fisher information metric significantly improves retention, regardless of task similarity, without compromising transfer performance. Nevertheless, its diagonal approximation and regularization in the Euclidean space are much less robust against task similarity. We demonstrate consistent results in a permuted MNIST task with latent variables. Overall, this work provides insights into when continual learning is difficult and how to mitigate it.
+}
+
+
+
+@inbook{baber2022embodying,
+  booktitle={Embodying design: An applied science of radical embodied cognition},
+  title = {Understanding Task Ecologies},
+  author={Baber, Christopher},
+  pages = {45--66},
+  year={2022},
+  publisher={Mit Press}
+  % If we accept that acting on the world is cognition, then this ought to influence not only how we design but also what we design— or rather how we expect designed objects to be used. The dichotomy of form and function takes us only so far— and this is because the “interaction” between person and artifact does not occur in a vacuum but within an ecology shaped by the physical and the social environments in which artifacts are used. In chapter 1, the notion of a human- artifact- environment system was introduced. Much of the subsequent discussion focused on the first two elements, and I did not say much about environment and how this influences activity. Given that developments of Gibson’s original theories have tended to come under the heading of ecological psychology (an academic discipline with its own society, journals, and conferences), “ecology” plays a key role in defining this field of enquiry. But this is jumping from the word environment to the word ecology without defining either. For Gibson, “information” resolves uncertainty over which action to perform, and this makes sense only within an environment. Indeed, it is the role of the environment in his notion of “information” that separates his notion of uncertainty reduction from Shannon’s. For Gibson, the environment is not an unstructured, amorphous mass of confounding and confusing features, but a collection of resources that are salient to action. In a very real sense, the environment (from Gibson’s perspective) is analogous to the abstract notion of problem space used in chapter 2.  For information- as- content, “salience” is a matter of assigning meaning to the symbols that the brain creates from features in the environment, which, in turn, requires storing symbol- meaning associations (hence, declarative knowledge in long- term memory). For information- as- context, “salience” relates to the mapping of environmental features to action (which makes no demand on symbol production or storage). At this point, the reader might cry “foul” and see this as a sneaky way of using representation to support cognition— one in which the mapping of features to actions is a form of representation. However, the point is that this “representation” is not a symbolic reconstruction of the environment (i.e., a “mental model”) but a responsiveness to features in the environment that relate to action. To appreciate why this is the case, we need to define “ecology.”
+}
+
+
+@misc{riva2026taskecologiesevolutionworldtracking,
+      title={Task Ecologies and the Evolution of World-Tracking Representations in Large Language Models}, 
+      author={Giulio Valentino Dalla Riva},
+      year={2026},
+      eprint={2604.05469},
+      archivePrefix={arXiv},
+      primaryClass={stat.ME},
+      url={https://arxiv.org/abs/2604.05469}, 
+      % We study language models as evolving model organisms and ask when autoregressive next-token learning selects for world-tracking representations. For any encoding of latent world states, the Bayes-optimal next-token cross-entropy decomposes into the irreducible conditional entropy plus a Jensen--Shannon excess term. That excess vanishes if and only if the encoding preserves the training ecology's equivalence classes. This yields a precise notion of ecological veridicality for language models and identifies the minimum-complexity zero-excess solution as the quotient partition by training equivalence. We then determine when this fixed-encoding analysis applies to transformer families: frozen dense and frozen Mixture-of-Experts transformers satisfy it, in-context learning does not enlarge the model's separation set, and per-task adaptation breaks the premise. The framework predicts two characteristic failure modes: simplicity pressure preferentially removes low-gain distinctions, and training-optimal models can still incur positive excess on deployment ecologies that refine the training ecology. A conditional dynamic extension shows how inter-model selection and post-training can recover such gap distinctions under explicit heredity, variation, and selection assumptions. Exact finite-ecology checks and controlled microgpt experiments validate the static decomposition, split-merge threshold, off-ecology failure pattern, and two-ecology rescue mechanism in a regime where the relevant quantities are directly observable. The goal is not to model frontier systems at scale, but to use small language models as laboratory organisms for theory about representational selection.
+}
+
+
+@misc{tang2025importancetaskcomplexityevaluating,
+      title={On the Importance of Task Complexity in Evaluating LLM-Based Multi-Agent Systems}, 
+      author={Bohan Tang and Huidong Liang and Keyue Jiang and Xiaowen Dong},
+      year={2025},
+      eprint={2510.04311},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2510.04311}, 
+      % Large language model multi-agent systems (LLM-MAS) offer a promising paradigm for harnessing collective intelligence to achieve more advanced forms of AI behaviour. While recent studies suggest that LLM-MAS can outperform LLM single-agent systems (LLM-SAS) on certain tasks, the lack of systematic experimental designs limits the strength and generality of these conclusions. We argue that a principled understanding of task complexity, such as the degree of sequential reasoning required and the breadth of capabilities involved, is essential for assessing the effectiveness of LLM-MAS in task solving. To this end, we propose a theoretical framework characterising tasks along two dimensions: depth, representing reasoning length, and width, representing capability diversity. We theoretically examine a representative class of LLM-MAS, namely the multi-agent debate system, and empirically evaluate its performance in both discriminative and generative tasks with varying depth and width. Theoretical and empirical results show that the benefit of LLM-MAS over LLM-SAS increases with both task depth and width, and the effect is more pronounced with respect to depth. This clarifies when LLM-MAS are beneficial and provides a principled foundation for designing future LLM-MAS methods and benchmarks.
+}
+
+
+
+@article{cao2021explanatory,
+  title={Explanatory models in neuroscience: Part 2--constraint-based intelligibility},
+  author={Cao, Rosa and Yamins, Daniel},
+  journal={arXiv preprint arXiv:2104.01489},
+  year={2021}
+  % Computational modeling plays an increasingly important role in neuroscience, highlighting the philosophical question of how computational models explain. In the context of neural network models for neuroscience, concerns have been raised about model intelligibility, and how they relate (if at all) to what is found in the brain. We claim that what makes a system intelligible is an understanding of the dependencies between its behavior and the factors that are causally responsible for that behavior. In biological systems, many of these dependencies are naturally "top-down": ethological imperatives interact with evolutionary and developmental constraints under natural selection. We describe how the optimization techniques used to construct NN models capture some key aspects of these dependencies, and thus help explain why brain systems are as they are -- because when a challenging ecologically-relevant goal is shared by a NN and the brain, it places tight constraints on the possible mechanisms exhibited in both kinds of systems. By combining two familiar modes of explanation -- one based on bottom-up mechanism (whose relation to neural network models we address in a companion paper) and the other on top-down constraints, these models illuminate brain function.
+}
+
+
+
+@article{ramasesh2020anatomy,
+  title={Anatomy of catastrophic forgetting: Hidden representations and task semantics},
+  author={Ramasesh, Vinay V and Dyer, Ethan and Raghu, Maithra},
+  journal={arXiv preprint arXiv:2007.07400},
+  year={2020}
+  % A central challenge in developing versatile machine learning systems is catastrophic forgetting: a model trained on tasks in sequence will suffer significant performance drops on earlier tasks. Despite the ubiquity of catastrophic forgetting, there is limited understanding of the underlying process and its causes. In this paper, we address this important knowledge gap, investigating how forgetting affects representations in neural network models. Through representational analysis techniques, we find that deeper layers are disproportionately the source of forgetting. Supporting this, a study of methods to mitigate forgetting illustrates that they act to stabilize deeper layers. These insights enable the development of an analytic argument and empirical picture relating the degree of forgetting to representational similarity between tasks. Consistent with this picture, we observe maximal forgetting occurs for task sequences with intermediate similarity. We perform empirical studies on the standard split CIFAR-10 setup and also introduce a novel CIFAR-100 based task approximating realistic input distribution shift.
+}
+
+
+@article{mendez2022reuse,
+  title={How to reuse and compose knowledge for a lifetime of tasks: A survey on continual learning and functional composition},
+  author={Mendez, Jorge A and Eaton, Eric},
+  journal={arXiv preprint arXiv:2207.07730},
+  year={2022}
+  % A major goal of artificial intelligence (AI) is to create an agent capable of acquiring a general understanding of the world. Such an agent would require the ability to continually accumulate and build upon its knowledge as it encounters new experiences. Lifelong or continual learning addresses this setting, whereby an agent faces a continual stream of problems and must strive to capture the knowledge necessary for solving each new task it encounters. If the agent is capable of accumulating knowledge in some form of compositional representation, it could then selectively reuse and combine relevant pieces of knowledge to construct novel solutions. Despite the intuitive appeal of this simple idea, the literatures on lifelong learning and compositional learning have proceeded largely separately. In an effort to promote developments that bridge between the two fields, this article surveys their respective research landscapes and discusses existing and future connections between them.
+}
+
+
+@article{ke2021achieving,
+  title={Achieving forgetting prevention and knowledge transfer in continual learning},
+  author={Ke, Zixuan and Liu, Bing and Ma, Nianzu and Xu, Hu and Shu, Lei},
+  journal={Advances in Neural Information Processing Systems},
+  volume={34},
+  pages={22443--22456},
+  year={2021}
+  % Continual learning (CL) learns a sequence of tasks incrementally with the goal of achieving two main objectives: overcoming catastrophic forgetting (CF) and encouraging knowledge transfer (KT) across tasks. However, most existing techniques focus only on overcoming CF and have no mechanism to encourage KT, and thus do not do well in KT. Although several papers have tried to deal with both CF and KT, our experiments show that they suffer from serious CF when the tasks do not have much shared knowledge. Another observation is that most current CL methods do not use pre-trained models, but it has been shown that such models can significantly improve the end task performance. For example, in natural language processing, fine-tuning a BERT-like pre-trained language model is one of the most effective approaches. However, for CL, this approach suffers from serious CF. An interesting question is how to make the best use of pre-trained models for CL. This paper proposes a novel model called CTR to solve these problems. Our experimental results demonstrate the effectiveness of CTR.
+}
+
+
+@article{menghi2025effects,
+  title={The effects of task similarity during representation learning in brains and neural networks},
+  author={Menghi, Nicholas and Johnston, W Jeffrey and Vigano’, Simone and Hinrichs, Max Andreas Bosse and Maess, Burkhard and Fusi, Stefano and Doeller, Christian F},
+  journal={Nature Communications},
+  year={2025},
+  publisher={Nature Publishing Group UK London}
+  % The complexity of our environment poses significant challenges for adaptive behavior. Recognizing shared structures across tasks can theoretically improve learning through generalization. However, how such shared representations emerge and influence performance remains poorly understood. Contrary to expectations, our findings revealed that individuals trained on tasks with similar low-dimensional structures performed worse than those trained on dissimilar tasks. Magnetoencephalography revealed correlated neural representations in the same-structure group and anticorrelated ones in the different-structure group. Crucially, practice reduced this performance gap and shifted the neural representations of the tasks in the same-structure group towards anticorrelation, resembling those in the different-structure group. A neural network model trained on similar tasks replicated these findings: tasks with similar structures require more iterations to orthogonalize their representations. These results highlight a complex interplay between task similarity, neural dynamics, and behavior, challenging traditional assumptions about learning and generalization.
+}
+
+
+@inproceedings{doan2021theoretical,
+  title={A theoretical analysis of catastrophic forgetting through the ntk overlap matrix},
+  author={Doan, Thang and Bennani, Mehdi Abbana and Mazoure, Bogdan and Rabusseau, Guillaume and Alquier, Pierre},
+  booktitle={International Conference on Artificial Intelligence and Statistics},
+  pages={1072--1080},
+  year={2021},
+  organization={PMLR}
+  % Continual learning (CL) is a setting in which an agent has to learn from an incoming stream of data during its entire lifetime. Although major advances have been made in the field, one recurring problem which remains unsolved is that of Catastrophic Forgetting (CF). While the issue has been extensively studied empirically, little attention has been paid from a theoretical angle. In this paper, we show that the impact of CF increases as two tasks increasingly align. We introduce a measure of task similarity called the NTK overlap matrix which is at the core of CF. We analyze common projected gradient algorithms and demonstrate how they mitigate forgetting. Then, we propose a variant of Orthogonal Gradient Descent (OGD) which leverages structure of the data through Principal Component Analysis (PCA). Experiments support our theoretical findings and show how our method can help reduce CF on classical CL datasets.
+}
+
+
+
+@article{cagnetta2024deep,
+  title={How deep neural networks learn compositional data: The random hierarchy model},
+  author={Cagnetta, Francesco and Petrini, Leonardo and Tomasini, Umberto M and Favero, Alessandro and Wyart, Matthieu},
+  journal={Physical Review X},
+  volume={14},
+  number={3},
+  pages={031001},
+  year={2024},
+  publisher={APS}
+  % Deep learning algorithms demonstrate a surprising ability to learn high-dimensional tasks from limited examples. This is commonly attributed to the depth of neural networks, enabling them to build a hierarchy of abstract, low-dimensional data representations. However, how many training examples are required to learn such representations remains unknown. To quantitatively study this question, we introduce the random hierarchy model: a family of synthetic tasks inspired by the hierarchical structure of language and images. The model is a classification task where each class corresponds to a group of high-level features, chosen among several equivalent groups associated with the same class. In turn, each feature corresponds to a group of subfeatures chosen among several equivalent groups and so on, following a hierarchy of composition rules. We find that deep networks learn the task by developing internal representations invariant to exchanging equivalent groups. Moreover, the number of data required corresponds to the point where correlations between low-level features and classes become detectable. Overall, our results indicate how deep networks overcome the curse of dimensionality by building invariant representations and provide an estimate of the number of data required to learn a hierarchical task.
+}
+
+
+@article{van2022three,
+  title={Three types of incremental learning},
+  author={Van de Ven, Gido M and Tuytelaars, Tinne and Tolias, Andreas S},
+  journal={Nature Machine Intelligence},
+  volume={4},
+  number={12},
+  pages={1185--1197},
+  year={2022},
+  publisher={Nature Publishing Group UK London}
+  % Incrementally learning new information from a non-stationary stream of data, referred to as ‘continual learning’, is a key feature of natural intelligence, but a challenging problem for deep neural networks. In recent years, numerous deep learning methods for continual learning have been proposed, but comparing their performances is difficult due to the lack of a common framework. To help address this, we describe three fundamental types, or ‘scenarios’, of continual learning: task-incremental, domain-incremental and class-incremental learning. Each of these scenarios has its own set of challenges. To illustrate this, we provide a comprehensive empirical comparison of currently used continual learning strategies, by performing the Split MNIST and Split CIFAR-100 protocols according to each scenario. We demonstrate substantial differences between the three scenarios in terms of difficulty and in terms of the effectiveness of different strategies. The proposed categorization aims to structure the continual learning field, by forming a key foundation for clearly defining benchmark problems.
+}
+
+
+@inbook{van_de_Ven_2025,
+   title={Continual learning and catastrophic forgetting},
+   ISBN={9780443157554},
+   url={http://dx.doi.org/10.1016/B978-0-443-15754-7.00073-0},
+   DOI={10.1016/b978-0-443-15754-7.00073-0},
+   booktitle={Learning and Memory: A Comprehensive Reference},
+   publisher={Elsevier},
+   author={van de Ven, Gido M. and Soures, Nicholas and Kudithipudi, Dhireesha},
+   year={2025},
+   pages={153–168}
+   % This book chapter delves into the dynamics of continual learning, which is the process of incrementally learning from a non-stationary stream of data. Although continual learning is a natural skill for the human brain, it is very challenging for artificial neural networks. An important reason is that, when learning something new, these networks tend to quickly and drastically forget what they had learned before, a phenomenon known as catastrophic forgetting. Especially in the last decade, continual learning has become an extensively studied topic in deep learning. This book chapter reviews the insights that this field has generated.
+   }
+
+
+
+@inproceedings{ostapenko2022continual,
+  title={Continual learning with foundation models: An empirical study of latent replay},
+  author={Ostapenko, Oleksiy and Lesort, Timothee and Rodriguez, Pau and Arefin, Md Rifat and Douillard, Arthur and Rish, Irina and Charlin, Laurent},
+  booktitle={Conference on lifelong learning agents},
+  pages={60--91},
+  year={2022},
+  organization={PMLR}
+  % Rapid development of large-scale pre-training has resulted in foundation models that can act as effective feature extractors on a variety of downstream tasks and domains. Motivated by this, we study the efficacy of pre-trained vision models as a foundation for downstream continual learning (CL) scenarios. Our goal is twofold. First, we want to understand the compute-accuracy trade-off between CL in the raw-data space and in the latent space of pre-trained encoders. Second, we investigate how the characteristics of the encoder, the pre-training algorithm and data, as well as of the resulting latent space affect CL performance. For this, we compare the efficacy of various pre-trained models in large-scale benchmarking scenarios with a vanilla replay setting applied in the latent and in the raw-data space. Notably, this study shows how transfer, forgetting, task similarity and learning are dependent on the input data characteristics and not necessarily on the CL algorithms. First, we show that under some circumstances reasonable CL performance can readily be achieved with a non-parametric classifier at negligible compute. We then show how models pre-trained on broader data result in better performance for various replay sizes. We explain this with representational similarity and transfer properties of these representations. Finally, we show the effectiveness of self-supervised pre-training for downstream domains that are out-of-distribution as compared to the pre-training domain. We point out and validate several research directions that can further increase the efficacy of latent CL including representation ensembling. The diverse set of datasets used in this study can serve as a compute-efficient playground for further CL research. We will publish the code.
+}
+
+
+
+@article{thede2024reflecting,
+  title={Reflecting on the state of rehearsal-free continual learning with pretrained models},
+  author={Thede, Lukas and Roth, Karsten and H{\'e}naff, Olivier J and Bethge, Matthias and Akata, Zeynep},
+  journal={arXiv preprint arXiv:2406.09384},
+  year={2024}
+  % With the advent and recent ubiquity of foundation models, continual learning (CL) has recently shifted from continual training from scratch to the continual adaptation of pretrained models, seeing particular success on rehearsal-free CL benchmarks (RFCL). To achieve this, most proposed methods adapt and restructure parameter-efficient finetuning techniques (PEFT) to suit the continual nature of the problem. Based most often on input-conditional query-mechanisms or regularizations on top of prompt- or adapter-based PEFT, these PEFT-style RFCL (P-RFCL) approaches report peak performances; often convincingly outperforming existing CL techniques. However, on the other end, critical studies have recently highlighted competitive results by training on just the first task or via simple non-parametric baselines. Consequently, questions arise about the relationship between methodological choices in P-RFCL and their reported high benchmark scores. In this work, we tackle these questions to better understand the true drivers behind strong P-RFCL performances, their placement w.r.t. recent first-task adaptation studies, and their relation to preceding CL standards such as EWC or SI. In particular, we show: (1) P-RFCL techniques relying on input-conditional query mechanisms work not because, but rather despite them by collapsing towards standard PEFT shortcut solutions. (2) Indeed, we show how most often, P-RFCL techniques can be matched by a simple and lightweight PEFT baseline. (3) Using this baseline, we identify the implicit bound on tunable parameters when deriving RFCL approaches from PEFT methods as a potential denominator behind P-RFCL efficacy. Finally, we (4) better disentangle continual versus first-task adaptation, and (5) motivate standard RFCL techniques s.a. EWC or SI in light of recent P-RFCL methods.
+}
+
+
+@article{tafazoli2026building,
+  title={Building compositional tasks with shared neural subspaces},
+  author={Tafazoli, Sina and Bouchacourt, Flora M and Ardalan, Adel and Markov, Nikola T and Uchimura, Motoaki and Mattar, Marcelo G and Daw, Nathaniel D and Buschman, Timothy J},
+  journal={Nature},
+  volume={650},
+  number={8100},
+  pages={164--172},
+  year={2026},
+  publisher={Nature Publishing Group}
+  % Cognition is highly flexible—we perform many different tasks1 and continually adapt our behaviour to changing demands2,3. Artificial neural networks trained to perform multiple tasks will reuse representations4 and computational components5 across tasks. By composing tasks from these subcomponents, an agent can flexibly switch between tasks and rapidly learn new tasks6,7. Yet, whether such compositionality is found in the brain is unclear. Here we show the same subspaces of neural activity represent task-relevant information across multiple tasks, with each task flexibly engaging these subspaces in a task-specific manner. We trained monkeys to switch between three compositionally related tasks. In neural recordings, we found that task-relevant information about stimulus features and motor actions were represented in subspaces of neural activity that were shared across tasks. When monkeys performed a task, neural representations in the relevant shared sensory subspace were transformed to the relevant shared motor subspace. Monkeys adapted to changes in the task by iteratively updating their internal belief about the current task and then, based on this belief, flexibly engaging the shared sensory and motor subspaces relevant to the task. In summary, our findings suggest that the brain can flexibly perform multiple tasks by compositionally combining task-relevant neural representations.
+}
+
+
+
+@misc{hsu2019reevaluatingcontinuallearningscenarios,
+      title={Re-evaluating Continual Learning Scenarios: A Categorization and Case for Strong Baselines}, 
+      author={Yen-Chang Hsu and Yen-Cheng Liu and Anita Ramasamy and Zsolt Kira},
+      year={2019},
+      eprint={1810.12488},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/1810.12488}, 
+      % Continual learning has received a great deal of attention recently with several approaches being proposed. However, evaluations involve a diverse set of scenarios making meaningful comparison difficult. This work provides a systematic categorization of the scenarios and evaluates them within a consistent framework including strong baselines and state-of-the-art methods. The results provide an understanding of the relative difficulty of the scenarios and that simple baselines (Adagrad, L2 regularization, and naive rehearsal strategies) can surprisingly achieve similar performance to current mainstream methods. We conclude with several suggestions for creating harder evaluation scenarios and future research directions. The code is available at [this https URL](https://github.com/GT-RIPL/Continual-Learning-Benchmark)
+}
+
+
+@article{johnston2023abstract,
+  title={Abstract representations emerge naturally in neural networks trained to perform multiple tasks},
+  author={Johnston, W Jeffrey and Fusi, Stefano},
+  journal={Nature Communications},
+  volume={14},
+  number={1},
+  pages={1040},
+  year={2023},
+  publisher={Nature Publishing Group UK London}
+  % Humans and other animals demonstrate a remarkable ability to generalize knowledge across distinct contexts and objects during natural behavior. We posit that this ability to generalize arises from a specific representational geometry, that we call abstract and that is referred to as disentangled in machine learning. These abstract representations have been observed in recent neurophysiological studies. However, it is unknown how they emerge. Here, using feedforward neural networks, we demonstrate that the learning of multiple tasks causes abstract representations to emerge, using both supervised and reinforcement learning. We show that these abstract representations enable few-sample learning and reliable generalization on novel tasks. We conclude that abstract representations of sensory and cognitive variables may emerge from the multiple behaviors that animals exhibit in the natural world, and, as a consequence, could be pervasive in high-level brain regions. We also make several specific predictions about which variables will be represented abstractly.
+}
+
+
+@article{johnston2024modular,
+  title={Modular representations emerge in neural networks trained to perform context-dependent tasks},
+  author={Johnston, W Jeffrey and Fusi, Stefano},
+  journal={bioRxiv},
+  year={2024}
+  % The brain has large-scale modular structure in the form of brain regions, which are thought to arise from constraints on connectivity and the physical geometry of the cortical sheet. In contrast, experimental and theoretical work has argued both for and against the existence of specialized sub-populations of neurons (modules) within single brain regions. By studying artificial neural networks, we show that this local modularity emerges to support context-dependent behavior, but only when the input is low-dimensional. No anatomical constraints are required. We also show when modular specialization emerges at the population level (different modules correspond to orthogonal subspaces). Modularity yields abstract representations, allows for rapid learning and generalization on novel tasks, and facilitates the rapid learning of related contexts. Non-modular representations facilitate the rapid learning of unrelated contexts. Our findings reconcile conflicting experimental results and make predictions for future experiments.
+}
+
+
+@inproceedings{NEURIPS2023_6a42b45a,
+ author = {Liao, Weiduo and Wei, Ying and Jiang, Mingchen and Zhang, Qingfu and Ishibuchi, Hisao},
+ booktitle = {Advances in Neural Information Processing Systems},
+ editor = {A. Oh and T. Naumann and A. Globerson and K. Saenko and M. Hardt and S. Levine},
+ pages = {33499--33513},
+ publisher = {Curran Associates, Inc.},
+ title = {Does Continual Learning Meet Compositionality? New Benchmarks and An Evaluation Framework},
+ url = {https://proceedings.neurips.cc/paper_files/paper/2023/file/6a42b45af2b72e6e5b5e3a6fe695809f-Paper-Datasets_and_Benchmarks.pdf},
+ volume = {36},
+ year = {2023}
+  % Compositionality facilitates the comprehension of novel objects using acquired concepts and the maintenance of a knowledge pool. This is particularly crucial for continual learners to prevent catastrophic forgetting and enable compositionally forward transfer of knowledge. However, the existing state-of-the-art benchmarks inadequately evaluate the capability of compositional generalization, leaving an intriguing question unanswered. To comprehensively assess this capability, we introduce two vision benchmarks, namely Compositional GQA (CGQA) and Compositional OBJects365 (COBJ), along with a novel evaluation framework called Compositional Few-Shot Testing (CFST). These benchmarks evaluate the systematicity, productivity, and substitutivity aspects of compositional generalization. Experimental results on five baselines and two modularity-based methods demonstrate that current continual learning techniques do exhibit somewhat favorable compositionality in their learned feature extractors. Nonetheless, further efforts are required in developing modularity-based approaches to enhance compositional generalization. We anticipate that our proposed benchmarks and evaluation protocol will foster research on continual learning and compositionality.
+}
+
+
+
+
+@article{graldi2025importance,
+  title={The Importance of Being Lazy: Scaling Limits of Continual Learning},
+  author={Graldi, Jacopo and Breccia, Alessandro and Lanzillotta, Giulia and Hofmann, Thomas and Noci, Lorenzo},
+  journal={arXiv preprint arXiv:2506.16884},
+  year={2025}
+    % Despite recent efforts, neural networks still struggle to learn in non-stationary environments, and our understanding of catastrophic forgetting (CF) is far from complete. In this work, we perform a systematic study on the impact of model scale and the degree of feature learning in continual learning. We reconcile existing contradictory observations on scale in the literature, by differentiating between lazy and rich training regimes through a variable parameterization of the architecture. We show that increasing model width is only beneficial when it reduces the amount of feature learning, yielding more laziness. Using the framework of dynamical mean field theory, we then study the infinite width dynamics of the model in the feature learning regime and characterize CF, extending prior theoretical results limited to the lazy regime. We study the intricate relationship between feature learning, task non-stationarity, and forgetting, finding that high feature learning is only beneficial with highly similar tasks. We identify a transition modulated by task similarity where the model exits an effectively lazy regime with low forgetting to enter a rich regime with significant forgetting. Finally, our findings reveal that neural networks achieve optimal performance at a critical level of feature learning, which depends on task non-stationarity and transfers across model scales. This work provides a unified perspective on the role of scale and feature learning in continual learning.
+}
+
+
+
+
+
+
+
+
+#### Benchmarks
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Split MNIST benchmark
+% Canonical reference for the continual learning scenarios (Task-IL, Domain-IL,
+% Class-IL) and standardized Split MNIST protocol.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@article{vandeven2019three,
+  title   = {Three Scenarios for Continual Learning},
+  author  = {Van de Ven, Gido M. and Tolias, Andreas S.},
+  journal = {arXiv preprint arXiv:1904.07734},
+  year    = {2019}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Permuted MNIST
+% Introduced the Permuted MNIST benchmark, where each task corresponds to a
+% different fixed permutation of the input pixels.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@article{goodfellow2013empirical,
+  title   = {An Empirical Investigation of Catastrophic Forgetting in Gradient-Based Neural Networks},
+  author  = {Goodfellow, Ian J. and Mirza, Mehdi and Xiao, Da and Courville, Aaron and Bengio, Yoshua},
+  journal = {arXiv preprint arXiv:1312.6211},
+  year    = {2013}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Split MNIST
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@inproceedings{zenke2017continual,
+  title={Continual learning through synaptic intelligence},
+  author={Zenke, Friedemann and Poole, Ben and Ganguli, Surya},
+  booktitle={International conference on machine learning},
+  pages={3987--3995},
+  year={2017},
+  organization={Pmlr}
+}
+
+
+% Early influential use of Split MNIST to evaluate catastrophic forgetting via
+% Elastic Weight Consolidation.
+@article{kirkpatrick2017overcoming,
+  title   = {Overcoming Catastrophic Forgetting in Neural Networks},
+  author  = {Kirkpatrick, James and Pascanu, Razvan and Rabinowitz, Neil and others},
+  journal = {Proceedings of the National Academy of Sciences},
+  volume  = {114},
+  number  = {13},
+  pages   = {3521--3526},
+  year    = {2017}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Split CIFAR-100 / Incremental ImageNet
+% Introduced iCaRL and established class-incremental CIFAR-100 and ImageNet
+% benchmarks.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@inproceedings{rebuffi2017icarl,
+  title     = {iCaRL: Incremental Classifier and Representation Learning},
+  author    = {Rebuffi, Sylvestre-Alvise and Kolesnikov, Alexander and Sperl, Georg and Lampert, Christoph H.},
+  booktitle = {Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {2001--2010},
+  year      = {2017}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CORe50
+% Introduced CORe50, a continual object recognition benchmark based on videos
+% of 50 household objects under varying conditions.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@inproceedings{lomonaco2017core50,
+  title     = {CORe50: A New Dataset and Benchmark for Continuous Object Recognition},
+  author    = {Lomonaco, Vincenzo and Maltoni, Davide},
+  booktitle = {Proceedings of the Conference on Robot Learning (CoRL)},
+  year      = {2017}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Continual World
+% Benchmark suite for continual reinforcement learning based on Meta-World.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@inproceedings{wolczyk2021continual,
+  title     = {Continual World: A Robotic Benchmark for Continual Reinforcement Learning},
+  author    = {Wo{\l}czyk, Maciej and Zajac, Mateusz and Lipowski, Adam and others},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS) Datasets and Benchmarks Track},
+  year      = {2021}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CLEAR
+% First benchmark for continual learning on temporally evolving real-world
+% image streams.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@inproceedings{lin2022clear,
+  title     = {CLEAR: A Benchmark for Continual Learning on Real-World Imagery},
+  author    = {Zhiqiu Lin , Jia Shi, Deepak Pathak, Deva Ramanan},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2022}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LIBERO
+% Large-scale lifelong robot manipulation benchmark with language-conditioned
+% tasks.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@article{liu2023libero,
+  title={Libero: Benchmarking knowledge transfer for lifelong robot learning},
+  author={Liu, Bo and Zhu, Yifeng and Gao, Chongkai and Feng, Yihao and Liu, Qiang and Zhu, Yuke and Stone, Peter},
+  journal={Advances in Neural Information Processing Systems},
+  volume={36},
+  pages={44776--44791},
+  year={2023}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Climb
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Srinivasan, T., Chang, T. Y., Pinto Alva, L., Chochlakis, G., Rostami, M., & Thomason, J. (2022). Climb: A continual learning benchmark for vision-and-language tasks. Advances in Neural Information Processing Systems, 35, 29440-29453.
+
+ This benchmark requires models to continually learn and update their parameters across different multimodal (vision and language) and unimodal tasks. It tests cross-task knowledge transfer and mitigating forgetting.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+@article{srinivasan2022climb,
+  title={Climb: A continual learning benchmark for vision-and-language tasks},
+  author={Srinivasan, Tejas and Chang, Ting-Yun and Pinto Alva, Leticia and Chochlakis, Georgios and Rostami, Mohammad and Thomason, Jesse},
+  journal={Advances in Neural Information Processing Systems},
+  volume={35},
+  pages={29440--29453},
+  year={2022}
+}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Vilco
+
+ A specialized benchmark tailored for evaluating video-text tasks. It incorporates challenges like long video clip processing, natural language complexity, and text-video temporal misalignment.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@article{tang2024vilco,
+  title={Vilco-bench: Video language continual learning benchmark},
+  author={Tang, Tianqi and Deldari, Shohreh and Xue, Hao and De Melo, Celso and Salim, Flora},
+  journal={Advances in Neural Information Processing Systems},
+  volume={37},
+  pages={70213--70229},
+  year={2024}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Continual Learning Bench
+
+ The widely used open-source evaluation framework. It tests stateful AI agent architectures (not just static models) across multiple real-world domains, measuring how effectively they reuse and learn from experience online.
+
+CL-BENCH instead constructs six expert-validated domains in which the latent structure is hidden, task-specific, and not recoverable from pretraining, so performance improves only when prior experience is correctly exploited.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@article{asawa2026continual,
+  title={Continual Learning Bench: Evaluating Frontier AI Systems in Real-World Stateful Environments},
+  author={Asawa, Parth and Glaze, Christopher M and Orlanski, Gabriel and Ramakrishnan, Ramya and Xu, Benji and Biswal, Asim and Chen, Vincent Sunn and Sala, Frederic and Zaharia, Matei and Gonzalez, Joseph E},
+  journal={arXiv preprint arXiv:2606.05661},
+  year={2026}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SkillLearnBench
+
+ The first benchmark dedicated to evaluating continual skill learning methods. It uses 20 verified tasks to assess how well an agent discovers, stores, and reuses skills from its operational experience.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@article{zhong2026skilllearnbench,
+  title={SkillLearnBench: Benchmarking Continual Learning Methods for Agent Skill Generation on Real-World Tasks},
+  author={Zhong, Shanshan and Lu, Yi and Ning, Jingjie and Wan, Yibing and Feng, Lihan and Ao, Yuyi and Ribeiro, Leonardo FR and Dreyer, Markus and Ammirati, Sean and Xiong, Chenyan},
+  journal={arXiv preprint arXiv:2604.20087},
+  year={2026}
+  % Skills have become the de facto way to enable LLM agents to perform complex real-world tasks with customized instructions, workflows, and tools, but how to learn them automatically and effectively remains unclear. We introduce SkillLearnBench, the first benchmark for evaluating continual skill learning methods, comprising 20 verified, skill-dependent tasks across 15 sub-domains derived from a real-world skill taxonomy , evaluated at three levels: skill quality, execution trajectory, and task outcome. Using this benchmark, we evaluate recent continual learning techniques, those leveraging one-shot, self/teacher feedback, and skill creator to generate skills from agent experiences. We find that all continual learning methods improve over the no-skill baseline, yet consistent gains remain elusive: no method leads across all tasks and LLMs, and scaling to stronger LLMs does not reliably help. Continual learning improves tasks with clear, reusable workflows but struggles on open-ended tasks, and using stronger LLM backbones does not consistently produce better skills. Our analysis also revealed that multiple iterations in continual learning facilitate genuine improvement via external feedback, whereas self-feedback alone induces recursive drift. Our data and code are open-source at [this https URL](https://github.com/cxcscmu/SkillLearnBench) to enable further studies of automatic skill generation and continual learning techniques.
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ATTENTION: Emerging Benchmark, but maybe not mix with other "real benchmarks"
+
+
+% RealCL
+% Proposes realistic continual-learning task generation protocols with
+% non-idealized task distributions.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@article{nasri2024realistic,
+  title={Realistic continual learning approach using pre-trained models},
+  author={Nasri, Nadia and Guti{\'e}rrez-{\'A}lvarez, Carlos and Lafuente-Arroyo, Sergio and Maldonado-Basc{\'o}n, Saturnino and L{\'o}pez-Sastre, Roberto J},
+  journal={arXiv preprint arXiv:2404.07729},
+  year={2024}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ATTENTION: Emerging Benchmark, but maybe not mix with other "real benchmarks"
+
+
+% RealCL
+% Proposes realistic continual-learning task generation protocols with
+% non-idealized task distributions.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%% Not sure how good of a fit, not explcityly continual learning? 
+
+@article{foundation2026arc,
+  title={ARC-AGI-3: A New Challenge for Frontier Agentic Intelligence},
+  author={Foundation, ARC},
+  journal={arXiv preprint arXiv:2603.24621},
+  year={2026}
+}

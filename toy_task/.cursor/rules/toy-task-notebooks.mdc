@@ -1,0 +1,68 @@
+---
+description: toy_task notebook defaults — similarity labels, grid, and QUICK settings
+globs: toy_task/notebooks/**/*.ipynb
+alwaysApply: false
+---
+
+# toy_task notebook conventions
+
+## Paper Same / Near / Far (always use explicit indices)
+
+Matches `a1b2_modular` (`near_rule=π/6`, `far_rule=π`). Import from `toy_task`:
+
+```python
+from toy_task import (
+    PAPER_SIM_IDX, PAPER_SIM_LABELS,
+    SIM_IDX_SAME, SIM_IDX_NEAR, SIM_IDX_FAR,
+    FULL_SIM_IDX, QUICK_GAMMAS, GAMMA_GRID,
+)
+
+SAME_IDX, NEAR_IDX, FAR_IDX = SIM_IDX_SAME, SIM_IDX_NEAR, SIM_IDX_FAR  # 0, 2, 6
+COND = PAPER_SIM_LABELS          # {0: "Same", 2: "Near", 6: "Far"}
+cond_order = PAPER_SIM_IDX       # categorical plots only
+```
+
+Never derive Near from `SIM_IDX[len(SIM_IDX)//2]` when the grid has more than three points (that wrongly picks π/4).
+
+| Label | Index | s |
+|-------|------:|---|
+| Same | 0 | 0 |
+| Near | 2 | π/6 |
+| Far | 6 | π |
+
+Categorical plots (Fig 1a, 2a, 2b, 3D PCA): use `cond_order = PAPER_SIM_IDX` only.
+Continuous similarity curves (Fig 1b): x-axis = actual `similarity` values from trained runs.
+
+## Training grid: QUICK vs full
+
+```python
+if QUICK:
+    SIM_IDX = PAPER_SIM_IDX              # [0, 2, 6] — Same / Near / Far only
+    GAMMAS  = QUICK_GAMMAS               # [0.001, 2.0] — rich + lazy extremes
+else:
+    SIM_IDX = FULL_SIM_IDX               # all 7 similarity levels
+    GAMMAS  = GAMMA_GRID                 # [0.001, 0.01, 0.1, 1.0, 2.0]
+```
+
+## Preferred full grid (paper-style notebooks)
+
+- `SEEDS = [0, 1, 2, 3, 4]` (5 seeds)
+- `SIM_IDX = FULL_SIM_IDX` → all 7 points on `SIMILARITY_GRID`
+- `GAMMAS = GAMMA_GRID`
+- `HIDDEN_SIZE = 50`
+- `EPOCHS = 300` for long-training runs (lazy γ saturates; `run_id` encodes the budget so caches won't mix)
+
+## Preferred QUICK smoke settings
+
+- `QUICK = True`
+- `SEEDS = [0, 1]`
+- `SIM_IDX = PAPER_SIM_IDX` → `[0, 2, 6]`
+- `GAMMAS = QUICK_GAMMAS` → `[0.001, 2.0]`
+- `EPOCHS = 80` (long-training nb) or `60` (shorter smoke)
+
+## Epoch cache
+
+`run_id` encodes `epochs_per_phase` (e.g. `dense_H50_g1.0_s0_e300_seed0`), so runs with
+different training durations are distinct cache keys and never silently overwrite or
+reload each other. Per-notebook `OUT_ROOT` dirs (`runs_nb02`, `runs_nb05`, …) are kept
+for organization, not correctness.

@@ -41,6 +41,9 @@ from scipy import stats  # noqa: E402
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from src.analysis import figstyle  # noqa: E402
+
+figstyle.apply()
 from src.analysis import grid as G  # noqa: E402
 
 FIGDIR = ROOT / "figures"
@@ -149,9 +152,10 @@ def main() -> None:
             eff_by_width[n] = effects({c: s[c]["delta_mean"] for c in CORNERS})
             eff_by_width[n]["n_arms_per_corner"] = min(s[c]["n_arms"] for c in CORNERS)
 
-    fig, axes = plt.subplots(2, 3, figsize=(15.5, 8.4))
-    fig.suptitle("Center correlation moves in opposite directions across the 2×2, and the two "
-                 "similarity axes act almost separately", fontsize=12)
+    fig, axes = plt.subplots(2, 3, figsize=figstyle.figsize(3.15))
+    fig.suptitle(figstyle.wrap("Center correlation moves in opposite directions across the 2×2, "
+                               "and the two similarity axes act almost separately"),
+                 fontsize=figstyle.fs(12))
 
     # (a) trajectories over the stream
     ax = axes[0][0]
@@ -164,16 +168,17 @@ def main() -> None:
         ax.errorbar(blocks, m, yerr=e, fmt="o-", color=CORNER_COLOR[c], lw=1.8, ms=4,
                     capsize=2, label=CORNER_LABEL[c])
     ax.set(xlabel="task boundary (block)", ylabel=r"$\rho_c$ (signed)",
-           title=f"(a) within-stream center correlation, $\\gamma_0$={args.gamma:g}")
-    ax.legend(frameon=False, fontsize=7.5, loc="upper left")
+           title=figstyle.wrap(f"(a) within-stream center correlation, "
+                               f"$\\gamma_0$={args.gamma:g}", 30))
+    ax.legend(frameon=False, fontsize=figstyle.fs(7.5), loc="upper left")
     ax.annotate("all four corners start together;\nthe split is training, not initialization",
-                xy=(0.40, 0.06), xycoords="axes fraction", fontsize=7, color="0.35")
+                xy=(0.40, 0.06), xycoords="axes fraction", fontsize=figstyle.fs(7), color="0.35")
 
     # (b) Δρ_c across the whole sweep, with the lazy baseline band
     ax = axes[0][1]
     x = np.log10(gs)
     ax.axhspan(lo, hi, color="0.85", zorder=0)
-    ax.text(x[0], hi * 1.9, "lazy-arm drift: unresolved", fontsize=7, color="0.35")
+    ax.text(x[0], hi * 1.9, "lazy-arm drift: unresolved", fontsize=figstyle.fs(7), color="0.35")
     for c in CORNERS:
         v = np.array([s[0] for s in sweep[c]])
         e = np.array([s[1] for s in sweep[c]])
@@ -181,9 +186,9 @@ def main() -> None:
                     label=c)
     ax.axhline(0, color="0.3", lw=0.9)
     ax.set(xlabel=r"$\gamma_0$", ylabel=r"$\Delta\rho_c$ over the stream",
-           title="(b) the ordering is a rich-regime effect")
-    ax.set_xticks(x, [f"{g:g}" for g in gs], fontsize=7)
-    ax.legend(frameon=False, fontsize=7.5, ncol=2)
+           title=figstyle.wrap("(b) the ordering is a rich-regime effect", 30))
+    ax.set_xticks(x, [f"{g:g}" for g in gs], fontsize=figstyle.fs(7))
+    ax.legend(frameon=False, fontsize=figstyle.fs(7.5), ncol=2)
 
     # (c) monotonicity: is the S-HL decline progressive, or an endpoint difference?
     #
@@ -196,11 +201,13 @@ def main() -> None:
                    color=CORNER_COLOR[c], alpha=0.55, edgecolors="none")
         ax.plot([i - 0.25, i + 0.25], [np.median(v)] * 2, color="k", lw=2)
         ax.text(i, 1.28, f"{rich[c]['fraction_declining'] * 100:.0f}%\ndeclining",
-                ha="center", fontsize=7, color="0.3")
+                ha="center", fontsize=figstyle.fs(7), color="0.3")
     ax.axhline(0, color="0.3", lw=0.9)
+    # Rotated: 'S-HH S-HL S-LH S-LL' runs together in a 1.8 inch panel.
+    ax.tick_params(axis='x', labelrotation=45)
     ax.set(xticks=range(4), xticklabels=CORNERS, ylim=(-1.45, 1.5),
            ylabel=r"per-arm Spearman($\rho_c$, block)",
-           title="(c) is the movement progressive? (bar = median)")
+           title=figstyle.wrap("(c) is the movement progressive? (bar = median)", 30))
 
     # (d) registered prediction against outcome
     ax = axes[1][0]
@@ -213,17 +220,21 @@ def main() -> None:
     imax = int(np.argmax(np.abs(v)))
     ax.set_ylim(min(v) - 0.062, max(v) + 0.052)
     ax.annotate("H6 predicted the\nlargest |Δ| here", xy=(1, v[1] - e[1]),
-                xytext=(-0.42, -0.100), fontsize=7.5, color="crimson",
+                xytext=(-0.42, -0.100), fontsize=figstyle.fs(7.5), color="crimson",
                 arrowprops=dict(arrowstyle="->", color="crimson", lw=1))
     ax.annotate(f"largest |Δ| is {CORNERS[imax]},\n2× larger", xy=(imax, v[imax] + e[imax]),
-                xytext=(1.70, 0.140), fontsize=7.5, color="crimson",
+                xytext=(1.70, 0.140), fontsize=figstyle.fs(7.5), color="crimson",
                 arrowprops=dict(arrowstyle="->", color="crimson", lw=1))
     ax.annotate("H1d predicted decorrelation everywhere:\n3 of 4 converge instead",
-                xy=(0.03, 0.90), xycoords="axes fraction", fontsize=7.5, color="crimson",
+                xy=(0.03, 0.90), xycoords="axes fraction",
+                fontsize=figstyle.fs(7.5), color="crimson",
                 va="top")
+    # Rotated: 'S-HH S-HL S-LH S-LL' runs together in a 1.8 inch panel.
+    ax.tick_params(axis='x', labelrotation=45)
     ax.set(xticks=range(4), xticklabels=CORNERS,
            ylabel=r"$\Delta\rho_c$ over the stream",
-           title=f"(d) H1d and H6 both fail ($\\gamma_0$={args.gamma:g})")
+           title=figstyle.wrap(f"(d) H1d and H6 both fail "
+                               f"($\\gamma_0$={args.gamma:g})", 30))
 
     # (e) the two similarity axes, separated
     ax = axes[1][1]
@@ -236,9 +247,9 @@ def main() -> None:
     ax.axhspan(-(hi - lo), hi - lo, color="0.85", zorder=0)
     ax.axhline(0, color="0.3", lw=0.9)
     ax.set(xlabel=r"$\gamma_0$", ylabel=r"effect on $\Delta\rho_c$ (half-difference)",
-           title="(e) richness sets the gain, the 2×2 sets the sign")
-    ax.set_xticks(xe, [f"{g:g}" for g in sorted(eff_by_gamma)], fontsize=7)
-    ax.legend(frameon=False, fontsize=7.5, loc="center left")
+           title=figstyle.wrap("(e) richness sets the gain, the 2×2 sets the sign", 30))
+    ax.set_xticks(xe, [f"{g:g}" for g in sorted(eff_by_gamma)], fontsize=figstyle.fs(7))
+    ax.legend(frameon=False, fontsize=figstyle.fs(7.5), loc="center left")
 
     # (f) and the same decomposition across width
     ax = axes[1][2]
@@ -251,18 +262,20 @@ def main() -> None:
     ax.axhspan(-(hi - lo), hi - lo, color="0.85", zorder=0)
     ax.axhline(0, color="0.3", lw=0.9)
     ax.set(xticks=range(len(ns)),
-           xticklabels=[f"N={n}\n({eff_by_width[n]['n_arms_per_corner']} arms/corner)"
+           xticklabels=[f"N={n}\n({eff_by_width[n]['n_arms_per_corner']}/corner)"
                         for n in ns],
            ylabel=r"effect on $\Delta\rho_c$",
-           title=f"(f) both main effects survive 4× load ($\\gamma_0$={args.gamma:g})")
+           title=figstyle.wrap(f"(f) both main effects survive 4× load "
+                               f"($\\gamma_0$={args.gamma:g})", 30))
     ax.set_ylim(top=max(eff_by_width[n]["readout"] for n in ns) * 1.45)
-    ax.legend(frameon=False, fontsize=7.5, ncol=3, loc="upper center")
+    ax.legend(frameon=False, fontsize=figstyle.fs(7.5), ncol=3, loc="upper center")
     ax.annotate("interaction is at the resolution limit,\nand noisiest where arms are fewest",
-                xy=(0.02, 0.86), xycoords="axes fraction", fontsize=7, color="0.4", va="top")
+                xy=(0.02, 0.86), xycoords="axes fraction",
+                fontsize=figstyle.fs(7), color="0.4", va="top")
 
     for a in axes.ravel():
         a.spines[["top", "right"]].set_visible(False)
-    fig.tight_layout(rect=(0, 0, 1, 0.95))
+    # layout: constrained_layout, set in src/analysis/figstyle.apply()
 
     FIGDIR.mkdir(parents=True, exist_ok=True)
     sha = result_set_sha(recs)

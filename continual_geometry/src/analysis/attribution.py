@@ -30,6 +30,8 @@ import numpy as np
 
 from src import provenance
 
+from . import timewarp
+
 _SOURCE = provenance.register(__file__)
 
 FACTORS = ("utility", "radius", "dimension")
@@ -64,9 +66,46 @@ RHO_FIT_RANGE = (0.0427, 0.8029)
 # Margin past the fitted endpoints still treated as interpolation.
 RHO_DOMAIN_TOL = 0.05
 
-# `R_eff` Monte-Carlo noise floor, CV 0.50% (`results/cost_model.json`), in log units.
-# Radius changes below this are unresolvable, so they cannot be a ratio's denominator.
-MIN_DLOG_R = float(np.log1p(0.0050))
+# `R_eff` Monte-Carlo noise floor, in log units. Radius changes below it are unresolvable, so
+# they cannot be a ratio's denominator.
+#
+# **This floor depends on γ, and a single constant was wrong.** The original value came from
+# one setting (CV 0.50%, `results/cost_model.json`). The per-γ measurement null
+# (`scripts/run_measurement_null.py`, W4 in `results/LOG.md`) re-measured the *same* trained
+# representation under several measurement seeds at every registered γ and found the retained
+# ensemble's `R_eff` dispersion rising monotonically with richness, from CV 0.28% to 1.13% —
+# 2.3× the old constant at γ=10, and 4× across the sweep. A single floor was therefore too
+# permissive exactly where this guard is used most, which is the same failure mode the guard
+# was introduced to prevent, one step further out. Values pool both modules, and live in the
+# floor registry beside the registered ones rather than being restated here.
+R_EFF_FLOOR_CV = timewarp.PER_GAMMA_FLOOR_CV["R_eff"]
+
+# The gate is set at **three** floors, not one. A denominator at 1σ of its own measurement noise
+# carries ~100% relative error, so the ratio built on it is noise over noise even though the guard
+# passed it. That is not hypothetical: in the one stream condition whose radius does not move
+# (`S-HH`, the registered benign corner), the median |Δ log R_eff| sits at 0.86–0.98 floors, half
+# its cells were admitted, and 50–75% of those came out with the *opposite sign* to the ρ_c
+# prediction. At 3σ that condition empties completely while the three conditions whose radius does
+# move are untouched — 40/40 cells each, identical medians — which is the signature of a threshold
+# that separates signal from noise rather than one that trims a distribution.
+FLOOR_GATE_K = 3.0
+
+# Used when γ is unknown or off-sweep: the largest measured floor, since a guard that fails
+# open is worse than one that occasionally refuses a resolvable change.
+MIN_DLOG_R = FLOOR_GATE_K * float(np.log1p(max(R_EFF_FLOOR_CV.values())))
+
+
+def min_dlog_R_for(gamma: float | None) -> float:
+    """The smallest `Δ log R_eff` usable as a denominator at this γ, in log units.
+
+    `FLOOR_GATE_K` measurement floors at the γ in question. Off-sweep γ gets the most
+    conservative measured floor rather than an interpolation: the floor is a property of the
+    estimator at a given richness, and guessing it would put a fabricated number in a guard
+    whose whole job is to refuse fabricated numbers.
+    """
+    if gamma is None or gamma not in R_EFF_FLOOR_CV:
+        return MIN_DLOG_R
+    return FLOOR_GATE_K * float(np.log1p(R_EFF_FLOOR_CV[gamma]))
 
 
 @dataclass(frozen=True)
@@ -118,8 +157,13 @@ def attribute(
     *,
     tol: float = 1e-8,
     strict: bool = True,
+    gamma: float | None = None,
 ) -> Attribution:
     """Decompose `Δ log α` from `before` to `after` into the three factors.
+
+    `gamma` selects the per-γ `R_eff` noise floor for the center-collapse share; omitting it
+    uses the most conservative measured floor. It affects nothing else — the three terms and
+    their shares are exact and need no floor.
 
     Sign convention: each term is the amount that factor **pushed capacity up**, so
     the dimension term carries the minus sign internally and the three terms sum to
@@ -159,7 +203,7 @@ def attribute(
         shares=shares,
         residual=residual,
         dominant=dominant,
-        center=center_collapse_share(before, after),
+        center=center_collapse_share(before, after, min_dlog_R=min_dlog_R_for(gamma)),
         meta={
             "cancellation": float(1.0 - abs(dlog_alpha) / total) if total > 0 else 0.0,
             "before": before.label,

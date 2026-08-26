@@ -1,8 +1,11 @@
 # 05 — Implementation Brief (NeurReps sprint)
 
 ```
-Status:   RATIFIED. This document is the plan of record through 2026-08-22.
-Deadline: NeurReps Extended Abstract, Aug 22 AoE. Today is Aug 10.
+Status:   RATIFIED. This document is the plan of record through 2026-08-24.
+Deadline: NeurReps Extended Abstract, Aug 24 AoE.
+          Corrected 2026-08-13 from Aug 22, which this brief carried and
+          `09-post-generation-brief.md` contradicted. Aug 24 is authoritative;
+          Kati confirmed. The two dates disagreed for three days.
 Scope:    Phase 1 (cut), homogeneous configs only. See §7 for what is NOT built.
 Overrides: where this brief conflicts with 00/01/02, this brief wins until the
           §1 reconciliation pass makes them agree. After that pass, the specs win.

@@ -34,6 +34,9 @@ import numpy as np  # noqa: E402
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from src.analysis import figstyle  # noqa: E402
+
+figstyle.apply()
 from src.analysis import grid as G  # noqa: E402
 from src.analysis.attribution import FACTORS, attribution_table  # noqa: E402
 
@@ -44,8 +47,22 @@ COLOR = {150: "#5B8FF9", 300: "#333333", 600: "#E8684A"}
 FIGDIR = ROOT / "figures"
 
 
-def collect(lag: int) -> tuple[dict, dict]:
-    """`(N, γ) -> attribution table`, on matched streams and seeds."""
+def result_set_sha(recs: list[dict]) -> str:
+    """Hash of the arms behind the figure, so a PDF is traceable to its inputs."""
+    h = hashlib.sha256()
+    for r in sorted(recs, key=lambda r: r["key"]):
+        h.update(r["key"].encode())
+        h.update(str(r["code"].get("modules", {})).encode())
+    return h.hexdigest()[:12]
+
+
+def collect(lag: int) -> tuple[dict, dict, dict]:
+    """`(N, γ) -> attribution table`, on matched streams and seeds.
+
+    This figure is the only one that reads two result sets — the width arms and a matched subset
+    of the registered grid — so it stamps both. A single `result_set_sha` would name one of its two
+    inputs and imply it had named them all.
+    """
     width = G.load(arms_dir=ROOT / "results" / "width")
     grid = G.load()
     matched = [r for r in grid if r["spec"]["stream_id"] < 2 and r["spec"]["seed"] < 2
@@ -59,7 +76,11 @@ def collect(lag: int) -> tuple[dict, dict]:
                 out[(spec.get("N", 300), spec["gamma_0"])].append(att)
         return {k: attribution_table(v) for k, v in out.items()}
 
-    return tab(width + matched), tab(full)
+    stamps = {"width_arms_sha": result_set_sha(width),
+              "grid_matched_subset_sha": result_set_sha(matched),
+              "grid_full_sha": result_set_sha(full),
+              "n_arms": len(width) + len(matched)}
+    return tab(width + matched), tab(full), stamps
 
 
 def main() -> None:
@@ -67,14 +88,15 @@ def main() -> None:
     ap.add_argument("--lag", type=int, default=12)
     args = ap.parse_args()
 
-    data, full = collect(args.lag)
+    data, full, stamps = collect(args.lag)
     if not data:
         sys.exit("no width arms on disk")
 
-    fig, axes = plt.subplots(2, 2, figsize=(10.8, 7.8))
-    fig.suptitle("The γ result is width-invariant; the one exception is the split *within* "
-                 f"the two non-utility channels   (lag {args.lag}, task 0, module A)",
-                 fontsize=11)
+    fig, axes = plt.subplots(2, 2, figsize=figstyle.figsize(3.5))
+    fig.suptitle(figstyle.wrap(
+        "The γ result is width-invariant; the one exception is the split *within* "
+        f"the two non-utility channels   (lag {args.lag}, task 0, module A)"),
+        fontsize=figstyle.fs(11))
     x = np.log10(GAMMAS)
 
     # (a) magnitude — the headline invariance
@@ -83,14 +105,15 @@ def main() -> None:
         fl = [G.floors(data[(n, g)]["dlog_alpha"], "alpha") for g in GAMMAS]
         ax.plot(x, fl, "o-", color=COLOR[n], lw=1.8, ms=5, label=f"N={n}  (P/N={16 / n:.3f})")
     ax.axhspan(-MIN_FLOORS, MIN_FLOORS, color="0.88", zorder=0)
-    ax.text(x[0], MIN_FLOORS * 1.4, f"±{MIN_FLOORS:g} floors: below resolution", fontsize=7,
+    ax.text(x[0], MIN_FLOORS * 1.4, f"±{MIN_FLOORS:g} floors: below resolution",
+            fontsize=figstyle.fs(7),
             color="0.35")
     gmax = max(GAMMAS)
     hi_fl = [G.floors(data[(n, gmax)]["dlog_alpha"], "alpha") for n in WIDTHS]
     spread = (max(hi_fl) - min(hi_fl)) / abs(np.mean(hi_fl))
     ax.set(ylabel=r"$\Delta\log\alpha$ (noise floors)", xlabel=r"$\gamma_0$",
            title=f"(a) how much is lost — {100 * spread:.1f}% spread at γ={gmax:g}")
-    ax.legend(frameon=False, fontsize=8)
+    ax.legend(frameon=False, fontsize=figstyle.fs(8))
 
     # (b) composition at each width, gated exactly as Figure 2 gates it
     ax = axes[0][1]
@@ -99,7 +122,8 @@ def main() -> None:
         for j, g in enumerate(GAMMAS):
             t = data[(n, g)]
             if abs(G.floors(t["dlog_alpha"], "alpha")) < MIN_FLOORS:
-                ax.text(j + (i - 1) * w, 0.5, "n/r", ha="center", va="center", fontsize=6,
+                ax.text(j + (i - 1) * w, 0.5, "n/r", ha="center", va="center",
+                        fontsize=figstyle.fs(6),
                         color="0.45", rotation=90)
                 continue
             bottom = 0.0
@@ -113,7 +137,8 @@ def main() -> None:
     ax.set(xticks=range(len(GAMMAS)),
            xticklabels=[f"γ={g:g}\nN=150 · 300 · 600" for g in GAMMAS], ylim=(0, 1),
            ylabel="share of total motion", title="(b) which channel carries it, per width")
-    ax.legend(frameon=False, fontsize=7.5, loc="upper center", bbox_to_anchor=(0.5, -0.14),
+    ax.legend(frameon=False, fontsize=figstyle.fs(7.5), loc="upper center",
+              bbox_to_anchor=(0.5, -0.14),
               ncol=3)
 
     # (c) the invariant: utility share
@@ -127,7 +152,7 @@ def main() -> None:
     ax.set(ylabel="utility share of total motion", xlabel=r"$\gamma_0$", ylim=(0, 0.6),
            title=f"(c) the utility share is width-invariant "
                  f"({min(uti):.3f}–{max(uti):.3f} at γ={gmax:g})")
-    ax.legend(frameon=False, fontsize=8)
+    ax.legend(frameon=False, fontsize=figstyle.fs(8))
 
     # (d) the one real N-dependence, and the fact that it cancels
     ax = axes[1][1]
@@ -141,20 +166,20 @@ def main() -> None:
             label="their sum (stable)")
     for xx, s in zip(xs, np.add(rad, dim)):
         ax.annotate(f"{s:.3f}", (xx, s), textcoords="offset points", xytext=(0, 7),
-                    ha="center", fontsize=7, color="0.35")
+                    ha="center", fontsize=figstyle.fs(7), color="0.35")
     ax.set(xticks=xs, xticklabels=[f"N={n}" for n in WIDTHS], ylim=(0, 0.72),
            ylabel="share of total motion",
            title=f"(d) the exception: the radius/dimension split moves (γ={g:g})")
     ax.annotate("the utility/non-utility division is width-invariant;\n"
                 "what moves is how the non-utility part is spent", xy=(0.03, 0.06),
-                xycoords="axes fraction", fontsize=7, color="0.35")
-    ax.legend(frameon=False, fontsize=8, loc="upper right")
+                xycoords="axes fraction", fontsize=figstyle.fs(7), color="0.35")
+    ax.legend(frameon=False, fontsize=figstyle.fs(8), loc="upper right")
 
     for a in (axes[0][0], axes[1][0]):
         a.set_xticks(x, [f"{gg:g}" for gg in GAMMAS])
     for a in axes.ravel():
         a.spines[["top", "right"]].set_visible(False)
-    fig.tight_layout(rect=(0, 0, 1, 0.94))
+    # layout: constrained_layout, set in src/analysis/figstyle.apply()
 
     FIGDIR.mkdir(parents=True, exist_ok=True)
     h = hashlib.sha256(str(sorted(data)).encode()).hexdigest()[:12]
@@ -162,6 +187,8 @@ def main() -> None:
     for ext in ("pdf", "png"):
         fig.savefig(FIGDIR / f"{stem}.{ext}", dpi=170)
     out = {"generated_by": "scripts/fig_width_invariance.py", "lag": args.lag,
+           "result_set_sha": stamps["width_arms_sha"], "n_arms": stamps["n_arms"],
+           "result_sets": {k: v for k, v in stamps.items() if k != "n_arms"},
            "min_floors": MIN_FLOORS, "matched_subset": "streams 0-1, seeds 0-1",
            "note": "lag 12 exists only for task 0; this is a task-0 figure",
            "cells": {f"N{n}_g{g:g}": {"dlog_alpha": data[(n, g)]["dlog_alpha"],
@@ -170,8 +197,8 @@ def main() -> None:
                                       "n": data[(n, g)]["n"]}
                      for n in WIDTHS for g in GAMMAS},
            "n300_full_grid_check": {f"g{g:g}": {"dlog_alpha": full[(300, g)]["dlog_alpha"],
-                                               "shares": full[(300, g)]["shares"],
-                                               "n": full[(300, g)]["n"]} for g in GAMMAS}}
+                                                "shares": full[(300, g)]["shares"],
+                                                "n": full[(300, g)]["n"]} for g in GAMMAS}}
     (FIGDIR / f"{stem}.json").write_text(json.dumps(out, indent=2))
     print(f"wrote figures/{stem}.{{pdf,png,json}}\n")
 

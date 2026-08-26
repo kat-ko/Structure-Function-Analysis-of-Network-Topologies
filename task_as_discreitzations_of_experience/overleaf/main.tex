@@ -1,0 +1,159 @@
+% This file was adapted from ICLR2022_conference.tex example provided for the ICLR conference
+\documentclass{article} % For LaTeX2e
+\usepackage{collas2026_conference,times}
+\usepackage{easyReview}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage[numbers]{natbib}
+\usepackage{float}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{math_commands.tex}
+
+% Please leave these options as they are
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=red,
+    filecolor=magenta,
+    urlcolor=blue,
+    citecolor=purple,
+    pdftitle={Overleaf Example},
+    pdfpagemode=FullScreen,
+    }
+
+
+\title{Implicit Assumptions About Tasks in Continual Learning}
+
+
+% Authors must not appear in the submitted version. They should be hidden
+% as long as the \collasfinalcopy macro remains commented out below.
+% Non-anonymous submissions will be rejected without review.
+
+\author{Antiquus S.~Hippocampus, Natalia Cerebro  \thanks{ Use footnote for providing further information
+about author (webpage, alternative address)---\emph{not} for acknowledging
+funding agencies.  Funding acknowledgements go at the end of the paper.} \\
+Department of Computer Science\\
+Random University\\
+Country \\
+\texttt{\{hippo,brain\}@cs.random.edu} \\
+\And % Use And to have authors side by side
+Koala Learnus \& D. Q. ResNet  \\
+Department of Computational Neuroscience \\
+University of Random City \\
+Another Country \\
+\texttt{\{koala,net\}@random.rand} \\
+\AND % Use AND to have authors block one under the other
+Coauthor \\
+Affiliation \\
+Address \\
+\texttt{email}
+}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+%\collasfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+
+%\preprintcopy % Uncomment for the preprint version, but NOT for submission.
+
+\begin{document}
+
+
+\maketitle
+
+\begin{abstract}
+Continual learning is usually framed as learning across a sequence of tasks, yet the notion of a task often bundles together several distinct properties of a sequential learning problem. In practice, what is called a task often jointly encodes properties of the underlying experience stream, the way that stream is partitioned, and the information available to the learner. This makes it difficult to determine whether observed differences in forgetting, transfer, replay value, or architectural suitability arise from the learning algorithm itself or from properties of the sequential learning problem. We therefore propose a preliminary decomposition into three layers: \emph{experience structure}, \emph{task discretization}, and \emph{learner access}. The goal of this late-breaking abstract is not to provide a complete taxonomy, but to offer a compact vocabulary for describing what continual-learning setups do and do not hold fixed. We illustrate the decomposition on representative continual-learning settings and discuss how it could support more precise benchmark interpretation.
+\end{abstract}
+
+
+
+
+\section{Introduction}
+Continual learning (CL) is commonly described as learning across a sequence of tasks while retaining useful knowledge from earlier experience \citep{peng2022continual,van2022three,van_de_Ven_2025}. Much of the field is therefore organized around benchmark task sequences and around quantities such as forgetting and transfer measured over those sequences \citep{mendez2022reuse}. However, what counts as a \emph{task} varies substantially across settings. In some benchmarks, tasks correspond to class partitions; in others, they correspond to changed input regimes, changed goals, or changed evaluation protocols. In addition, learner-facing information such as task identity or boundary signals is sometimes treated as part of the task and sometimes as part of the scenario definition \citep{vandeven2019three,van2022three}.
+
+This variation has scientific consequences, not merely terminological ones. What CL calls a task often bundles together different assumptions about the underlying stream of experience, about how that stream is segmented, and about what the learner is told. Differences in reported performance can then be difficult to attribute cleanly to an algorithm rather than to the sequential learning problem it was evaluated on.
+
+We respond by proposing a simple decomposition of what is often treated as a single \emph{task} into experience structure, task discretization, and learner access. Its immediate aim is to provide a compact vocabulary for stating what differs across continual-learning setups. A longer-term goal is to develop this vocabulary into a more systematic taxonomy that could eventually relate problem structure to forgetting, transfer, and architectural suitability; this submission does not yet offer such predictive claims. We do not argue that existing benchmarks are flawed. Rather, we argue that they instantiate different sequential learning problems whose underlying assumptions are often left implicit.
+
+\section{What Do CL Benchmarks Mean by ``Task''?}
+The term \emph{task} is used in several distinct senses across continual learning. It can denote a partition of classes \citep{van2022three,goodfellow2013empirical,rebuffi2017icarl}, a change in input distribution \citep{goodfellow2013empirical}, a goal or skill specification \citep{wolczyk2021continual,liu2023libero}, or a protocol governing what segmentation information is available to the learner \citep{van_de_Ven_2025}. These usages map onto different layers of a sequential learning problem rather than a single shared notion of task.
+
+In standard Split MNIST or Split CIFAR protocols, for example, a task is usually a subset of classes presented in sequence. In permutation-based settings, the label space may be preserved while the input transformation changes from one regime to the next. In task-based versus task-free variants of Split MNIST, the broad data family can remain closely related while learner access to boundary information changes. Goal-conditioned settings such as Continual World and LIBERO illustrate yet another pattern, where the relevant unit is closer to a goal or skill specification than to a class partition.
+
+This does not imply that existing benchmarks are misguided. Rather, it suggests that what is called a task often packages several ingredients at once. Table~\ref{tab:task-meanings} summarizes this heterogeneity in schematic form. The rows are illustrative rather than mutually exclusive: some refer to different kinds of task units, while others refer to protocol choices that can apply across benchmark families.
+
+
+\begin{table}[H]
+\centering
+\small
+\caption{Illustrative ways in which ``task'' can denote different units in continual-learning settings. The table is intentionally schematic.}
+\label{tab:task-meanings}
+\begin{tabularx}{\linewidth}{@{}lXl@{}}
+\toprule
+Setting family & Unit treated as a task & Main variation emphasized \\
+\midrule
+Split benchmarks & Class partition & Which labels are grouped together \\
+Permutation-style benchmarks & Input regime & Which transformation or input statistics apply \\
+Goal-conditioned continual settings & Goal or skill configuration & Which objective or behavior is currently relevant \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+\section{A Preliminary Decomposition}
+We propose a simple decomposition of continual-learning problems into three layers.
+
+\paragraph{Experience structure.}
+Experience structure includes regularities in the underlying stream itself, such as similarity between successive regimes, temporal change, recurrence, and the way experience is exposed or revisited. Prior work has shown that several of these properties influence forgetting and transfer \citep{bell2022effect,doan2021theoretical,hiratani2024disentangling,lin2023theory,li2025optimal,ramasesh2020anatomy}. We use these factors as examples here, not as a complete list.
+
+
+\paragraph{Task discretization.}
+This refers to how an observer or benchmark designer segments and aggregates continuous experience into units treated as distinct tasks. It includes not only segmentation and boundary placement, but also granularity and scope: how much variation is grouped together under one task label.
+
+\paragraph{Learner access.}
+This refers to what information about that discretization is available to the learner, such as task identity, boundary signals, or context labels. Continual learning already distinguishes task-, domain-, and class-incremental scenarios according to whether task identity is available at test time \citep{vandeven2019three,van2022three}. We treat these distinctions as properties of learner access rather than as complete characterizations of the underlying sequential learning problem; even when the broad data source remains similar, differences in learner access can substantially change the problem being solved \citep{van_de_Ven_2025}.
+
+
+The central claim is intentionally limited: what CL papers call a task often reflects some combination of these three layers. Separating them does not yet solve benchmark comparison, but it can make clearer what is being varied, what is being held fixed, and what is being conflated. In this sense, the decomposition is intended as a descriptive language for sequential learning problems before it becomes a predictive one.
+
+
+
+\section{What This Decomposition Clarifies}
+This decomposition matters because describing a setting only as a task sequence can blur important differences that become visible once experience structure, task discretization, and learner access are separated. Two settings may share a similar task discretization while differing in learner access. For example, the same broad benchmark family can be studied with or without explicit task identity or marked boundaries \citep{van2022three,van_de_Ven_2025}. Conversely, two settings may expose similar learner information while differing in experience structure, such as in similarity relations, recurrence, or exposure schedule.
+
+These separations also matter for interpretation. Forgetting and generalization can depend on task similarity and ordering \citep{bell2022effect,doan2021theoretical,hiratani2024disentangling,lin2023theory,li2025optimal,ramasesh2020anatomy}, and work on pretrained and foundation-model settings suggests that strong performance may also depend on properties of the underlying representation and data stream rather than on the CL mechanism alone \citep{ostapenko2022continual,thede2024reflecting}. Survey work on knowledge reuse and composition emphasizes that relations among tasks matter for how knowledge is accumulated and reused over time \citep{mendez2022reuse}. Taken together, these results motivate caution when reading benchmark outcomes as if they were properties of an algorithm independently of the sequential problem structure in which it was evaluated. At this stage, the decomposition is mainly useful for interpretation: it helps ask whether reported forgetting reflects the learning rule, the structure of the experience stream, or what the learner is permitted to observe about that structure.
+
+% Separating these layers reveals distinctions that are obscured when a sequential learning problem is described only as a sequence of tasks. Two settings may share a similar task discretization while differing in learner access; for example, the same broad benchmark family can be studied with or without explicit task identity or marked boundaries \citep{van2022three,van_de_Ven_2025}. Conversely, two settings may expose similar learner information while differing in experience structure, such as in similarity relations, recurrence, or exposure schedule. Taken together, prior theoretical and empirical work motivates caution when reading benchmark outcomes as if they were properties of an algorithm independently of the sequential problem structure in which it was evaluated \citep{bell2022effect,doan2021theoretical,hiratani2024disentangling,lin2023theory,li2025optimal,ramasesh2020anatomy,ostapenko2022continual,thede2024reflecting,mendez2022reuse}. At this stage, the decomposition is mainly useful for interpretation: it helps ask whether reported forgetting reflects the learning rule, the structure of the experience stream, or what the learner is permitted to observe about that structure.
+
+
+\section{Work in Progress and Outlook}
+This submission is a first conceptual step rather than a finished taxonomy. Its immediate contribution is a preliminary vocabulary for stating whether two experiments differ in experience structure, task discretization, learner access, or some combination of these. The benchmark illustrations are selective, and several dimensions still need sharper definitions.
+
+Looking ahead, a natural next step is to develop this vocabulary into a more systematic taxonomy and to test whether these dimensions can support predictive claims about continual-learning performance. In particular, future work should ask whether sharper definitions of similarity, change, exposure, and scope can help anticipate when different CL methods, replay strategies, or architectural choices are likely to succeed.
+
+% Looking ahead, future work will investigate whether sharper definitions of similarity, change, exposure, and scope can support predictive claims about continual-learning performance---for example, whether they can help anticipate when different CL methods, replay strategies, or architectural choices are likely to succeed.
+
+More broadly, this perspective treats what CL calls a task as a researcher-imposed discretization of structured experience rather than as a primitive unit of analysis. A more explicit language for describing sequential learning problems may therefore help clarify what current benchmarks do and do not allow the field to compare.
+
+
+
+\bibliography{collas2026_conference}
+\bibliographystyle{collas2026_conference}
+
+\end{document}
