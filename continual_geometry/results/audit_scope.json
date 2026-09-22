@@ -29,7 +29,7 @@
     {
       "status": "PASS",
       "check": "no a1b2 machinery in the imported code path",
-      "evidence": "23 project modules imported by run_phase1, 1,995 identifiers scanned; no routing / task-conditioned heads / task-ID input / comms / gating / a1b2 config names"
+      "evidence": "23 project modules imported by run_phase1, 2,004 identifiers scanned; no routing / task-conditioned heads / task-ID input / comms / gating / a1b2 config names"
     },
     {
       "status": "PASS",
@@ -128,8 +128,13 @@
     },
     {
       "status": "PASS",
-      "check": "module hashes match the current tree",
-      "evidence": "0/1280 differ from {'attribution': 'fe9daafc00437f30', 'core': '2a2f3bea1a985849', 'pipeline': '6ed6be5e1235948e'}"
+      "check": "code drift from the arms on disk is declared and derivation-only",
+      "evidence": "attribution: arms ['fe9daafc00437f30'] vs tree d71d6a286c123fd4; pipeline: arms ['6ed6be5e1235948e'] vs tree 995fc31a36ee53e2. Declared: ['attribution', 'pipeline']"
+    },
+    {
+      "status": "PASS",
+      "check": "current code re-derives the stored identity exactly",
+      "evidence": "worst |\u0394| 0.00e+00 over 25,600 re-derived attributions (\u0394 log \u03b1 and all three terms)"
     },
     {
       "status": "PASS",

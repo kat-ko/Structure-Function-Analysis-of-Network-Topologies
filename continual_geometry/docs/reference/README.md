@@ -33,17 +33,18 @@ matter how confident it looks.
 
 | Sheet | Owner | State |
 |---|---|---|
-| `validation-settings.md` | agent-drafted | awaiting human verify |
-| `manifold-generator.md` | agent-drafted | awaiting human verify |
-| `parameterization.md` | agent-drafted (Table 1 cells need human check) | awaiting human verify |
-| `cl-metrics.md` | agent-drafted | awaiting human verify |
+| `validation-settings.md` | agent-drafted → human | **signed 2026-09-01** (Chou B.5) |
+| `manifold-generator.md` | agent-drafted → human | **signed 2026-09-01** (Chou D.1.1; labels are a stated deviation) |
+| `parameterization.md` | agent-drafted → human | **Table 1 + V1 signed 2026-09-01**; A.3 dangling |
+| `cl-metrics.md` | agent-drafted → human | A.1–A.10 signed 2026-09-01; running max; §A.7 |
 | `glue-algorithm.md` | **human** (Algorithm 2 + Def B.6; high transcription risk) | not written |
 | `glue-decomposition.md` | agent-drafted (ICLR 2026 §B.3, exact 3-factor identity + a/b/c) | awaiting human verify |
-| `glue-core-validation.md` | agent-**measured** (own implementation; every number from `results/*.json`, not from a paper) | written; awaiting human verify |
+| `glue-core-validation.md` | agent-**measured** | **signed 2026-09-01** (B.5 numbers spotted against JSON; §5a present) |
 | `glue-sign-conventions.md` | **human** (App B.4; ρ_a vs ρ_c opposite, ψ non-monotone) | not written |
 | `correlation-duality.md` | agent-draft → human verify vs PRL supplement (+ Gaussianization, `00` §6.3) | not written |
 | `glue-refinements.md` | agent-draft (main text) → human verify + extract S1 | drafted; which-assumptions done, A2↔C4 cross-ref added, S1 formula pending |
-| `parameterization-derivation.md` | human (base-width constant, derived + unit-tested) | not written |
+| `parameterization-derivation.md` | independent derivation, V1 signed | A.3 dangling; `(N/N_base)` confirmed |
+| `protocol-deviations.md` | human (D.1.1 balanced-dichotomy departure) | **written 2026-09-01** |
 | `generalization-metrics.md` | human (Johnston & Fusi probe metric) | not written |
 | `ccgp-protocol.md` | agent-draft → human verify (Bernardi 2020) | not written |
 | `optimal-coding-statistics.md` | **human** (Wakhloo/Slatton four statistics; high risk) | not written |

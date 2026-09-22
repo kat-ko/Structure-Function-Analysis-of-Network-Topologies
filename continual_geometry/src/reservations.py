@@ -1,8 +1,7 @@
 """The two arrangement populations in `results/reserved_arrangements.json`.
 
 The reserved set never informs `lr0`, the rank grid, or the stopping criterion.
-`tests/test_reserved_arrangements.py` fails if a reserved stream id appears in a
-design-decision artifact.
+`tests/test_reserved_arrangements.py` asserts that provenance directly.
 """
 
 from __future__ import annotations

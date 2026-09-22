@@ -12,9 +12,30 @@
 # loss curves and similarity matrices. The pooled `results/phase1_summary*.json` is
 # the tracked artifact; per-arm files are regenerable with `run_phase1.py --resume`.
 /results/phase1/
+/results/corrected_lr/
+/results/rank/
+/results/isotropic/
+/results/nottuned/
+/results/scope/
+/results/recurrence/
+/results/adam/
+/results/hamming/
+/results/small_n_grid/
+/results/unconfound_k3/
+/results/width_g10_n40/
+/results/width_smoke/
+/results/shh_width/
+/results/gamma_5/
+/results/gamma_5_k8/
+/results/gamma_5_n40/
+/results/rank_one_arm_unnested/
+/results/logs/
+/results/*.log
 
 # Human-only PDFs stay out of git (also enforced by papers/.gitignore).
 papers/*.pdf
+paper/harness/*.pdf
+paper/harness/*.blg
 
 # Local env / caches
 .venv/

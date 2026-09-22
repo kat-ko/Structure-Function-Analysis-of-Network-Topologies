@@ -7,7 +7,7 @@
     "code": "src/pipeline.py:stream_rng"
   },
   "rule": "The reserved set never informs lr0, the rank grid, or the stopping criterion.",
-  "rule_enforced_by": "tests/test_reserved_arrangements.py",
+  "rule_enforced_by": "tests/test_reserved_arrangements.py (lr0 / grid / stopping provenance, not string presence of reserved ids in new-axis pre-commits)",
   "populations": {
     "old": {
       "name": "old arrangements",
@@ -51,11 +51,10 @@
     "scripts/run_phase0_richness.py",
     "scripts/run_phase1.py"
   ],
-  "design_decision_globs": [
-    "results/*precommit*.json"
-  ],
+  "design_decision_globs": [],
   "not_design_decision": [
     "This file (the reservation itself).",
+    "New-axis pre-commits that name the reserved population as experimental subjects. That is the intended use. Provenance of lr0, the rank grid, and stopping is asserted directly.",
     "Per-arm result records whose stream_id is the experimental unit after the law, rank grid, and stopping criterion are already fixed.",
     "The not-tuned duplicate under the primary law, which is the point of the reserved set."
   ]

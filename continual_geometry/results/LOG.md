@@ -1348,6 +1348,11 @@ average error) is **1.0 on the grid, 0.615 interpolated in log γ**, so the comp
 threshold brackets γ* rather than the pre-registered 0.1. Reporting the location as an
 interval, since six half-decade points cannot place it tighter.
 
+> **Superseded in two ways by the per-γ floor refit below** (see "Panel (d) refit"). The floor
+> was refitted, so the numbers are now 0.12 → 0.24 → 0.43 → 0.42 at 88–100% coverage; and the
+> final step was never resolved in either fit, so "rises through γ = 10" should read "rises
+> steeply through γ = 3, then plateaus". The paragraph is kept as written for the record.
+
 **The radius channel is increasingly center collapse.** The ρ_c-attributable share of
 Δ log R_eff rises 0.13 → 0.23 → 0.42 → 0.43 with γ, at 90–100% panel coverage for
 γ ≥ 0.3. So in rich arms nearly half the radius change is centers moving rather than
@@ -2235,24 +2240,33 @@ Generic capacity ratio `α(γ=10)/α(γ=0.03)`, and signed `Δρ_c` over the str
 | capacity ratio, 150 | 1.20 | **1.43** | **0.96** | 1.24 |
 | capacity ratio, 300 | 1.20 | **1.46** | **0.95** | 1.26 |
 | capacity ratio, 600 | 1.21 | **1.48** | **0.95** | 1.26 |
-| Δρ_c, 150 | +0.0628 | **−0.0454** | +0.0931 | +0.0254 |
-| Δρ_c, 300 | +0.0586 | **−0.0508** | +0.0922 | +0.0210 |
-| Δρ_c, 600 | +0.0565 | **−0.0544** | +0.0902 | +0.0201 |
+| Δρ_c, 150 — **4 arms/corner** | +0.0628 | **−0.0454** | +0.0931 | +0.0254 |
+| Δρ_c, 300 — **4 arms/corner** (matched subset) | +0.0586 | **−0.0508** | +0.0922 | +0.0210 |
+| Δρ_c, 600 — **4 arms/corner** | +0.0565 | **−0.0544** | +0.0902 | +0.0201 |
+| **Δρ_c, 300 — 40 arms/corner (full grid; authoritative)** | **+0.0551** | **−0.0550** | **+0.1098** | **+0.0114** |
 
 The four-corner ordering is **identical at all three widths on both measures**. `S-HL` rises
 most in generic capacity and is the only corner whose centers decorrelate, at every width;
 `S-LH` is the only corner whose generic capacity falls and has the largest convergence, at
 every width. The `S-HL` decorrelation even strengthens mildly with width (−0.045 → −0.054).
 
-> **Correction, added when Figure 4 supplied a baseline for ρ_c.** The `S-LL` column of the
-> `Δρ_c` rows above (+0.0254/+0.0210/+0.0201) must not be read as convergence. Those are
-> 4-arm cells; with all 40 arms at N=300 the value is **+0.0114**, which against the
-> lazy-arm drift band of [+0.005, +0.010] is **1.1× baseline, sign test p=0.15 — an
-> unresolved non-effect**. The 4-arm estimate ran ~2× high. The three claims in the
-> paragraph above are unaffected, since each concerns `S-HL` or `S-LH`, both of which are
-> 10× baseline. But "the ordering is identical at all three widths" should be read as a
-> statement about the three resolved corners: `S-LL`'s rank is not meaningful because
-> `S-LL` does not move.
+> **Correction — the row, not the cells.** This was first patched in the `S-LL` column alone
+> (+0.0210 → +0.0114, an unresolved non-effect against the lazy-arm drift band of
+> [+0.005, +0.010]: 1.1× baseline, sign test p=0.15). Patching one column was the wrong fix, and
+> it cost a second wrong number: `S-LH` was later quoted in the §5.4 draft as +0.0922 from the
+> same row when the 40-arm value is **+0.1098**. **Every cell in all three Δρ_c rows is a 4-arm
+> estimate**, so the fix is the row label above and the authoritative 40-arm row beside it.
+>
+> The three 4-arm rows are kept because the width contrast has to be like-for-like — an N=300
+> line averaged over ten times more arms than its neighbours would make any difference sampling
+> rather than width. They are not a source for any other purpose. Their noise is ±0.02 on
+> quantities whose real effects run 0.011 to 0.110, which is why they land within a factor of two
+> of the 40-arm values in *either* direction (S-LH low by 0.018, S-LL high by 0.010) and why the
+> interaction term, a difference of differences, comes out 3× its 40-arm size at both edge widths.
+>
+> Two consequences for claims. "The ordering is identical at all three widths" is a statement
+> about the three resolved corners; `S-LL`'s rank is not meaningful because `S-LL` does not move.
+> And the `S-HL`/`S-LH` claims are unaffected at any arm count, both being ~10× the drift band.
 
 **Consequence.** "One architecture" is no longer the paper's most obvious vulnerability: the
 attribution magnitude, the utility share, the γ-reorganization, and the unregistered corner
@@ -2592,3 +2606,1823 @@ because attribution re-derives from stored geometry, so this is a re-summarize a
 or drop panel (d) to the appendix and state the radius channel's resolvability only in aggregate.
 Also worth noting: `Psi_eff` has **no registered floor at all**, which is why `grid.floors()`
 raises rather than borrowing another channel's; W4 now supplies one if it is ever wanted.
+
+---
+
+## Panel (d) refit: the corrected floor is per-γ, and panel (d) survives it
+
+Pre-branched test, outcome rules fixed before the numbers were read: coverage ≥ 70% at γ = 3 and
+10 with the growth pattern intact → panel (d) stays in Figure 2 with per-γ floors and a caption
+note; coverage collapse or lost pattern → panel (d) moves to the appendix. **Coverage passed and
+the shares barely moved, so panel (d) stays.**
+
+Refitted `MIN_DLOG_R` from one constant to the measured per-γ table (pooling both modules, so
+8 measurement seeds per γ). Old constant: CV 0.50% at every γ.
+
+| γ₀ | floor CV, old → new | coverage, old → new | median share, old → new |
+|---|---|---|---|
+| 0.03 | 0.50% → 0.28% | 19% → **53%** | −0.005 → 0.015 |
+| 0.1 | 0.50% → 0.31% | 84% → 84% | 0.040 → 0.040 |
+| 0.3 | 0.50% → 0.62% | 100% → 100% | 0.124 → 0.124 |
+| 1 | 0.50% → 0.81% | 94% → 88% | 0.231 → 0.240 |
+| 3 | 0.50% → 0.71% | 91% → **88%** | 0.422 → 0.431 |
+| 10 | 0.50% → 1.12% | 91% → **88%** | 0.425 → 0.421 |
+
+Coverage at γ = 3 and 10 is **88%**, a 3-point loss, well clear of the 70% branch. No median
+moves by more than 0.010.
+
+**The strict-monotonicity question, answered rather than eyeballed.** The refit flips the sign of
+the top step (γ = 3 → 10: +0.004 before, −0.010 after), so `strictly increasing` is now False. But
+that step was **never resolved in either fit** — bootstrap on the median difference, 20k
+resamples: old +0.004 with CI [−0.031, +0.074], refit −0.010 with CI [−0.038, +0.070]. Both
+straddle zero. Every step *below* it is resolved and positive, in the refit: +0.025
+[+0.018, +0.039], +0.084 [+0.070, +0.097], +0.116 [+0.089, +0.140], +0.191 [+0.155, +0.219]. So
+the correct description was always "rises steeply through γ = 3, then plateaus", and the pre-refit
+claim of monotone growth *through the top* was reading an unresolved 0.004 as a trend. The refit
+did not break the pattern; it corrected how the pattern was stated.
+
+**Two honest consequences of a γ-dependent gate.** The bars are now gated at different thresholds,
+so their coverage percentages are not comparable across bars — printed per bar in the panel and
+stated in the caption. And at γ = 0.03 the corrected floor is *smaller* than the constant, so
+coverage rises 19% → 53%: the refit admits more cells where there is nothing to attribute (0.1
+floors of α change). Those two bars are hatched in the panel as "no resolvable forgetting".
+
+**Verified that the refit touches nothing else.** Re-derived every pooled `dlog_alpha`, term and
+share at lag 12 against the committed figure JSON: worst absolute difference **0.00e+00**. Panels
+(a)–(c) are bit-identical, as they must be — the floor gates one reported ratio and the identity
+is exact. Two tests pin this: one that the same radius change is reported at γ = 0.03 and refused
+at γ = 10, off-sweep γ, and unknown γ; one that the three terms and shares are invariant to the
+floor.
+
+Three smaller decisions taken with it:
+
+- **Off-sweep γ is not interpolated.** `min_dlog_R_for` returns the largest measured floor for
+  unknown γ. Guessing a floor would put a fabricated number inside a guard whose job is refusing
+  fabricated numbers, and a ruler that is too short flatters the result.
+- **`grid.floors()` is now γ-aware** for channels with a per-γ table, defaulting to the most
+  conservative. This changes no live number — every live `floors()` call is `alpha`, which W4
+  found γ-flat — but it closes the path by which a future caller silently picks up the old,
+  too-permissive `R_eff` value.
+- **`NOISE_FLOOR_CV` is left alone.** Its remaining consumer is the warp test, which compares
+  trajectories at two different γ and therefore cannot be denominated in either one's floor. The
+  per-γ table lives beside it as `PER_GAMMA_FLOOR_CV`, and `attribution` imports it rather than
+  restating it.
+
+**The Ψ_eff floor is recorded and not used.** `PER_GAMMA_FLOOR_CV['Psi_eff']` now holds
+[0.0115, 0.0240], with a comment saying why it is inert: the utility channel has run un-floored
+through every analysis, and retro-fitting a gate would move numbers for no gain at this stage.
+
+Logged as the third instance of the guard-too-permissive family in `07-writeup.md` §A.2, after the
+ρ_c clip and the arccos/dual clips. The generalisable point is that each guard was calibrated at
+the one setting that motivated it, and testing it at another setting is cheap.
+
+**Where this leaves panel (d):** in Figure 2, but as its weakest element — post-hoc calibration,
+a corrected floor, per-bar gating — while (a)–(c) are clean and carry the attribution claim.
+§5.1's paragraph 3 stays short regardless, per the standing instruction.
+
+**Side effect: the audit's stale-code check fired, and it was right to.** Editing `attribution.py`
+and `pipeline.py` means the 1,280 arms on disk were produced by code that no longer matches the
+tree, and `audit_scope` failed on hash equality. Hash equality was the wrong invariant, but the
+fix is not to weaken it. The check now (i) reports drift *per module* against a hand-written
+declaration naming what changed and why measurement is untouched, with `core` deliberately absent
+from that list because geometry cannot be re-derived without re-running; and (ii) adds
+`audit_rederivation`, which recomputes the identity from stored geometry with current code and
+requires the stored terms back exactly. That is a stronger check than the one it replaces:
+**worst |Δ| 0.00e+00 over 25,600 re-derived attributions.** A drift that had touched measurement
+would fail there rather than being waved through by a declaration. Audit now 32 pass, 1 warn
+(the pre-existing sibling-import warn), 0 fail.
+
+---
+
+## Two cheap checks, and a conflation in Figure 2 that they exposed
+
+### Check 1: the lag-4 companion — composition holds, and the reviewer question is answered
+
+Figure 2 is task 0 at lag 12, by construction the maximum-forgetting cell. Re-ran at lag 4 both
+ways — restricted to task 0 (a pure lag change) and pooled over tasks (the grid-average cell),
+using a new `--task` flag so the two are separable. Added because a lag comparison pooled over
+tasks varies two things at once, task position being the larger of the two (W5).
+
+Shares as plotted (ratio-of-means) agree across all three cells to **≤ 0.033 at every γ**, while
+the magnitude changes by 1.3–1.8×:
+
+| γ₀ | lag 12, task 0 | lag 4, task 0 | lag 4, pooled | largest share gap |
+|---|---|---|---|---|
+| 0.3 | 0.101 / 0.478 / 0.421 | 0.131 / 0.477 / 0.392 | 0.120 / 0.474 / 0.407 | 0.030 |
+| 1 | 0.284 / 0.413 / 0.303 | 0.296 / 0.403 / 0.301 | 0.263 / 0.403 / 0.334 | 0.033 |
+| 3 | 0.407 / 0.430 / 0.164 | 0.425 / 0.418 / 0.157 | 0.398 / 0.413 / 0.189 | 0.032 |
+| 10 | 0.448 / 0.431 / 0.121 | 0.480 / 0.419 / 0.101 | 0.471 / 0.424 / 0.104 | 0.032 |
+
+(Ψ_eff / −D_eff / radius.) Magnitude ratio lag 12 : lag 4 within task 0 is **1.30–1.33×** at every
+γ, matching W5's 1.34× for lag 4 → 15; against the task-pooled lag-4 cell the same ratio inflates
+to 1.65–1.78×, which is the task confound reappearing exactly as W5 said it would.
+
+A **paired** within-arm test (same arm, lag 4 vs lag 12, 20k bootstrap) does resolve small drifts,
+largest at γ=10: utility −0.055 [−0.065, −0.046], dimension +0.031, radius +0.024. So composition
+is *near*-invariant, not invariant. The number that matters is the comparison: the γ-dependent
+swing being claimed is 0.10 → 0.45 in utility share, a change of **0.35**, against a
+cell-choice sensitivity of **≤ 0.055** — six times smaller. (Paired means-of-ratios and the
+plotted ratio-of-means differ slightly by construction; both are quoted above as what they are.)
+
+### Check 2: the capacity pair at γ=30 — no surprise waiting out there
+
+Both capacities keep rising past the registered range and retained stays above generic, with the
+ratio still growing. Nothing to revise.
+
+| γ₀ | generic α | retained α | ratio |
+|---|---|---|---|
+| 3 | 0.3404 ± 0.0009 | 0.7261 ± 0.0047 | 2.133 |
+| 10 | 0.3750 ± 0.0018 | 1.0519 ± 0.0092 | 2.805 |
+| **30** | **0.4159 ± 0.0046** | **1.4175 ± 0.0239** | **3.408** |
+
+Both γ=10 → 30 steps resolved (8.3 and 14.3 SEM). Monotone in γ throughout, retained > generic at
+every γ including 30, 64/64 usable, 0 unconverged. Worth noting against the other γ=30 result:
+the ρ_c **main effects saturate** above γ=10 while **capacity does not**, so "saturation at γ=30"
+is a statement about the center-geometry effects specifically, not about the sweep in general.
+
+### What check 1 turned up on the way: Figure 2 pools a gain with three losses
+
+Following the per-corner breakdown of panel (d) — `S-HH` had a *negative* median share and half
+the coverage of every other corner — the cause is not the panel. **`S-HH` does not forget. Its
+retained capacity rises.** Mean Δ log α at lag 12, per corner:
+
+| γ₀ | S-HH | S-HL | S-LH | S-LL |
+|---|---|---|---|---|
+| 0.3 | **+0.173** | −0.283 | −0.071 | −0.204 |
+| 1 | **+0.219** | −0.692 | −0.259 | −0.504 |
+| 3 | **+0.201** | −1.117 | −0.552 | −0.852 |
+| 10 | **+0.114** | −1.540 | −1.035 | −1.301 |
+
+Behavioral forgetting from the accuracy matrix agrees exactly: `S-HH` is **−0.0005 to +0.0001** at
+every γ — zero — against +0.40 for `S-HL`, +0.15 for `S-LL`, +0.01 for `S-LH`. And this is the
+**registered prediction for that corner coming true**: `01` §3.1 lists `S-HH` (s_f = s_r = 0.9) as
+"benign". Its tasks are distinct, so this is backward transfer in a benign corner, not a
+degenerate cell.
+
+The consequence is that Figure 2's pooled panels average a capacity *gain* against three capacity
+*losses*, and panel (a)'s axis label — "how much retained capacity is lost" — is not true of one
+of the four corners it pools. Three concrete symptoms, all of which had been noticed and
+misattributed:
+
+- **Panel (d)'s `S-HH` bar was noise over noise.** Its median |Δ log R_eff| is **0.86–0.98× the
+  floor** while the other three corners sit at **10–21×**; 50% of its cells are refused and 50–75%
+  of those admitted have the *opposite sign*. At a 3× gate `S-HH` empties completely (0/40) and the
+  other three corners are untouched (40/40, identical medians). All of panel (d)'s missing coverage
+  was this one corner.
+- **The γ=0.3 utility-share collapse to 0.101** was read as the utility term crossing zero within
+  the pool. Part of it is `S-HH` contributing an opposite-signed utility term: over the three
+  losing corners the same share is **0.189**.
+- **Panel (b) at γ=1 is a genuine mixture**: pooled utility share 0.284 is *below all four*
+  corner values (0.296, 0.330, 0.355, 0.529), because corner-level utility terms partially cancel
+  in the pooled mean. Spread across corners is 0.233 in utility and 0.220 in radius at γ=1,
+  narrowing to 0.072 and 0.063 by γ=10.
+
+**The headline claim is stronger, not weaker, once the benign corner is separated.** Utility share
+rises monotonically with γ in each of the three forgetting corners taken individually
+(`S-HL` 0.203 → 0.469, `S-LH` 0.068 → 0.397, `S-LL` 0.212 → 0.466) and falls in `S-HH`. Pooled
+over the three that forget:
+
+| γ₀ | Δ log α | floors | Ψ_eff | −D_eff | radius |
+|---|---|---|---|---|---|
+| 0.3 | −0.186 | 10.0 | 0.189 | 0.443 | 0.368 |
+| 1 | −0.485 | 26.2 | 0.332 | 0.421 | 0.246 |
+| 3 | −0.840 | 45.3 | 0.414 | 0.436 | 0.150 |
+| 10 | −1.292 | 69.7 | 0.449 | 0.437 | 0.114 |
+
+Monotone in both directions — utility up, radius down — with no term crossing zero anywhere in the
+range, and every γ resolvable including γ=0.3 at 10.0 floors where the 4-corner pool gives 5.2.
+The 4-corner version needs "below floor" annotations at two γ; this one does not.
+
+**Not acted on.** Changing Figure 2's primary object is a figure decision, not a bug fix, and it is
+the load-bearing panel four days out. Reported for a decision.
+
+### Decision taken: three-corner Figure 2, gate at 3σ
+
+Both decisions implemented and figures regenerated. `FLOOR_GATE_K = 3.0` in `attribution`, and
+`fig2_gamma_sweep.py` now defaults to `--condition forgetting` (the three losing corners named
+explicitly, so which conditions are pooled is a stated choice rather than an outcome of the numbers
+being reported), with `--condition S-HH` drawing the benign corner alone.
+
+**The three-corner figure at lag 12**, all six γ present:
+
+| γ₀ | floors | Δ log α | Ψ_eff | −D_eff | radius | utility>0 | panel (d) median | coverage |
+|---|---|---|---|---|---|---|---|---|
+| 0.03 | 0.2 | −0.0033 | — | — | — | 0.42 | n/a | 0% |
+| 0.1 | **2.1** | −0.0389 | 0.082 | 0.531 | 0.388 | 0.25 | 0.053 | 58% |
+| 0.3 | 10.0 | −0.1859 | 0.189 | 0.443 | 0.368 | 0.08 | 0.122 | 92% |
+| 1 | 26.2 | −0.4849 | 0.332 | 0.421 | 0.246 | **0.00** | 0.256 | **100%** |
+| 3 | 45.3 | −0.8400 | 0.414 | 0.436 | 0.150 | **0.00** | 0.442 | **100%** |
+| 10 | 69.7 | −1.2917 | 0.449 | 0.437 | 0.114 | **0.00** | 0.450 | **100%** |
+
+Every improvement over the 4-corner version comes from removing a sign mixture, not from removing
+data: γ=0.1 becomes resolvable at 2.1 floors (was 0.4), the utility term is negative on **100%** of
+arms for γ ≥ 1 (was 75%), and panel (d) reaches **100% coverage at γ ≥ 1** — better than the 88%
+that the refit alone gave, and better than the 91% we started with. Panel (d)'s γ=3 → 10 step is
+still unresolved (0.442 vs 0.450), so the "rises through γ=3, then plateaus" reading is unchanged.
+
+**The benign corner on its own** is worth its own panel rather than a footnote: capacity gain peaks
+at **γ=1 (11.8 floors)** and *falls* to 6.2 by γ=10, so backward transfer is strongest at moderate
+richness. Its utility and dimension terms are both positive while its **radius term is negative**
+at γ ≥ 1, and panel (d) empties at γ ≥ 3 exactly as it should — there is no radius movement to
+attribute. At γ=1 its one admitted bar is **negative (−0.50)**, i.e. ρ_c and R_eff moved in
+opposite directions; the panel now shows negative bars rather than clipping them to the axis floor,
+since clipping would render a sign disagreement as a small positive share.
+
+Three plotting bugs fixed while doing this, each of which had been hiding the conflation:
+
+- **Panel (a) plotted a magnitude.** `G.floors()` returns `abs(Δ log)/floor`, so a corner that
+  *gained* capacity plotted as though it had lost that much, under an axis reading "how much
+  retained capacity is lost". The panel now plots a signed value and the title follows the sign.
+- Panel (d) printed the floor CV in a label reading "gate", when the gate is 3× that.
+- The hatched-bar legend line was drawn whether or not any bar was hatched.
+
+Appendix updated: the pooled-sign artifact is now the first and largest of the four aggregation
+artifacts in `07-writeup.md` §A.1, and the 1σ → 3σ correction joins the guard family in §A.2 as the
+same guard failing in level as well as in γ-dependence. Figure 2's caption drafted in §D.
+
+---
+
+## Write-up scaffolding: drafts, a reproducible figure set, and an inventory that checks itself
+
+Generation stopped. Three artifacts, in the order requested.
+
+**`docs/07-writeup.md` restructured into §5 drafts.** Part 1 is §5.1 (the decomposition), §5.2
+(both capacities rise; the two label-agnostic measures disagree between richness levels), §5.3
+(what it survives: width, lag, task position, and the measured floors it is denominated in), §5.4
+(center correlation across the 2×2), and a §5.5 placeholder for the pre-registration table. Part 2
+holds the figure captions and the appendix material. §5.1 is written on the three-corner numbers
+and §5.4's limits are stated with the claims they bound, both as decided above.
+
+**`scripts/make_figures.py` regenerates the final set and writes `figures/MANIFEST.json`.** Six
+figures, each with the exact command that produced it, the result-set hash it read, the git SHA and
+module hashes of the code that ran, and a SHA-256 of every output file. `--check` verifies the
+manifest against disk without regenerating and is the form to run before submitting. Anything not
+in the declared final set is moved to `figures/superseded/` rather than left in place: **12 files
+moved**, all of them four-corner-pooled variants, which is exactly the material that would have
+been indistinguishable from current work by filename once the arm count matched.
+
+**`docs/08-inventory.md` is generated by a script that re-reads every number from its source.**
+49 entries, each with a getter that reads the value back out of the artifact it came from, compared
+**at the precision the paper quotes** — a paper saying "0.2 floors" is making a claim about the
+first decimal, and 0.176 satisfies it. It fails rather than warns, so the inventory cannot become
+the stale copy. A further 20 numbers whose source is a one-off analysis are listed separately with
+their log entry, not machine-checked, and marked as such.
+
+### It caught one on the first run
+
+**`S-LH`'s Δρ_c is +0.110, not +0.092.** The value in the §5.4 draft came from the W1 width table's
+N=300 row, which is a **4-arm cell**; the 40-arm value from Figure 4 is +0.1098. This is the same
+failure as the `S-LL` +0.0210 → +0.0114 correction, from the *same table row*, which had been
+corrected only for `S-LL`. Every entry in that row is a 4-arm estimate: the true 40-arm values are
++0.0551 / −0.0550 / +0.1098 / +0.0114. The row now carries a comment saying so, and §5.4 says
++0.110. The claim it supports is unchanged — `S-LH` is still twice `S-HL` and in the opposite
+direction, since 0.1098 / 0.0550 = 2.0.
+
+Two smaller corrections from the same pass. §5.3's width numbers were quoted from the W1 log entry
+(all lags) while the width *figure* is lag 12: at γ₀=10 the figure gives 47.5–48.2 floors and
+utility 0.438–0.472, not 32.0–32.8 and 0.440–0.460. The draft now quotes the artifact in the final
+set and states that the width comparison pools all four conditions on both sides — like-for-like
+across widths, so it certifies invariance rather than §5.1's absolute share levels. And the
+four-corner starting spread is 0.0014, not 0.0017.
+
+**Remaining before submission**, unchanged: §5.5's pre-registration table, and the two
+verifications only Kati can sign — the Graldi §3 base-width derivation, which underlies every γ
+label in every figure, and `glue-core-validation.md`, which §4 is written from.
+
+---
+
+## Tier 1 propagation audit: the headline held, §B's meaning did not
+
+`scripts/audit_propagation.py`, one script, `results/audit_propagation.json`. Every quantity that
+averaged over the 2×2 recomputed at both groupings from one observation table, so the two cannot
+drift apart through two implementations of the same pooling. The reconstruction reproduces the
+drafted four-corner values exactly where a script existed to produce them — Figure 2's
+0.1/−0.4/−5.2/−16.7/−31.3/−50.7, the width row's 47.9/48.2/47.5 and its utility shares
+0.438–0.472, W5a's 39.0/46.9/50.7/52.1 and 1.34×, W5b's 39.0/27.8/23.1 and 1.69×, γ=30's 71.1 —
+which is what licenses reading the three-corner column as a change rather than as a difference of
+method.
+
+**Marking each row `estimand` or `error` is not cosmetic.** Figure 2 at γ=10 reads 50.7 four-corner
+and 69.7 three-corner. Nothing was miscomputed; the pooled population changed, and only one of the
+two answers the question the paper asks. The 4-arm row below is the other kind. Presented in one
+column without the distinction, a 37% movement in a headline invites "which of these is right",
+whose answer differs by row.
+
+### What moved, and by how much
+
+| quantity | 4-corner | 3-corner | kind |
+|---|---|---|---|
+| Fig 2 magnitude, γ=10 | 50.7 fl | **69.7 fl** | estimand |
+| Fig 2 magnitude, γ=0.1 | 0.4 fl (unresolvable) | **2.1 fl (resolvable)** | estimand |
+| utility share over the resolvable range | 0.101 → 0.448 (from γ=0.3) | **0.083 → 0.449 (from γ=0.1)** | estimand |
+| width magnitude, γ=10, N=150/300/600 | 47.9 / 48.2 / 47.5 | **65.7 / 66.6 / 65.6** | estimand |
+| width utility-share spread, γ=10 | 0.034 | **0.024** | estimand |
+| W5a lag ratio, γ=10 (lag 4→15) | 1.34× | **1.29×** | estimand |
+| W5b task ratio, γ=10 (task 8→0) | 1.69× | **1.56×** | estimand |
+| cell-mean r², distance only | 0.885 | **0.878** | estimand |
+| arm-level R², distance + lag | 0.092 | **0.589** | estimand |
+| condition alone, R² | 0.816 | **0.523** | estimand |
+| stream alone / seed alone | 0.000 / 0.002 | **0.000 / 0.007** | estimand |
+| implied common asymptote α_∞, γ=10 | 0.815 | **0.526** | estimand |
+| γ=30 magnitude, lag 12 | 71.1 fl | **94.5 fl** | estimand |
+| panel (d) median share, γ≥1 | 0.249 / 0.442 / 0.450 | **0.256 / 0.442 / 0.450** | estimand |
+| panel (d) coverage, γ≥1 | 78 / 75 / 75% | **100 / 100 / 100%** | estimand |
+| Δρ_c at N=300, all four corners | 4-arm row | **40-arm row** | **error** |
+
+Three rows of that table need more than a new number.
+
+**§B's variance decomposition changes meaning, not magnitude.** "Which corner of the 2×2 you are in
+explains 81% of how much gets forgotten" was measured with one corner having the opposite sign, so a
+large part of that 0.814 was condition encoding a *sign*, not a size. Removing it: condition falls
+to 0.523 while distance-above-asymptote plus lag rises from 0.092 to **0.589**. The ordering
+inverts. The four-corner table said forgetting is mostly about which stream you are in and barely
+about where in it you are; the three-corner table says the two are comparable, with distance and lag
+slightly ahead. §B is a rewrite rather than a renumbering, and it is held for Kati's read.
+
+**The reproducibility half survives, as predicted.** Stream instantiation 0.000 → 0.000 and seed
+0.002 → 0.007: both within-cell quantities, untouched by which cells are pooled. The paired-init and
+shared-stream justification stands exactly as drafted.
+
+**§A.1's own worked example was itself a four-corner artifact.** The cell-mean inflation pair was
+quoted as 0.889 → 0.099, a factor of nine. At three corners it is 0.878 → **0.589**, a factor of
+1.5. Most of the apparent inflation was not cell-averaging at all: it was that a model of pull
+toward a common asymptote cannot fit a corner that moves *away* from it, which crushed the arm-level
+R² while leaving the ten cell means smooth. The artifact is real and the lesson holds, but the
+worked example has to be restated at its true size — and it is a fourth instance of the same
+pooling fault, this time inside the appendix that describes the fault.
+
+**Two drafted sentences disagreed with the figure they describe.** The regroup made γ=0.1 resolvable
+(2.1 floors, from 0.4), so panel (b) now draws five bars where §5.1 and the caption described four:
+the utility share range starts at 0.083, not 0.19, and dimension is not "near 0.44 throughout" but
+falls 0.53 → 0.44 across the first step and is flat after. Both are corrected. Neither changes a
+claim — the exchange between utility and radius is the same, over one more step of γ.
+
+### The 4-arm row, fixed as a row
+
+All twelve Δρ_c cells in the width block are 4-arm estimates, including the N=300 row, which is a
+matched 16-arm subset rather than the 160-arm grid. Patching the one cell we noticed (`S-LL`
++0.0210 → +0.0114) guaranteed meeting the next one, and we did: `S-LH` +0.0922 reached the §5.4
+draft where the 40-arm value is +0.1098. The rows now carry their arm count in the row label and the
+authoritative 40-arm row sits beside them. Their noise is ±0.02 against real effects of 0.011 to
+0.110, which is why they miss in both directions (S-LH low by 0.018, S-LL high by 0.010) and why the
+interaction term, a difference of differences, comes out 3× its 40-arm size at both edge widths —
++0.020 against +0.006. The additivity claim uses the 40-arm value and is unaffected.
+
+### Sign audit: the gain is unique to the benign corner
+
+520 cells across the registered grid, the width arms and the γ=30 probe, each cell a
+(γ, condition, N, task, lag) mean. 172 have positive mean Δ log α; 98 clear ±2 floors; **all 98 are
+`S-HH`, and none of the other three corners produces a resolvable gain anywhere** — not at any
+richness, lag, task position or width. The 44 positive cells outside `S-HH` reach at most +0.74
+floors, i.e. a third of the resolution gate, and sit almost entirely at γ ≤ 0.1 where nothing moves
+in either direction. So backward transfer is a property of that corner rather than a tendency
+appearing unresolvably elsewhere, and §5.1 may state it as such.
+
+### One observation surfaced early from Tier 2.1
+
+The gain is **not** the mirror image of a loss. In the three forgetting corners all three terms are
+negative at every resolvable γ. In `S-HH` utility and dimension are positive while the radius term
+is *negative* from γ=1 onward (−0.0154, −0.0015, −0.0124 at γ=1, 3, 10) — the radius channel opposes
+the two that carry the gain, having agreed with them at γ ≤ 0.3. So a corner that gains retained
+capacity does so by aligning with labels and shedding dimension *against* a small radius cost, which
+is a different channel signature from a loss and not a sign flip of one. Quantification is Tier 2.1;
+the qualitative fact bears on how §5.1 frames backward transfer, so it is recorded now.
+
+### A gap this audit closed, and one it opened
+
+Closed: the W5 series and the variance decomposition were computed in throwaway shell sessions and
+were not reproducible from any script, which is why the reconstruction agrees with §B's drafted
+numbers to within 0.007 rather than exactly. They now have one.
+
+Opened: the width contrast's middle line is a 16-arm matched subset that differs from the full grid
+by 4.5% at γ=10, three times the 1.5% spread across widths. "Varies by 1.5%" therefore overstates
+the precision available — the honest form is that no width dependence is detectable and 1.5% bounds
+one. §5.3 is corrected to say that.
+
+### §B rewritten, and two sections strengthened by their own corrections
+
+**§B now leads with the pair of zeros.** Stream instantiation 0.000 and initialization seed 0.007
+are what the note exists for: they are the measurement that turns pairing initializations and
+sharing streams from tidiness into a justified choice, and they are untouched by the regroup because
+both are within-cell. The condition/position split is demoted to a descriptive sentence — 0.523 for
+which corner, 0.589 for distance above the asymptote plus lag, 0.882 together — with **no dominance
+claim in either direction**, since the two are close, they overlap through the corner-by-position
+interaction, and the design was not built to separate them.
+
+The old sentence said condition explains 81% against 9% for position, a ratio of nine. That was
+largely an artifact of the sign: a categorical predictor separating one gain from three losses will
+explain most of the variance of a *signed* quantity nearly regardless of what else holds. §B states
+that, because a reader comparing this table to an earlier draft deserves the reason rather than a
+silent change.
+
+**§A.1's second example is now reported at its true size, as an illustration of §A.1.** The
+cell-mean inflation pair was 0.889 → 0.099 and is 0.878 → 0.589, a factor of 1.5 rather than nine.
+The diagnosis matters more than the number: the arm-level R² was not crushed by cell-averaging but
+by fitting a pull-toward-a-common-asymptote model to a corner that moves *away* from it, for which
+no value of "distance above the asymptote" predicts anything. So the appendix documenting the
+pooling fault had committed it in sizing its own example. Written that way deliberately — the
+section's claim is that pooling is a modelling assumption rather than a neutral step, and the
+strongest evidence available is that we made the assumption while writing the section.
+
+**§5.1 states backward transfer categorically and adds the channel signature.** The sign audit
+licenses "a property of that corner, not a tendency present elsewhere in weaker form" — 520 cells,
+every resolvable gain an `S-HH` cell, largest gain elsewhere 0.74 floors against a gate of 2. And
+the gain is a distinct route rather than forgetting in reverse: utility and dimension positive
+against a *negative* radius term, so capacity is gained by aligning with labels and shedding
+dimension at a small radius cost. That is an argument for the decomposition itself, since a
+magnitude-only measure would present gain and loss as one quantity with two signs. The peak's
+location is stated only as the largest of six sampled richnesses; Tier 2.3 bounds it, and no
+sentence pairs it with the behavioural optimum.
+
+**Width claim tightened.** "Varies by 1.5%" became "no width dependence is detectable, with 1.5%
+bounding one rather than measuring one", because the matched middle line differs from the full grid
+by 4.5% — three times the spread being reported.
+
+### `notebooks/results.ipynb` — the diagnostic artifact
+
+Thirteen cells, runs top to bottom in about 8 seconds, executed clean in CI-style with
+`nbconvert --execute`. Sections 1–3 and 5–10 built; **§4 is a stub** that reports backward transfer
+as far as Tier 1 established it — magnitudes across richness, the sign audit, the channel
+signature — and names the three things Tier 2 owes, including the pre-committed text rule on the
+peak location written into the section header rather than kept in a brief.
+
+The logic lives in `src/analysis/ledger.py` so that the notebook cells are thin and the discipline
+is testable. Three properties are enforced by the code rather than asked for:
+
+- **`Table` raises if `n` or the arm-selection rule is missing.** Both are rendered in the output,
+  not held in a comment. The 4-arm row reached drafted text twice because its arm count was
+  recoverable but not visible, and an optional `n` is an omitted `n`.
+- **A value that cannot be re-derived prints "not re-derivable from stored data"** rather than a
+  blank, since a blank cell reads as zero.
+- **Full precision and the paper's rounding sit in adjacent columns.** The inventory compares at
+  quoted precision; the notebook is where the unrounded value lives.
+
+`tests/test_analysis_ledger.py` pins all three, plus that the ledger covers all four fault families,
+that every entry names where it is quoted, and that unresolved non-effects are marked so rather than
+reading as corrected measurements.
+
+**The notebook found something on its first run, which is the point of it.** §5.3 quoted the
+matched-subset-versus-full-grid gap as 5.1% and compared it to a 1.5% spread across widths, calling
+it "three times". The 5.1% was four-corner and the 1.5% three-corner, so the ratio was between two
+different populations. At a common grouping the gap is 4.5% against a 1.52% spread — still three
+times, so the claim survives, but it was only accidentally true. Corrected in `07-writeup.md`,
+`make_inventory.py` and here, with the reason recorded in the inventory so the pairing is not
+re-split later.
+
+**Also re-derived rather than transcribed:** the H2d stratification, which was previously an ad-hoc
+computation recorded only in this log. The notebook reproduces it exactly — pooled −0.128, within-γ
++0.056 / +0.026 / +0.009 / +0.108 / +0.190 / +0.322, fully stratified +0.135 at γ = 10 and near zero
+elsewhere. That was the last analysis in the paper with no script behind it.
+
+Two housekeeping consequences: `notebook` is a new optional dependency group, kept out of the
+default set so no measurement path can acquire a dependency on notebook tooling; and `flake8` is now
+declared in `dev` with a `.flake8` at max-line-length 100, having previously been present only by
+accident and pruned by the first `uv sync`.
+
+### Pre-commitment for Tier 2.2, written before the numbers are computed
+
+Kati's point is that 2.2 is the item whose outcome cannot be predicted, and that a gain confined to
+task 0 is a different claim from backward transfer generally. So the framing is fixed here, against
+the design as it actually exists, before running anything.
+
+**The design.** Ten (task, lag) cells at 40 arms each: task positions {0, 4, 8, 12} and lags
+{3, 4, 7, 8, 11, 12, 15}. Lag and position are confounded by construction — only early tasks can
+have long lags — so **two matched series carry the whole question** and nothing is pooled across
+them:
+
+- **position at matched lag**: tasks 0, 4 and 8, all at lag 4. Task 12 cannot appear; its longest
+  lag is 3.
+- **lag within one position**: task 0 at lags 4, 8, 12 and 15.
+
+**Resolution rule, same gate as everywhere else.** A cell shows the gain if its mean Δ log α is
+positive and at least 2 α noise floors, with a bootstrap CI over its 40 arms excluding zero. Cells
+below the gate are *unresolved*, not zero.
+
+**The three outcomes, with the sentence each licenses, fixed now:**
+
+1. **General** — resolvable at all three positions at lag 4 *and* at all four lags within task 0.
+   Then §5.1 says: in the benign corner retained capacity rises rather than falls, at every position
+   and lag the design can resolve, and backward transfer is a property of the corner.
+2. **Primacy** — resolvable at task 0 and at neither of the other two matched positions. Then the
+   claim is **not** backward transfer. It is that *the first task of a stream benefits from a
+   subsequent stream of similar tasks*, which is a statement about position and would need a
+   mechanism about the first task's privileged role. §5.1 would then say that, and would explicitly
+   decline "similar streams produce backward transfer" as a corner-level property. Figure 2's benign
+   panel would be relabelled to name the task it describes.
+3. **Gradient** — resolvable at some positions and not others, monotone in position. Then §5.1
+   reports the gain as largest for the earliest task and declining, gives the count, and makes no
+   claim beyond the positions where it resolves.
+
+**Two things ruled out in advance.** No claim about lag will be drawn from anything but the
+within-task-0 series, and no claim about position from anything but the matched-lag-4 series;
+the pooled lag ratio already overstated lag once for exactly this reason (§A.1). And if the outcome
+is (2) or (3), the existing §5.1 sentence — "a property of that corner" — is **too strong as
+written** and gets narrowed, regardless of how much better the categorical version reads.
+
+### Tier 2 complete — and 2.3 landed the opposite way from the caution
+
+`scripts/tier2_backward_transfer.py`, reading stored geometry, training nothing. Report in
+`results/tier2_backward_transfer.json`; notebook §4 is no longer a stub.
+
+**2.2 first, since its framing was pre-committed: general.** All ten (task, lag) cells of the benign
+corner resolve as gains, at each of γ = 1, 3 and 10 — thirty cells, no exceptions. That is
+pre-committed outcome (1), so §5.1's categorical sentence stands unnarrowed. The two matched series,
+never pooled: at lag 4 the gain runs +8.7, +12.6, +12.8 floors for tasks 0, 4, 8 at γ = 10, and
+within task 0 it runs +8.7, +9.0, +6.2, +3.1 floors at lags 4, 8, 12, 15. **The primacy reading is
+not merely unsupported, it is backwards** — at matched lag the earliest task gains *least*. And the
+gain decays with elapsed time rather than accumulating.
+
+**2.1 found something the Tier 1 qualitative note had missed.** The gain is not the losses with all
+three signs flipped. For γ ≥ 1 the radius term is negative in **every corner, including the one that
+gains**: `R_eff` grows wherever the representation moves, and that costs capacity everywhere. Only
+utility and dimension change sign. So the four corners share one channel and differ in two, which is
+a sharper statement than "a mechanistically distinct process" and a better argument for the
+decomposition — pooling the three losses had hidden the common channel just as it had hidden the
+gain.
+
+Reported in **signed** shares, which surfaced a third instance of the §A.3 family. The standard share
+is `|term| / Σ|term|`, a magnitude by deliberate choice with a stated justification. In the benign
+corner the radius term opposes the other two, so that share reads as an 11% contribution to a gain it
+subtracts 11% from. A normalisation by a sum of magnitudes takes an absolute value without spelling
+it `abs`. §A.3 now says so.
+
+**2.3 is where the caution's reasoning failed, and the conclusion held anyway.** The predicted
+outcome was two unresolved locations. Instead: at lag 12 the peak is *sharply* determined —
+interpolated γ = 1.23, paired bootstrap over 40 (seed, stream) units [1.18, 1.28], a fifteenth of a
+grid step. Model error across five defensible functional forms is 0.28 steps and dominates the
+sampling CI, but even that leaves the location inside a third of a step.
+
+**What decides it is that the peak moves monotonically with lag**: 2.86, 1.75, 1.23, 0.96 at lags 4,
+8, 12, 15 — nearly a full grid step end to end. There is no richness at which backward transfer is
+strongest; there is one per lag. The question is ill-posed unless the lag is fixed first, so §5.1
+reports the shape and no location. Two notes on process. First, an earlier version of the check
+called this "stable" because the range fitted inside one grid step; a range test cannot see a
+monotone slide, and the flag now tests the trend. Second, **the unconditional text rule was worth
+having precisely because its stated reason turned out to be wrong.** Had the rule been conditional on
+the CI, a 0.07-step interval landing at 1.23 would have licensed exactly the coincidence sentence the
+rule existed to prevent.
+
+**§A.4 added: comparisons between quantities pooled over different populations.** Named by the 5.1%
+/ 1.5% pairing the notebook caught, with §5.3's three-corner decomposition beside four-corner ratios
+as the second instance. Distinct from §A.1 because each value is correct about its own population, so
+no recomputation finds it — only asking of each number what it was computed over. The appendix intro
+now says four families.
+
+**§B gained a sentence on executable provenance**, since the stratification script closed the last
+gap: no number in the text exists only as a figure produced once or a computation done at a prompt.
+
+Inventory now 68 numbers, 19 prose-pinned. 140 tests, lint clean, notebook 13 cells in 4.8 s.
+
+### §5.5 written — and two registered hypotheses had no verdict until now
+
+The last drafting item. Full table of all thirteen registered entries including H3a/H3b, H4 and H5,
+which were never run: a register with the untested rows deleted is not a register.
+
+**H1b had no recorded verdict, and the honest one is "untestable".** It predicted lazy forgetting is
+ρ_c-accounted. At γ = 0.03 forgetting is 0.2 floors — under the gate — and the ρ_c-to-radius
+attribution is available in **0 of 120 arms**, rising to 58% at γ = 0.1 and 100% from γ = 1. So both
+the subject and the instrument are absent exactly where the hypothesis lives. Reported as untestable
+rather than null: a null implies we looked and saw nothing, and there was nothing to look at.
+
+**H1a passes its statistic and fails its mechanism, and the statistic is the interesting part.**
+Registered measure: the combined radius + utility share, predicted higher in rich. It is, 0.470 at
+γ = 0.1 against 0.563 at γ = 10, so the kill does not fire. But three shares sum to one, so
+"radius + utility" **is** "one minus dimension" — the registered test reduces to *the dimension share
+falls with richness*, by 0.09. And the named mechanism is inverted: radius was predicted to carry
+rich forgetting and its share falls 0.387 → 0.114 while utility rises 0.083 → 0.449. A share of a
+sum-to-one decomposition has to be registered per channel; pooled across channels it cannot
+distinguish the hypothesis from its opposite.
+
+Also stated in §5.5: H2a as the clean case of *prediction wrong, criterion did not fire*; H2c's
+statistic becoming undefined before it could be evaluated, so that the strict two-grid-step kill
+overstates what was learned; γ\* unidentified and therefore no "X coincides with γ\*" claim anywhere
+in the paper; and the list of criteria that were set and did not fire, including the one case (H2d
+pooled) where we declined a criterion's verdict with the confound documented rather than asserted.
+
+Nine tested, four failed, three of the four with better replacements.
+
+---
+
+## 2026-08-13 — Submission pass: figure provenance, citations, and an executable checklist
+
+Four items from the team's list. Two are done and checkable; one is done as far as it can be
+without the LaTeX skeleton, which is not in this repo; one is a checklist that now runs.
+
+### 1. Figure PDFs and the manifest
+
+`scripts/make_figures.py --check` reports **manifest matches disk**: 6 figures, 18 artifacts, all
+at the digest the manifest claims, nothing in `figures/` that the manifest does not name. The 12
+superseded four-corner variants are in `figures/superseded/`, moved there by the script rather than
+deleted, and none is referenced from the draft or from `paper/figures.tex`.
+
+Regenerating the set exposed **three provenance gaps that a matching manifest did not catch**,
+which is the more useful finding, because all three were invisible to `--check` as it stood.
+
+- **`module_hashes` was `{}`.** The field was present, well-formed, and empty. `make_figures.py`
+  runs the figure scripts as subprocesses, so nothing they import registers in the parent process,
+  and `provenance.code_stamp()` was reading an empty registry. Fixed by importing the analysis
+  modules in the parent for their side effect on the registry; the manifest now carries hashes for
+  `attribution`, `grid` and `core`. A provenance field that is present and empty is worse than one
+  that is absent, because it reads as having been recorded.
+- **`fig_width` had no `result_set_sha` and no `n_arms`.** It is the only figure that reads two
+  result sets — the width arms and a matched subset of the registered grid — and the script wrote
+  neither into its sidecar, though the filename carried a hash of the cell keys. It now stamps
+  three: `width_arms_sha`, `grid_matched_subset_sha`, `grid_full_sha`, with `n_arms = 144`. A single
+  `result_set_sha` on a two-input figure would name one input and imply it had named them all.
+- **The manifest records `git_dirty: true`.** This is the one item that is still open and it is not
+  mine to close: the working tree has 46 uncommitted paths including the figure scripts themselves,
+  so "regenerable from a committed script" is currently false as a matter of fact. The check now
+  says so.
+
+`--check --submission` was added for exactly this: `--check` answers whether the files on disk are
+the files the manifest describes, which is a different question from whether they are reproducible.
+A figure drawn from an uncommitted tree, or from unnamed inputs, is byte-identical to one that is
+neither. The stricter mode fails on an empty `result_set_sha`, a missing `n_arms`, an empty
+`module_hashes`, or a dirty tree. It currently fails on the last of those alone.
+
+### 2. Inventory against the draft as it will be submitted
+
+**75/75 numbers match their sources; 25 verified verbatim against the sentence that quotes them.**
+Re-run after every prose edit below, including the citation insertions, and clean each time.
+
+One number the inventory structurally could not catch: §B said the inventory pins **thirteen**
+sentences, which was true when it was written and is now 25. The inventory verifies numbers against
+sources and sentences against numbers; a sentence *describing the inventory* is outside both loops.
+Corrected to "each of the 75 numbers ... and 25 of them". Noting the shape rather than the typo —
+self-describing prose is a blind spot of any checker that checks everything except itself.
+
+### 3. Citations
+
+The draft named one author (Chou, in the §5.5 table) and otherwise attributed nothing. Five sites
+now carry names, chosen as the places where the paper uses someone else's object rather than merely
+touches the same topic:
+
+| §5.1 | the three-factor identity | Chou et al. (2026) |
+| §5.1 | the γ₀ parameterization of richness | Graldi et al. (2025) |
+| §5.1 | the feature × readout 2×2 | Hiratani (2024) |
+| §5.2 | the refit-readout probe margin, H2d's registered measure | Johnston & Fusi (2023) |
+| §5.4 | the human practice result, twice | Menghi et al. (2025) |
+
+`paper/references.bib` holds 13 entries. **Three carry a `% TODO-VERIFY` marker** — Wakhloo PRL
+2023, Johnston & Fusi 2023 and Menghi 2025 are recorded in `docs/03-references.md` with authors,
+title, journal and year but no volume or article number, and under the verified/inferred rule a
+volume number recalled from memory is inferred. An inferred bibliographic field in a submitted
+bibliography is indistinguishable from a correct one, which is precisely why it has to be marked
+rather than filled in. `check_submission.py` fails while any marker remains; closing them is a
+five-minute lookup by whoever has the papers.
+
+### 4. LaTeX assembly — blocked, and the blocker is real
+
+**There is no LaTeX skeleton in this repository, and no TeX toolchain on this machine.** No `.tex`,
+`.sty` or `.bib` existed under `continual_geometry/` before today; `\todo{}`, `\tc{}` and `\cn{}`
+appear zero times anywhere in the workspace. The skeleton with the six-beat abstract outline is
+somewhere else — Overleaf, most likely — so "assemble into the jmlr skeleton" cannot be done here
+without inventing a different skeleton and creating a merge conflict with the real one.
+
+What was built instead is the part that drops into any jmlr skeleton unchanged:
+
+- **`paper/figures.tex`** — `\floatconts` floats for all six figures, captions from §D and §E with
+  citations attached, `\includegraphics` naming the manifest filenames verbatim, hashes included.
+  The hashes are load-bearing and should not be tidied away: they are what stops a stale PDF being
+  swapped in without the filename changing.
+- **`paper/references.bib`** — above.
+- **`scripts/check_submission.py`** — the checklist, below.
+
+### 5. The submission checklist, as a script
+
+Item 4 on the list was "a submission checklist in the log". A checklist in a log gets read on the
+day it is written and ticked from memory on the deadline, so it is a script instead:
+`python scripts/check_submission.py`.
+
+It reports three states, and the third is the point. **`UNKNOWN` is not a pass.** Page count and
+"bibliography compiles" cannot be verified without a TeX installation, and this machine has none;
+printing them green because nothing objected would be the fifth instance of the fault §A.2
+documents four times. They print as `UNKNOWN` with the reason and are counted separately, and the
+exit code distinguishes them: 0 clean, 1 something failed, 2 nothing failed but something could not
+be checked and a human still has to.
+
+Current state — **6 pass, 3 fail, 3 unknown**:
+
+| PASS | placeholder macros | no `\todo`, `\tc`, `\cn`, `\fixme` |
+| PASS | watermark removed | |
+| PASS | anonymisation | 8 files incl. figure PDF binary metadata; no identifying strings |
+| PASS | figures traceable | 6 graphics, all in the manifest at the current digest |
+| PASS | citations resolve | 3 keys used so far, all present |
+| FAIL | figures from a committed tree | `git_dirty` at 443945dc |
+| FAIL | bibliography fields verified | 3 `TODO-VERIFY` markers |
+| FAIL | keywords present | no `\begin{keywords}` — needs the skeleton |
+| UNKNOWN | main document | no `\begin{document}` — needs the skeleton |
+| UNKNOWN | page count | no built PDF |
+| UNKNOWN | bibliography compiles | no TeX toolchain here |
+
+The anonymisation check reads the figure PDFs as bytes, not just the sources, because the exposure
+is in metadata rather than in text. The result is clean: the PDFs carry only `Creator` (the script
+name) and `Producer` (the matplotlib version), no absolute paths, no username, no hostname. Worth
+recording that the check includes the authors' own unaccepted arXiv preprint by id — a paper that
+cites "our prior work" by number has deanonymised itself as completely as a name on the title page,
+and that is the failure most likely to be introduced late, while closing a citation gap.
+
+### 6. Two appendix additions from the team's reading of Tier 2
+
+- **§A.2 gains a fourth guard**, and it is a different shape from the other three. The peak
+  stability check tested whether the peak's *range* across lags fitted inside one grid step. It
+  does, at 0.90, so the check passed — but the four values are 2.86, 1.75, 1.23, 0.96, a monotone
+  slide ordered by lag, which is the dependence the check existed to detect. **A range test cannot
+  see a monotone trend**: it collapses an ordered sequence to its two extremes, so a systematic
+  drift and an unlucky pair of noisy endpoints are the same observation to it. The general form now
+  stated in §A.2 is that a check on a summary statistic inherits that statistic's blindnesses, and
+  a check applied to ordered data should use the ordering. Added to `CORRECTIONS` as a `guard`
+  entry, so the notebook's §10 shows it beside the other three rather than only as the estimand
+  change it caused.
+- **§A.3's third instance is rewritten around why it hid longest.** The `|term| / Σ|term|` share is
+  now stated as: **a normalisation by a sum of magnitudes takes an absolute value without spelling
+  it `abs`.** The first two instances are visible at the point of transformation; this one is
+  visible only in the denominator, where it reads as a neutral choice of scale, and the sign is
+  discarded in the numerator as a side effect. So the rule about justifying every magnitude has to
+  cover the cases where no magnitude appears to be taken.
+
+### Also noted
+
+**The deadline is recorded twice and differently.** `docs/05-implementation-brief.md` says Aug 22
+AoE; `docs/09-post-generation-brief.md` says Aug 24 AoE. Today is Aug 13, so the gap is 9 days
+against 11 — a difference that matters for whether the Split-CIFAR100 pilot is affordable. Not
+resolving it unilaterally; flagging it.
+
+140 tests pass, lint clean, inventory 75/75 with 25 pinned, notebook re-executes clean.
+
+### Follow-up the same day — three decisions taken and acted on
+
+**Deadline: Aug 24 AoE.** Confirmed by Kati. `05-implementation-brief.md` carried Aug 22 and has been
+corrected, with the correction dated and the disagreement recorded rather than overwritten. 11 days
+from today, not 9.
+
+**LaTeX: a fragment, not a skeleton.** `paper/body.tex` is the paper body with no documentclass, no
+preamble and no document environment — it pastes into the jmlr skeleton after the title block.
+Written this way on Kati's call, because a second `main.tex` would conflict with the real skeleton
+rather than save work. Sections: introduction, setup, the decomposition, the benign corner, the two
+capacity measures, center geometry, robustness, discussion. Abstract and `\begin{keywords}` included
+so the skeleton's own can be deleted or ours can. Two figures in the body, four in the appendix,
+`\floatconts` throughout, five citations resolving against `references.bib`.
+
+**Split-CIFAR100: spec only, nothing run.** `docs/10-cifar-pilot-spec.md`. Two facts checked today
+that shape it more than anything scientific:
+
+- **No GPU on this machine** (`nvidia-smi` reports no driver) and **no `torch`** — the stack is pure
+  NumPy. A learned convolutional encoder is not feasible.
+- So the input representation becomes the main design question. The spec recommends **raw pixels into
+  the existing MLP**: no new dependency, architecture identical to the synthetic result, which is
+  what makes the comparison a comparison. Accuracy will be poor (order 30--40% on 10-way) and the
+  spec says so plainly, because the question is whether the geometry of forgetting survives real
+  input statistics, not whether the network is good at CIFAR. The alternative — frozen features from
+  a pretrained encoder — buys accuracy and pays with a pretraining confound and with part of the
+  measured geometry being the encoder's rather than the learner's.
+
+Three further calls in the spec worth surfacing here:
+
+- **No attempt at the $2\times2$.** On real images feature similarity cannot be set independently of
+  class identity, so four corners built that way would not be these four corners. Labelling them the
+  same and comparing would be the fifth instance of the population fault in §A.4 and the worst of
+  them, since the labels would agree while the constructions did not. The pilot answers one question
+  instead: does retained capacity fall with a channel composition that reorganises in the same
+  direction? A no is publishable as a boundary.
+- **The measurement half of the cost is calibrated and the training half is not.** 21.3 s/eval
+  uncontended, $4.72\times$ contention at 128 workers, ~4,600 evals/h — so a 24-arm grid's
+  measurement is about six minutes of wall time. Raw pixels multiply the first layer's work by
+  $20.5\times$ and leave measurement almost unchanged, which **inverts the current cost structure**.
+  The spec refuses to project the training side: that number is what the one measured arm is for, and
+  the last projection of this kind was wrong by $9\times$.
+- **The floors do not transfer.** Nothing is quoted in noise floors until they are re-measured on
+  CIFAR manifolds. $R_{\mathrm{eff}}$'s floor was already found $\gamma$-dependent by $6.7\times$
+  within this project, and it is the step most likely to be skipped under time pressure.
+
+### A bug I introduced and the test that now pins it
+
+Worth recording because it is the same fault the appendix documents, committed while building the
+checker for it. `check_submission.py` gained `strip_comments()` so that a file whose header explains
+it contains no `\begin{document}` would not be read as containing one. That helper was then applied
+to the `.bib` as well — where the `TODO-VERIFY` markers live behind a `%`. The bibliography check
+went from FAIL to PASS **by no longer looking**, and the transition looked like progress.
+
+Caught by reading the diff of the output rather than the output. Fixed by reading the `.bib` raw, and
+pinned by `tests/test_check_submission.py`: 16 tests, every one a case where the check could report
+PASS while the condition does not hold. The parametrised exit-code test is the load-bearing one —
+`UNKNOWN` must never exit clean, since three items on the venue checklist cannot be verified on a
+machine with no TeX toolchain.
+
+156 tests pass. Submission check: **7 pass, 2 fail, 3 unknown**. The two failures are both human:
+commit the tree so the figures trace to a commit, and look up three journal volume numbers.
+
+---
+
+## 2026-08-13 (later) — role change, a TeX toolchain, and the record report
+
+`docs/11-role-and-open-questions.md` narrows my remit to the record and to interpretation close to
+the data; argument, positioning and weighting move outside the repo. Accepted. Report written to
+`docs/12-record-report.md`, which is the deliverable for this round.
+
+### Two corrections to facts I asserted
+
+**GPUs 0–3 exist on `grime`.** `docs/10-cifar-pilot-spec.md` §3 built its entire recommendation on
+"there is no GPU", which I verified on this host (`a8000-2409n4`, no driver) and then stated as a
+property of the available resources. Corrected in the spec, with both facts recorded. A learned conv
+encoder is feasible; the recommendation is still raw pixels *for the pilot*, on this host, because
+moving host, adding `torch` and introducing a training loop are three changes at once and none of
+them is the one being measured. The no-GPU line earlier in this log is a dated entry and stands as
+written.
+
+**I introduced the Chou misattribution.** The note observes that the draft attributes the central
+identity to the paper that applies it rather than the one that derives it. That was my `\citet` added
+last round — a positioning decision made from inside the repo without the literature in view, which
+is the failure mode the note is about.
+
+### The page count, which every length decision was waiting on
+
+`tectonic` 0.15.0, harness at `paper/harness/main.tex` in a subdirectory so the submission checker's
+non-recursive `paper/*.tex` glob cannot mistake it for the real document.
+
+**Body text alone 5 pages. Body plus the two main figures 8. Plus references 9. The limit is 4.**
+
+The overrun is not caption text — stubbing both captions leaves it at 8. It is the graphics: `fig2`
+is 10.5 × 7.6 in and `fig4` is 15.5 × 8.4, and at `\linewidth` in this class each float exceeds the
+text block (`Float too large for page by 65.83pt`), so each takes a page. That is a re-plot to a wider
+aspect, not a trim. And body text alone is already over at 5.
+
+### Two things only compiling could have found
+
+**`%` does not start a comment inside a BibTeX entry.** The three `% TODO-VERIFY` markers I added last
+round silently deleted their whole entries — Chou, Graldi and Menghi were absent from the compiled
+bibliography. The marker existed to be loud and was in the one position where it was mute. Now a
+`note` field, so an unverified reference prints in the typeset bibliography.
+
+**`check_submission.py` could not count pages.** Its counter regexed `/Type /Page` over raw PDF bytes,
+which returns 0 once the engine packs the page tree into compressed object streams, as `xdvipdfmx`
+does. It reported UNKNOWN, so it was honest, but it could never have reported the overrun. Now
+inflates object streams and cross-checks `/Count`.
+
+Both are the same family as the `strip_comments` bug above: a check that stops seeing rather than
+starts failing. Third instance in two days.
+
+### The inventory now points at the submitted files
+
+Quotes are looked for in `paper/body.tex`, `paper/figures.tex` and `paper/figures-appendix.tex`
+first, then `docs/07-writeup.md`. Matching is normalised on both sides — symbols expanded so `γ₀` and
+`$\gamma_0$` compare equal, markup stripped, whitespace collapsed, which also fixed the old check's
+inability to see a quote spanning a wrapped line (verified on `paper/body.tex:95`, where the 69.7
+sentence wraps mid-fragment).
+
+**75/75 verified, 25 pinned: 8 in the paper, 17 in the long draft only.** That split now reports what
+a length cut costs. `paper/figures.tex` split so the four supplementary floats live in
+`paper/figures-appendix.tex`.
+
+### The finding that needs a decision
+
+`scripts/audit_open_questions.py` → `results/open_questions.json`. Zero new compute; six questions
+answered from stored geometry. The one that matters:
+
+**Every value §5.1 quotes for the `S-HH` radius term fails the gate the same analysis applies in
+panel (d).** Quoted −0.0154, −0.0015, −0.0124 at γ₀ = 1, 3, 10 against per-richness 3σ gates of
+0.0241, 0.0214, 0.0336 — all three below. The γ₀=3 value is a 20/20 sign split, mean/SD −0.13. And
+the only `S-HH` radius values that *do* clear the gate are at γ₀ = 0.1 and 0.3, where the term is
+**positive**. In the three forgetting corners the same term clears by 5–24 floors.
+
+So the shared-channel reading holds in the corners that forget and is unsupported in the corner that
+gains. More arms cannot fix it: the floor is estimator dispersion, not sampling error. This is a new
+member of the artifact families — not a guard that failed open, not a sign destroyed by a
+transformation, not a comparison across populations, but **a gate applied in one panel and not to a
+series quoted in prose.**
+
+Also: the `S-LL` ρ_c value at γ₀=10 is 40 positive and 40 negative, mean +0.0058 against SD 0.0169 —
+the unresolved convergence value is an exactly balanced coin flip, not a small effect. The
+between/within reversal is general across eight measure pairs and *stronger* in all eight than in the
+reported pair, which weakens rather than strengthens the specific claim. The γ=30 saturation is
+specific to ρ_c (second step 0.51× the first; every other quantity 1.1–1.3×). The `S-HH` gain does not
+depend on the measurement boundary at all (R²=0.003) and `task − lag` explains it as well as two free
+slopes do — and the lag decay is γ₀=10-specific, absent at γ₀=1.
+
+### Two corrections inside the report itself
+
+Caught by re-reading the JSON against what I had written: the resolution gate excludes 5 of 24 cells,
+not 6; and the panel (d) gate excludes **all 160 arms at γ₀=0.03** and 3–25% elsewhere, not "8–95%,
+worst where the effect is largest". Coverage at γ₀=10 is the same 75% as at γ₀=0.1, because the radius
+term grows about as fast as its floor. My Q13 recommendation to cut panel (d) was partly built on the
+wrong reading and is weaker than first written; the report says so.
+
+### Closed a drift risk
+
+`NOISE_FLOOR_CV` in `src/analysis/timewarp.py` is a hardcoded copy of `results/cost_model.json` at
+n_t=200, and every floor-denominated number in the paper divides by it. Nothing connected the two.
+All four still agree to their rounding; `tests/test_noise_floor_provenance.py` now asserts it.
+
+### New this round
+
+`docs/12-record-report.md` (the report), `docs/13-experiment-registry.md` (Q1 — every run with
+parameters, which did not exist), `scripts/audit_open_questions.py`,
+`tests/test_noise_floor_provenance.py`, `paper/harness/`, `paper/figures-appendix.tex`.
+
+**161 tests pass**, lint clean, inventory 75/75. One measurement recommended: a γ₀=5 probe, 64 arms,
+**12–13 minutes wall** from the measured γ=30 cost, to halve the 3.3× bracket on the `S-HL`
+decorrelation onset. It is the only place where under an hour changes what a sentence can say.
+
+---
+
+## 2026-08-17 — γ₀=5 probe, figure replot, gate-faithful prose
+
+### γ₀=5 (the measurement that was supposed to take twelve minutes)
+
+Already on disk from an earlier run; verified rather than recomputed. 64/64 arms usable, 4
+conditions × 4 streams × 4 seeds, 9.51 core-hours, 535 s/arm. Analysis via
+`scripts/analyse_gamma5.py` using Figure 4's own `per_arm`/`summarize`/`effects`.
+
+S-HL Δρ_c:
+
+| γ₀ | Δρ_c | declining | sign-test p | n |
+|---|---|---|---|---|
+| 3 | +0.0034 ± 0.0019 | 20/40 | 1.0 | 40 |
+| **5** | **−0.0064 ± 0.0021** | **12/16** | **0.077** | 16 |
+| 10 | −0.0550 ± 0.0033 | 40/40 | 1.8e-12 | 40 |
+| 30 | −0.0956 ± 0.0041 | 16/16 | 3.1e-5 | 16 |
+
+The mean first goes negative at γ₀=5 (3.1 SEM from zero). The per-arm sign test has not yet
+rejected. At γ₀=10 it is unanimous. Onset bracket 3→5, factor **1.67** (was 3.33). Additivity
+still holds (error +0.0045 ± 0.0062, not resolved). Written into §5.4 and the γ=3 caption; not
+over-read as a located threshold.
+
+### Figure replot
+
+`figstyle.figsize` already authored at print width (6.00 in). Heights cut further this round
+(fig2 3.40→3.25, fig4 3.30→3.15) to kill the remaining 11pt overflow. `pdfinfo` after replot:
+
+- body text only: 6 pages (was 5; the γ=5 sentence and two citation keys are the difference)
+- body + 2 main figures: 9 pages (was 8)
+- Float too large: **gone** (was 65.83pt)
+
+The two-page recovery does **not** appear in the page count. Each float still occupies a full
+page because the captions typeset to ~5 in, so graphic + caption ≈ textheight even when the
+graphic fits. Recovering those pages is a caption cut, not a further replot. Reported rather
+than performed.
+
+### Prose that the gate supports
+
+§5.1's radius sentence and the Discussion close were already rewritten in `paper/body.tex` to
+claim no sign for the S-HH radius term, only a bound. The stale claim had survived in one
+place: `fig:benign`'s caption ("negative here exactly as it is in the three forgetting
+corners"). Rewritten to the bound. The family lives as **§A.5** rather than under §A.3: §A.3 is
+sign-destroying transformations, and this fault transforms nothing — a gate applied in a panel
+and not to the same quantity in prose. §A.3's own header now says so.
+
+§5.2 already leads with the general between/within reversal (8 of 28 pairs); the probe-margin
+instance is labelled weaker than all eight. Left as written.
+
+### Three body/caption discrepancies
+
+1. Center-collapse share "through γ₀=3": caption said 0.45, body said 0.44. Source is 0.442 at
+   γ=3 and 0.450 at γ=10. Caption was quoting the γ=10 value for the γ=3 claim. Caption → 0.44.
+2. Width caption attributed 1.52% to the *utility share*; body attributes 1.5% to forgetting
+   *magnitude* and 0.024 to the utility share. Caption rewritten to match the body.
+3. `fig:benign` radius sentence, above.
+
+### Citations
+
+Manifold capacity now cites Chung 2018 and Cohen 2020. The floor paragraph cites Chou 2025
+(ICML estimator) and Chou 2025 (GLUE). The identity remains Chou 2026 (ICLR §B.3). Nine keys
+resolve. Four bib entries still unused (Atanasov, Bernardi, two Wakhloo).
+
+Inventory 75/75, 25 pinned (10 in the paper, 15 in the long draft only). 163 tests pass.
+
+---
+
+## 2026-08-17 — stream_id was a no-op; γ=5 and width n=40 reopened as unique-n designs
+
+### Arrangement uniqueness (asked before any new arms)
+
+`make_stream` never reads `cfg.stream_id`. `run_arm` passed `paired_init(seed)["stream"]`, so
+the 5×8 filenames stored a blocking factor that was not consumed. On disk, at every
+(γ, condition) cell of the 960-arm grid:
+
+- 40 files, **8 unique** `(S_f, S_r)` matrices, 5 copies each (one per `stream_id`)
+- uniqueness is keyed by **seed**, not `stream_id`
+- same seed + condition ⇒ identical arrangements across γ (γ=1 vs γ=10, bitwise)
+- conditions differ (Hamming sampling consumes the RNG before `make_arrangement`)
+
+This is **not** n=1 arrangement across 960 arms, and **not** 5 independent streams × 8 inits.
+It is 8 unique (init + arrangement + dichotomy) draws per cell, seed-confounded, each written
+five times. Headline n=40 is n=8 unique. Stream R²=0.000 is partly tautological. Sign tests
+on 40 files treat copies as independent.
+
+γ=5 on disk (now `results/gamma_5_n16_streamid_unused/`): 16 files/corner = 4 unique seeds × 4
+copies. Width 2×2 files = 2 unique seeds.
+
+Fix, for new arms only: `pipeline.stream_rng(stream_id)` keys dichotomies and arrangements by
+`stream_id`; `paired_init(seed)` still keys `W(0)`. Same `stream_id`, different seed ⇒ same
+stream, different init. The 960-arm grid is **not** regenerated. New γ=5 / width cells are
+complete unique-n designs in their own directories, not mixed with the duplicate-stream files.
+
+### S-HH radius SEM beside the 3σ floor (gate unchanged)
+
+Lag 12, task 0, S-HH. Files are 5 copies of 8 unique seeds, so SEM40 is optimistic by ~√5.
+
+| γ | mean | SEM40 | SEM8 | 3σ gate | \|m\|/SEM40 | \|m\|/SEM8 | R_eff floors | clears 3σ? |
+|---|---|---|---|---|---|---|---|---|
+| 0.03 | +0.00590 | 0.00015 | 0.00036 | 0.0084 | 38.3 | 16.2 | +2.11 | no |
+| 0.1 | +0.03345 | 0.00054 | 0.00127 | 0.0092 | 62.4 | 26.4 | +10.91 | yes |
+| 0.3 | +0.04301 | 0.00184 | 0.00433 | 0.0185 | 23.4 | 9.93 | +6.98 | yes |
+| 1 | −0.01543 | 0.00168 | 0.00396 | 0.0241 | 9.19 | 3.89 | −1.92 | no |
+| 3 | −0.00153 | 0.00191 | 0.00450 | 0.0214 | 0.80 | 0.34 | −0.22 | no |
+| 10 | −0.01237 | 0.00206 | 0.00486 | 0.0336 | 6.01 | 2.54 | −1.11 | no |
+
+As **means** over unique n=8: γ=1 is 3.9 SEM from 0; γ=10 is 2.5 SEM; γ=3 is noise. The 3σ
+single-measurement gate is unchanged. `radius_vs_gate_table()` now prints both SEMs.
+
+### Costs (measured s/arm on disk)
+
+**γ=5 to 40 unique/corner.** Filling 4×4→5×8 without the RNG fix would add 96 files and still
+leave unique n=4→8, not 40. Honest design: 5×8×4 = **160 new arms** after moving the n=16
+duplicate-stream set aside. Mean 535 s/arm (S-HL 695 s). 160 × 535 s = 23.8 core-h; wall
+~7–12 min at 160 workers.
+
+**Width to 40 unique/cell at γ=10.** N∈{150,600} × 4 corners × 5×8 = **320 arms** in
+`results/width_g10_n40/` (not mixed into `results/width/`). Disk: N=150 γ=10 **470 s/arm**,
+N=600 γ=10 **933 s/arm** — not the 1294 s W1 mixed-γ average (that was N=600 γ=1). 160×470 +
+160×933 = 62.4 core-h; wall ~20 min at 192 workers.
+
+**Not run:** centre-collapse step, S-LL, Figure 4 in-range interaction, γ=0.1 onset, anything
+at γ=0.03.
+
+**Arrangement robustness (costed, not run).** Not n=1, so the reviewer's "one draw of 16
+manifolds" is already false — but the 8 draws are confounded with init. Unconfounded
+K∈{3,5} arrangement draws at γ∈{1,10}, four corners, 40 unique inits:
+2×4×40×K = 960 (K=3) or 1600 (K=5) arms. γ=1 S-HL 2420 s, γ=10 S-HL 2060 s. K=3: ~597
+core-h, ~3.1 h wall; K=5: ~996 core-h, ~5.2 h wall.
+
+**D∈{2,4,8} (costed, not run).** One γ, one corner, 40 unique arms. D=R=4 and 1 in every
+current arm. Don't reuse the D=4 grid cell (8 unique, seed-confounded). 120 new arms at
+γ=10 S-HL (2060 s) = 68.7 core-h, ~21 min wall. Cheap after the two launched runs; needs a
+decision.
+
+### Presentational
+
+- Figure 2 panel (b): γ=0.1 hatched as marginal (margin 0.10 floors / 5% sits inside the
+  floor's ~41% relative SE). Gate unchanged. Body keeps "between γ₀=0.1 and 0.3".
+- §12 onset row: 5% is the binding comparison; 20% is a weaker counterfactual.
+- Draft checks: paper quotes centre-collapse 0.44 as the γ=3 endpoint and states the 3→10
+  step is unresolved; 0.45 in the paper is the utility share, not that step. "Ten (task, lag)
+  cells … thirty cells" is 10 cells × 3 γ, not 400 independent observations.
+- No body prose cut. Section typeset lengths measured on a body-only harness (HARNESS
+  BODYEND=5).
+
+172 tests pass. Inventory 82/82.
+
+---
+
+## 2026-08-18 — unique n=8 labelled; (a) γ=5 genuine n=40 resolves the onset
+
+Reporting decision (not a re-run of the 960-arm grid): the registered grid is **n=8 unique**
+per (γ, condition) cell; new arms after `stream_rng(stream_id)` are genuine n=40.
+
+### What changes status at unique n=8 (α=0.05)
+
+Point estimates invariant. One interpretation change: stream R²=0.000 is tautological
+(stream_id unused). Peak paired-bootstrap CI at lag 12: files [1.18, 1.28] n=40 → unique
+**[1.12, 1.35] n=8** (0.16 grid steps). Still beside the point (peak moves with lag).
+
+Sign tests that still reject, with p three orders weaker: S-HL γ=10 is 8/8, p=0.0078
+(was 40/40, p=1.8e−12). S-LL stays unresolved (3/8, p=0.73). Figure 4 interaction
+1.94 SEM → 0.82 SEM, still unresolved. S-HH radius: mean 3.9 SEM8 from 0 at γ=1 and
+2.5 at γ=10; 3σ single-measurement gate unchanged.
+
+### (a) γ=5 at genuine 5×8 — 160 arms, 1086 s wall → `results/gamma_5_n40/`
+
+The n=16 directory was restored and not overwritten. Analysed to
+`results/gamma5_n40_onset.json` (not `gamma5_onset.json`).
+
+S-HL at γ=5, genuine n=40: **Δρ_c = −0.0102 ± 0.0032, 31/40 declining,
+p = 6.8×10⁻⁴**. The duplicate-stream 16-file set was 3/4 unique, p=0.625,
+unresolved. **The onset now resolves.** §5.4 quotes the genuine n=40 probe.
+Bracket remains 3→5 (factor 1.67).
+
+### Paper / ledger
+
+- Setup: 960 files, inference at unique n=8, arrangement confounded with init.
+- §5.1 radius: mean distinguishable, single measurement not; gate unmoved.
+- §5.1 peak CI: [1.12, 1.35] at unique n=8.
+- §B: stream R² tautological; crossed run is the measurement.
+- Discussion: sixth artifact family (filename field stored, never read).
+- Appendix A.6 in `docs/07-writeup.md`. Notebook §12 shows
+  `unresolved_claims_table` + `unique_n_status_table`.
+- Inventory 89 numbers, 38 pinned. 173 tests (17 ledger).
+
+### Campaign
+
+(b) width γ=10 genuine 5×8 → `results/width_g10_n40/` (320 arms) running.
+(c) K=3 unconfound → `results/unconfound_k3/` queued after (b). D-sweep skipped.
+
+### Unique-n reading (no leading status flip)
+
+No sign test flips at α=0.05. p-values drop ~three orders, which is the check that unique-n
+recompute is doing the work rather than preserving the old inference.
+
+- **S-HL at 8/8, p=0.0078** is the floor of a two-sided sign test at n=8 — maximally
+  significant given eight independent draws, not weakly significant.
+- **S-LL 15/40 p=0.15 → 3/8 p=0.73.** Already unresolved; now nothing, not marginal.
+  §12 quotes the unique-n number.
+- Stream R² is the only interpretive change (tautological: streams did not vary).
+- Peak CI [1.18, 1.28] → [1.12, 1.35]: still a fraction of a grid step; the location
+  claim was already declined because the peak moves with lag.
+
+γ=5 genuine n=40 is the before/after that makes the fix legible: duplicate-stream 3/4
+p=0.625 unresolved vs genuine −0.0102 ± 0.0032, 31/40, p=6.8e−4. The 3/4 result stays
+in the unique-n table. Onset sentence names the mix: intermediate genuine n; endpoints
+unique n=8 from the registered grid.
+
+### K=3 pre-commit (written with 0 files in `results/unconfound_k3/`)
+
+`results/unconfound_k3_precommit.json`. Same discipline as γ=30.
+
+**Can show:** whether channel reorganisation and corner ordering reproduce across three
+independent arrangements.
+
+**Cannot show:** arrangement-level variance with any precision. K=3 is detection, not
+estimation.
+
+**If it reproduces:** the results are not arrangement-specific.
+**If it does not:** that is a finding and the paper's scope narrows.
+
+**Reporting:** out of registration; fixed RNG; not pooled with the grid. Appendix
+robustness arm, one sentence in Setup, same status as γ=30 and the width arm.
+
+### Population table
+
+`ledger.population_table()` — every result set, file n, unique n, RNG version, and which
+paper claims draw on it. The draft is checked against this the way §12 is checked for
+resolution. Four (soon six) populations; a silent genuine-n vs unique-n=8 comparison
+would be the §A.4 fault.
+
+Unique-n column is now always `N per cell; T total` — N is the sign-test n on one cell,
+T is unique files in the set. Mixing N from one row with T from another was the same
+fault one level up.
+
+### γ=30 interaction at unique n=4 — STATUS CHANGED
+
+`scripts/audit_gamma30_unique.py` → `results/gamma30_unique.json`. Same SEM formula as
+the grid unique-n pass (half RSS of four cell SEMs).
+
+| | files (16/corner) | unique (4/corner) |
+|---|---|---|
+| interaction | +0.0160 | +0.0160 (point estimate invariant) |
+| SEM ratio | **3.89 SEM — clears** | **1.74 SEM — does not clear** |
+| independent-cell bootstrap CI | [+0.0082, +0.0239] excludes 0 | [+0.0006, +0.0319] excludes 0 by a hair |
+| paired-seed (n=4 seeds) | — | 1.53 SEM, CI includes 0; 1 of 4 seeds opposite sign |
+
+The 3.9 SEM figure was copy-inflation. The additivity-failure claim ("over the registered
+range") is **not licensed** at unique n. Body.tex never stated it; 07-writeup §5.4 and
+appendix C now say so. S-HL at γ=30 is 4/4 declining, sign-test p=0.125 — n=4 cannot
+reject; the mean −0.096 is still clearly negative as a location.
+
+S-LL current-claim language: no submitted-paper sentence still quotes p=0.15 as the
+status; 07 §A.1 now flags that figure as copy-inflated and states unique p=0.73 as
+nothing, not near-threshold.
+
+---
+
+## 2026-08-19 — width n40 and K=3 analysed; no further runs
+
+Campaign finished 2026-08-18T13:52Z. 160 + 320 + 960 usable, 0 skipped.
+
+### Width genuine n=40 (`results/width_g10_n40.json`)
+
+N=150 vs 600 at γ=10, three-corner n=120 per width. Forgetting −71.6 vs −72.0 floors
+(**0.62%**). Alignment share 0.460 → 0.440 (Δ=0.020). Radius 0.146 → 0.098, dimension
+0.394 → 0.463, sum 0.540 → 0.560. S-HH a gain at both (+3.3 floors). Still a bound: two
+widths, not a located dependence. N=300 is a different population (grid unique n=8) and
+is not in the contrast. §5.3 now quotes these numbers; the 1.5%/4.5% duplicate-stream
+n=12 bound is superseded.
+
+### K=3 against precommit (`results/unconfound_k3.json`)
+
+Leading pattern **3/3**: channel reorg (alignment up, radius down), S-LH largest positive
+Δρ_c, S-HL decorrelates, S-HH a gain. Verdict: **not arrangement-specific**.
+
+'S-HL the only decorrelating corner' is **2/3**: arrangement 2 has S-LL also
+decorrelating (−0.0195, 40/40, p≈10⁻¹²). That is the unresolved S-LL corner, not a
+failure of the leading results. Scope does not narrow.
+
+Stream R² at γ=10, three-corner, streams actually vary: **0.001**. Seed R² 0.0008. The
+grid's stream R²=0.000 was tautological; this is the measurement. §B quotes 0.001.
+
+### Further runs — none
+
+| candidate | why not |
+|---|---|
+| K=5 | Precommit: K=3 is detection, not estimation. 3/3 leading pattern. Running K=5 after seeing arrangement 2's S-LL would be fishing. |
+| N=300 genuine-n width (160 arms) | Three-corner magnitude is already flat 150↔600. A U-shape on S-HH (3.3 at 150/600 vs ~5 at K=3 N=300) is a different population and not a paper claim. |
+| D∈{2,4,8} | No claim depends on D. K=3 closed the "one arrangement" objection. |
+| γ=30 genuine n=40 | Would be recovering a fenced additivity-failure claim after unique n said it was not licensed. |
+
+Nothing launched.
+
+---
+
+## 2026-08-19 — project check: the sampling unit, not the count
+
+`scripts/audit_seed_security.py` → `results/seed_security.json`. Write-up:
+`docs/14-claim-security.md`. The unique-n audit fixed the *count*; this asks which
+**unit** each claim is an inference about. Three units exist — initialisation
+(`paired_init(seed)`, which also keys the measurement seed), arrangement
+(`stream_rng(stream_id)`, which keys manifolds and dichotomies), and the crossed arm.
+
+### The reassuring half
+
+**The grid's unique-n=8 interval is the right size.** Because `seed` keyed the arrangement
+too, the grid's 8 unique arms are 8 independent (arrangement, init) draws, so `SEM8` should
+already be arrangement-scale. Checked against K=3's real arrangement axis at γ=10:
+`SEM8` / between-arrangement SEM = 1.77 (S-HH), 0.97 (S-HL), 0.94 (S-LH), 0.55 (S-LL).
+Same order on all four. The relabelling did not just shrink n; it left correctly scaled
+intervals.
+
+Duplication confirmed exactly: worst Δρ_c spread across the five copies of a seed at γ=10 is
+**0.00e+00**.
+
+`S-HL` at γ=10 is the best-supported claim in the paper: grid 8/8 unique, **and** K=3
+40/40 inits in every one of 3 arrangements. `S-HH` gain sign-stable 3/3 (+11.56/+11.68/+12.27
+floors at γ=1; +5.74/+5.17/+4.58 at γ=10).
+
+### Sign-test ceilings (design limits, not results)
+
+n=4 → 0.125 and n=5 → 0.0625: **cannot reach α=0.05 under any outcome.** n=8 → 0.0078
+unanimous but **0.0703 after one flip**, so every 8/8 grid result is one seed from not
+clearing on grid evidence alone.
+
+### The costly half — γ=5 onset is arrangement-dependent
+
+`gamma_5_n40` and `width_g10_n40` are 5 arrangements × 8 inits. 40 arms, but only 5
+arrangement draws, so their arm-level SEM is ~3× too small for an arrangement-level claim.
+γ=5 S-HL by arrangement: −0.0114, −0.0169, **+0.0084**, −0.0419, **+0.0109**
+(arm signs 8/8, 8/8, 5/8, 8/8, 2/8). The two positives land on the lazy-arm drift band
+[+0.005, +0.010]. Arrangement sign test 3/5 p=1.0; SEM 0.0096 vs 0.0032 over arms; 95% t CI
+**[−0.0368, +0.0165] includes zero**. By initialisation it is 8/8, p=0.0078.
+
+So `paper/body.tex:216–218` and `figures-appendix.tex:44–45` ("−0.0102±0.0032, 31 of 40,
+p=6.8e−4", "onset sits between 3 and 5") are right as arithmetic and wrong as a population
+label — the onset is an arrangement-level claim. Honest form: bracket 3→10, and γ=5 is
+negative in 3 of 5 arrangements. Same fault family as §A.4, one level deeper.
+
+### Δρ_c magnitudes are soft across arrangements
+
+Between-arrangement SEM is 5.5–10× the within-arrangement SEM for all four corners. Grid
+−0.055 for S-HL falls **outside** the three-arrangement range (−0.0500, −0.0511, −0.0262).
+Quote the sign and the ordering, not −0.055 as a population value. The γ=10 interaction
+(−0.0130 / +0.0050 / −0.0160) and S-LL (+0.0017 / +0.0182 / −0.0195) flip sign across
+arrangements — new evidence *for* the existing "unresolved" verdicts.
+
+### Width, paired
+
+Marginal arrangement spread at fixed width is 8.8–10.6%, **17×** the 0.62% width gap. Paired
+within arrangement (600 − 150): +0.20, +0.13, +1.57, +0.09, +0.26 floors, mean +0.45, 5/5
+same direction (p=0.0625 = the ceiling), 95% CI [−0.34, +1.23] includes zero. Direction
+consistent, magnitude under 1%, still a bound. Claim unchanged.
+
+### Costed fix, not yet run
+
+γ=5 at **8 arrangements × 8 inits** = 256 arms ≈ 29 min (observed rate: 160 arms in 1086 s).
+n=8 is the smallest arrangement count whose ceiling clears α=0.05. Rule to pre-commit before
+the arms exist: ≥7/8 arrangements decorrelating ⇒ the onset sentence stands at arrangement
+level; otherwise the paper reports the 3→10 bracket and calls γ=5 arrangement-dependent.
+A power fix on an existing claim with a fixed rule, not a search for a better p.
+
+---
+
+## 2026-08-19 — γ=5 8-arrangement pre-commit scored: arrangement-dependent
+
+`results/gamma5_k8_precommit.json` written before any arm. 256/256 usable in 1716 s wall.
+Arrangements 0–4 reproduce `gamma_5_n40` bitwise (160/160).
+
+S-HL arrangement means: −0.0114, −0.0169, +0.0084, −0.0419, +0.0109, **+0.0015**,
+**+0.0166**, −0.0221. **4/8 negative.** 95% t CI [−0.0234, +0.0097] includes zero.
+Sign-test p = 1.0 (ceiling 0.0078). Verdict: **arrangement_dependent**.
+
+§5.4 quotes four of eight and the grid's 3→10 bracket (factor 3.3). The arm-level
+p = 6.8e-4 is not the onset evidence. `docs/14-claim-security.md` §7.
+
+---
+
+## 2026-08-19 — width smoke N=32 / N=100 (pre-commit scored)
+
+`results/width_smoke_precommit.json` written before any arm. Init-readout curve
+(33 dichotomies, frozen W) then 4 full S-HL arms (stream 0, seed 0), 1209 s wall.
+Own directory; not adopted by `grid.load()`.
+
+**Init floor.** Module-A exact-readout median MSE: 0.215 (N=32), 0.116 (50),
+0.088 (64), 0.051 (80), 0.037 (100), 0.012 (150), 0.002 (300). At N=32, 0/33
+dichotomies have MSE≤0.05 or perfect sign; even concatenated A+B median MSE is
+0.098. At N=100, 97% hit MSE 0.05 but only 52% have perfect sign on module A.
+
+**Trained arms.** N=32 γ=10: 16/16 converged. N=32 γ=0.03: 12/16, task 0 miss is
+loss 0.057 @ 20k with acc 0.997 — a haircut, not a collapsed classifier; end
+‖ΔW‖/‖W‖ = 0.053 vs 0.0015 at N=300 lazy. N=100: both γ 16/16. I6: init clouds
+bitwise identical across γ. Identity residual ~10⁻¹⁶.
+
+**Geometry / behaviour, n=1, descriptive.** N=32 D_eff ~1.2–1.5 (packed); lazy
+retained α stuck at 0.508. N=100 lazy generic α=0.303 (near 0.33), rich after
+task 0 = 0.429. Past-task accuracy at end of stream ~0.53–0.63; at N=300 this
+was ~1. PCA of N=32 clouds: init is a 2D blob; after task 0, γ=10 separates
+manifolds and γ=0.03 does not.
+
+**Pre-commit verdict.** `n32_go_capacity_limited`: **true**. `n32_stop_broken`:
+false. `n100_go_small_robustness`: **false** (letter: rich α@b0=0.429 vs 0.33;
+that comparator is after learning, i.e. H2a). Do not spend a four-corner
+robustness grid at N=100. Expand N=32 only as a new experiment with re-pinned
+stopping; do not pool with N=300.
+
+Artifacts: `results/width_smoke.json`, `fig_init_readout.png`, `fig_clouds_N32.png`.
+
+---
+
+## 2026-08-19 — S-HH at N=32 / 100 (pre-commit scored)
+
+`results/shh_width_precommit.json` written before any arm. 16/16 completed in
+1081 s wall (4 seeds × 2 widths × 2 γ, stream 0, S-HH). Own directory.
+
+**Correction of the S-HL smoke reading.** S-HL past-task accuracy ~0.6 is already
+the N=300 value for that corner. This run is the S-HH question.
+
+**Pre-commit verdict: `split_breaks`.** N=32 γ=0.03 mean CF 0.086 (range
+0.062–0.113), mean past-task acc 0.912. That clears both break thresholds
+(mean CF ≥ 0.05, past-task acc < 0.95). Expand is licensed as more
+arrangements at N=32 S-HH, not a GLUE grid.
+
+**The break is lazy, not rich.** N=32 γ=10: mean CF 2×10⁻⁵, past-task acc
+0.9998, 4/4 usable — in the N≥150 band. N=100 γ=10: the same. N=100 γ=0.03:
+mean CF 0.035, past-task acc 0.963, 4/4 usable — intermediate (not ≤0.01, not
+≥0.05). Two of four N=32 lazy arms missed loss 0.05; the two that hit it still
+have CF 0.078 and 0.062.
+
+Lazy S-HH CF on this arrangement: ~0 (N=300) → 0.035 (N=100) → 0.086 (N=32).
+
+Artifacts: `results/shh_width.json`.
+
+---
+
+## 2026-08-19 — small-N full 2×2 (CF + GLUE, 8 seeds)
+
+`results/small_n_grid_precommit.json` written before any new arm. 128 arms
+(N∈{32,100} × γ∈{0.03,10} × 4 corners × seeds 0–7, stream 0). 20 imported
+from `shh_width` / `width_smoke`, 108 trained, 3301 s wall. All 128 present.
+
+**Pre-commit verdict.** Rich CF 2×2 **survives** at N=32 and N=100. GLUE Δ log α
+signs at γ=10 **match** at both N (S-HH >, other three <). Lazy S-HH CF break
+at N=32 **confirmed** at n=8 (mean 0.096). N=32 packing **yes** (D_eff 1.22).
+
+**γ=10 mean CF (8 seeds), vs N=300 ref.** N=32: HH 0.000, HL 0.381, LH 0.013,
+LL 0.145. N=100: 0.000, 0.380, 0.009, 0.138. N=300: 0.000, 0.407, 0.013, 0.155.
+Order S-HL > S-LL > S-LH > S-HH at both small widths. Δ log α: S-HH +0.116 /
++0.072; loss corners −1.0 to −1.7. All γ=10 cells 8/8 usable.
+
+**γ=0.03.** N=32 usable 4/8 HH, 1/8 HL, 0/8 LH, 0/8 LL — S-LH/S-LL CF are not
+matched-loss. N=100 all 8/8; S-HH CF 0.027 (intermediate).
+
+Not pooled with the registered grid. Channel shares at N=32 not a §5 test.
+
+Artifacts: `results/small_n_grid.json`.
+
+---
+
+## 2026-08-19 — N=16 full 2×2 (capacity decline, same grid)
+
+`results/small_n16_precommit.json` written before any N=16 arm. 64 new arms
+(N=16 × γ∈{0.03,10} × 4 corners × seeds 0–7, stream 0) into
+`results/small_n_grid/` beside N=32/100. 953 s wall, 0 skipped. Init readout
+already on disk: module-A median MSE 0.312, A+B 0.199, 0/33 dichotomies at
+0.05 or perfect sign. P/N = 1, packing P(D+1)/N = 5.
+
+**Pre-commit verdict.** Rich CF 2×2 **survives**. Rich fit does **not** break
+(γ=10 S-HH 8/8 usable, all 16 tasks hit 0.05 on every rich cell). GLUE Δ log α
+signs at γ=10 **break** the strict rule: S-HH mean Δ log α = **−0.007** (need
+>0). Lazy: **0/8 usable on all four corners** (predicted floor). D_eff packed
+at 0.996.
+
+**γ=10 mean CF (8 seeds).** HH −0.000, HL 0.383, LH 0.021, LL 0.151. Same
+order as N=32/100/300. S-HH past-task acc 1.000. Loss-corner Δ log α still
+negative (HL/LL −0.655, LH −0.593) but **compressed** vs N=32 (−1.4 / −1.0).
+S-HH Δ log α is init-noise around zero: 4 seeds +, 3 −, 1 ≈0 (seed 6 α stuck
+at 1.011). Do not read that as a 2×2 reversal; CF is still silent on S-HH.
+
+**Capacity decline (the point of the run).** Generic D_eff at b0, S-HH γ=10:
+N=16 **0.996** → N=32 1.22 → N=100 2.71. Generic α at b0: **1.005** → 0.505 →
+0.413. After S-HL overwrite, retained α at lag 15 floors at **1.00** (N=16),
+0.50 (N=32), 0.39 (N=100). Packed GLUE cannot go below one leftover dimension.
+
+**γ=0.03.** Geometry frozen (Δ log α ~ 10⁻¹⁶, retained α stuck at 1.00).
+S-HL/LH/LL: 0/16 tasks hit loss 0.05. S-HH: mean 4.1/16 tasks hit, last-task
+loss ~0.054, still 0/8 usable. Those CF means are not matched-loss.
+
+Not pooled with the registered grid. Do not quote N=16 channel shares.
+
+Artifacts: `results/small_n_grid.json` (192 arms), `results/small_n16_precommit.json`.
+
+---
+
+## 2026-09-10 — Hamming × input-change first slice
+
+192 arms, reserved stream_ids 10000–10007, seed=0, P=16, T=16, stride=2,
+γ ∈ {1, 10} × {frozen, drift, jump} × s_r ∈ {1.0, 0.75, 0.5, 0.25}.
+Wall 4071 s (~68 min) at 192 workers. 1 skipped (the one-arm). **192/192
+usable**, 0 misses. Primary cell unique n=8, module A, task 0, lag 12.
+
+Pre-commit: `results/hamming_precommit.json` (written before any arm).
+Readings applied by `scripts/analyse_hamming.py`.
+
+**Finding 3 recovery (s_r=1, γ=10).** Drift **+6.7** floors (8/8 gain), jump
+**−55.1** floors (8/8 loss). Same object as the registered S-HH / S-LH
+isolation. Do not stop.
+
+**Primary reading: `mixed`.** γ=10 Hamming-axis is `nonmonotone`; γ=1 is
+`monotone_dose`. Frozen level at γ=10 is `frozen_outside`.
+
+γ=10 Δ log α floors (n=8, 95% CI = mean ± 1.96 SEM):
+
+| input | s_r=1 | 0.75 | 0.50 | 0.25 |
+|---|---|---|---|---|
+| frozen | +7.1 | −68.2 | −69.1 | −68.9 |
+| drift | +6.7 | −61.3 | −70.3 | −74.6 |
+| jump | −55.1 | −76.9 | −78.0 | −77.6 |
+
+γ=10 drift is monotone in Hamming. Frozen is not: after the drop at
+Hamming>0 the last two means swap (−69.1 vs −68.9). That swap is why
+γ=10 is `nonmonotone` rather than `monotone_dose`. Report the order; do
+not fit a story.
+
+**Artifact checks (AGENTS §8.2).**
+
+- *Misses as a silent non-effect.* 0/192 missed. Not the reading.
+- *Wrong object.* Finding 3 recovery holds on the reserved set. Not this.
+- *Frozen `nonmonotone` is a 0.2-floor wiggle.* Frozen s_r=0.50 vs 0.25
+  CIs overlap completely ([−1.38, −1.18] vs [−1.40, −1.15]). The
+  operationalization uses means, so the named reading stays `mixed`. Do
+  not upgrade it to `monotone_dose` on a CI argument.
+- *`frozen_outside` is the interesting named outcome, not a bug in
+  pairing.* At s_r=0.50 and 0.25, frozen sits *above* both drift and jump
+  (less loss). Pairing of A_0 and dichotomies across input levels at
+  fixed s_r was tested before the slice. Re-realizing points at copied
+  centres is what the code does; bitwise-identical clouds were never the
+  frozen condition. Copying centres is not the zero of the input axis.
+- *Δρ_c and lag-4 position are reported, not readings.* At s_r=1, γ=10,
+  retained Δρ_c on task 0 is unresolved under drift (+0.002, CI includes
+  0) and +0.104 under jump. Do not recycle finding 4's registered-grid
+  +0.055 onto this population.
+
+Not pooled with `results/phase1/`. Do not edit figures from this arm.
+Do not inform lr0.
+
+Artifacts: `results/hamming_slice.json`, `results/hamming_slice.md`,
+`results/hamming_one_arm.json`, `results/hamming_precommit.json`.
+
+---
+
+## 2026-09-10 — Hamming table is a cliff; readings superseded; Δρ_c and lag-4 read
+
+The named readings (`mixed`, `monotone_dose`) failed to discriminate the
+shape they were written for. The table is a cliff at Hamming>0 except
+under drift, where a graded post-cliff component is resolved at both γ
+(13.3 floors at γ=10, CIs non-overlapping; 10.0 at γ=1). Frozen and jump
+post-cliff ranges are 0.7 / 0.7 at γ=10. Frozen and drift cross: drift
+better at s_r=0.75, frozen better at s_r=0.25. `frozen_outside` fired
+because frozen is insensitive to task change, not because copying
+centres is a stronger or weaker input change.
+
+Logged as artifact family **A.8** (`docs/07-writeup.md`): a pre-registered
+statistic satisfied by a shape other than the one it was written for.
+Prior instances: H1a, H2c. Going forward, a monotonicity reading requires
+the post-threshold range to clear the floor.
+
+**Δρ_c (retained task 0, lag 12, γ=10).** Comes apart from capacity.
+Frozen capacity is a cliff; frozen Δρ_c is graded (−0.053 at 0.75 vs
+−0.087 at 0.25, CIs do not overlap). Drift capacity is graded; drift Δρ_c
+is a cliff then unresolved (+0.068 vs +0.079, CIs overlap). Jump Δρ_c is
+already +0.104 at s_r=1. Drift at s_r=1 is +0.002, CI includes 0 — do not
+recycle the registered-grid +0.055 onto this population.
+
+**Lag 4, γ=10, tasks 0/2/4/6/8/10.** |task 0 / task 8| is cell-dependent:
+1.2–1.4× on most forgetting cells (near W5b's ×1.7), **×3.45** on jump at
+s_r=1, **×0.70** (inverted) on drift at s_r=1. Position is a measured
+covariate on this arm.
+
+P=32 is motivated as cliff-resolution (h=2 = 6.25% of labels vs 12.5% at
+P=16). Still needs §2a. Not next. No new arm.
+
+Artifacts: `results/hamming_slice.md` (full tables), `docs/07-writeup.md`
+§A.8, `src/analysis/ledger.py` kind `statistic`.
+
+---
+
+## 2026-09-11 — Finding 4 restated (two populations); next is CE, not order
+
+The Hamming commentary's five corrections are accepted. Two of them were
+already ours: the 68–75 floor figure is frozen/drift only (jump adds 21.8
+on top of a 55-floor loss at Hamming 0), and exposure is not untouched
+(A8 ran; order and spacing are the unset knobs).
+
+**Finding 4.** Input change drives centre convergence and saturates almost
+immediately. Task repetition does not, as a general statement. Registered
+2×2, unique n=8, γ=10: drift vs jump at a repeated task differs by +0.055
+in Δρ_c. Reserved Hamming, same isolation: +0.002 under drift (CI includes
+0, 5+/3−) and +0.104 under jump. Capacity recovered on the reserved set
+(+6.7 vs −55.1). Δρ_c did not. Same isolation, different population,
+different answer on one measure and not the other. Mismatched-population
+family. Ledger entry added. Do not pool.
+
+Notebook `project-overview(2).ipynb` finding 2 and closing paragraph
+rewritten. `docs/20` §1 signed claim names both populations.
+
+**Sequence.** The joint-outcome argument is empty until a second learner
+sits on the *existing* streams. Order and spacing first would produce
+setting results a second learner might relativise. Inverse: a second
+learner on streams that do not exist yet tests nothing. Signed order:
+CE (binary cross-entropy, same architecture, same Hamming streams) →
+order (audit's weaker prediction) → spacing → P=32 with its own §2a.
+
+Not EWC/replay (change the objective). Not Adam on this arm (CE is the
+smaller change; D.1.1 anticipates `{0,1}` BCE; converts `docs/15` MSE
+limitation into a measurement). Stopping slot unsigned: MSE
+`target_loss=0.05` is not a BCE number. No `ce_precommit.json`, no arm,
+until that slot is signed. `docs/21-second-learner-ce.md`.
+
+CIFAR-as-finding refused: a Split-CIFAR arm has unreported similarity
+by construction. Naturalistic arm, if ever, is estimator validation, not
+generalisation.
+
+The field's domain-IL and task-IL are corners of this factorial *and the
+cells between*. That sentence is already true of the experiment. It needs
+the second learner to survive a reviewer.
+
+No figure edits. No L=3. No new training.
+
+Artifacts: `docs/20-restatement-and-next-arm.md`, `docs/21-second-learner-ce.md`,
+`src/analysis/ledger.py`, `notebooks/project-overview(2).ipynb`,
+`results/hamming_slice.md`.
+
+---
+
+## 2026-09-11 — CE stopping: match on margin; lr0 re-pin signed; m* not frozen
+
+Stopping method signed. Numerical pin not frozen. No `ce_precommit.json`.
+
+**Rejected.** BCE=0.05 (arbitrary; ~98% confidence). Fractional reduction
+0.693→0.035 (log vs quadratic tails). Matched steps (destroys the γ
+contrast matched-loss exists for).
+
+**Signed.** Pin BCE by matching the MSE-stop readout margin
+`m = mean(y f)` on the current-task batch. Fallback if that cannot be
+done cheaply, or if one number cannot hit both γ: fractional reduction
+with the mismatch stated and a post-hoc margin comparison. Awkward
+matching is a result, not an obstacle.
+
+**lr0.** If BCE at `lr0=5` fails to reach the pinned target on the pilot
+cells, re-pin once, uniformly, by the Phase 0 procedure (0.2 stranded;
+5 reached every γ; 50 stable), recorded as a design change before any
+slice. Not per cell. Not after seeing which Hamming cells fail.
+
+**m* recovery.** Hamming records do not store `f` or weights. Training-only
+replay, identity-checked against stored `steps_taken`.
+`scripts/measure_mse_stop_margin.py --one-arm`: frozen × s_r=0.5 ×
+stream 10000, γ=10 and γ=1. Both match. Mean m over 16 tasks: **0.8527**
+(γ=10) and **0.8316** (γ=1). Task 0: 0.779 and 0.745. Mean p05 sits far
+lower (~0.33). Homogeneous conversion of 0.05 MSE is 0.684 and is not
+this measurement. n=2, not frozen. Wall 153 s.
+
+Artifact check: replay could have been a different trajectory. It was
+not — `steps_taken` lists agree with `results/hamming/` on both cells.
+Would have been an artifact if we had converted 0.05 → 0.684 and called
+it measured.
+
+Next: BCE pilot aimed at these means; freeze only if one loss can hit
+both γ; then JSON.
+
+Artifacts: `docs/21-second-learner-ce.md`,
+`results/mse_stop_margin_one_arm.json`, `results/mse_stop_margin_one_arm.md`.
+
+---
+
+## 2026-09-11 — Four-stream MSE band; BCE bisect: no shared operating point
+
+Four reserved streams × γ ∈ {1, 10}, frozen × s_r=0.5, ids 10000–10003.
+All eight `steps_taken` match stored Hamming JSON. Wall 252 s.
+
+Band of cell-mean margins: **[0.8308, 0.8582]**, spread 0.0274, grand
+mean 0.844. γ=10: 0.853–0.858. γ=1: 0.831–0.837. p05 ~0.33, p25 ~0.71
+(γ=10) / ~0.66 (γ=1). Homogeneous 0.684 remains ~20% shallower.
+
+BCE one-arm, γ=10, probe L=0.35: mean m=1.31, p05=−0.33, 80 steps, 15 s,
+`lr0=5` reached. Already a different distribution: mean above the band,
+tail on the wrong side of f=0.
+
+Bisect, eight rounds, both γ, against the four-stream band. Reading:
+**`no_shared_operating_point`**. Closest: L=0.454, γ=10 m=0.850 (in band)
+and γ=1 m=0.777 (below). Gap at matched L ~0.07, 2.5× the MSE band.
+p05 negative at every L (−0.47 to −0.60). p25 ~0.16 against MSE ~0.71.
+Not an lr0 miss.
+
+Artifact check: a too-tight band. The band is the measured MSE range,
+including both γ. BCE's between-γ gap is larger than that range, so no
+widening that still matches "MSE arms' own spread" would admit a shared
+L. Per-γ pins were refused in advance because they reintroduce the
+matched-loss confound.
+
+No pin. No `ce_precommit.json`. No slice. The CE arm cannot test whether
+the cliff, the drift gradation, and the crossover are properties of the
+stream. The failure is a measured limitation: these two objectives have
+no shared operating point at this architecture, these streams, and this
+`lr0`. That is a stronger §9 sentence than "MSE to ±1 is not
+classification risk."
+
+Artifacts: `results/mse_stop_margin_four_streams.json`,
+`results/bce_margin_one_arm.json`, `results/bce_margin_bisect.json`,
+`docs/21-second-learner-ce.md`.
+
+---
+
+## 2026-09-11 — CE limitation written; Adam pre-commit on file
+
+Zero compute. The CE table is now the limitation, not a pending arm.
+
+Two facts, written as such. The between-γ gap (~0.07 at matched BCE
+loss against an MSE band of 0.027) is the pin failing, and a statement
+about BCE: under MSE the two richness regimes sit at comparable
+margins at matched loss; under BCE they do not. The negative p05
+(−0.47 to −0.60 against MSE +0.33; −0.49 at the L that matches
+γ=10's mean) is the larger finding. MSE to ±1 pulls the distribution
+together; BCE concentrates on the boundary and leaves a tail of
+misclassified points. Capacity is computed from those anchors. The
+pin was never going to be sufficient.
+
+§9 replacement: `docs/15` limitation 2. Appendix family A.9:
+`docs/07`. Ledger kind `operating_point`. Notebook §9 aligned. CE arm
+closed (`docs/21`).
+
+Not another loss. Hinge/focal share BCE's gradient structure. Next is
+Adam on the existing Hamming streams, same MSE, same `target_loss=0.05`,
+same pin. I3 licensed as an off-design exception, never
+`results/phase1/`. Richness gate: unique n=8, frozen × s_r=0.5, after
+task 0, mean ‖ΔW‖/‖W‖ at γ=10 over γ=1 must clear one decade (Phase 0
+bar) or the reading is `richness_manipulation_collapses` and the arm
+speaks only to the Hamming axis. `lr0=5` inherited; if the one-arm
+misses, re-pin once, uniformly, by the Phase 0 procedure, before any
+slice. Five readings named. No Adam code this step.
+
+Then order, then spacing, then P=32.
+
+Artifacts: `docs/15-what-was-actually-run.md`, `docs/07-writeup.md`
+§A.9, `docs/21-second-learner-ce.md`, `docs/22-second-learner-adam.md`,
+`docs/20-restatement-and-next-arm.md`, `results/adam_precommit.json`,
+`src/analysis/ledger.py`.
+
+---
+
+## 2026-09-11 — Adam opt-in; inherited lr0=5 exploded; re-pin 0.0002; one-arm reached
+
+Adam is an opt-in on `TwoModuleNet.adam_step` / `TrainConfig.optimizer`.
+Default remains SGD. Hamming runner refuses Adam. Never `results/phase1/`.
+
+Inherited `lr0=5` exploded: at γ=10, `lr=2343.75`, loss 0.5 → 3×10¹⁰ in
+three steps. A full one-arm at 5 was killed after 11 min of 20k-step
+grind; no `results/adam/` file was written.
+
+Phase 0 procedure, once, uniformly, one-arm cell, both γ, task 0.
+Decade ladder: `2e-5` strands γ=1 at loss 0.36 (too-small analog of GD
+0.2 at 0.34); `0.0002` reaches both; `0.002` (decade up) still reaches.
+Pin **0.0002**. Not informed by Hamming cells or the richness gate.
+Do not re-pin a second time.
+
+One-arm at the new pin: γ=10 frozen × s_r=0.5 × stream 10000. All 16
+tasks reached 0.05. Steps 24–44 (mean 29.4). Task 0 `‖ΔW‖/‖W‖` ≈ 1.83
+(smoke check; gate is unique n=8). 106 evals, 992 s. n=1 licenses the
+192-arm slice, not a reading. Serial cost from this arm: 52.9 h.
+
+Artifacts: `docs/22-second-learner-adam.md`, `results/adam_precommit.json`,
+`results/adam_lr0_repin.md`, `results/adam_one_arm.json`,
+`results/adam/gamma-10__a-0__input-frozen__s_r-0.5__stream-10000__seed-0__opt-adam.json`.
+
+---
+
+## 2026-09-11 — Adam richness gate: partial_manipulation; 192 held
+
+Hold the slice. Unique n=8, frozen × s_r=0.5, both γ, training-only,
+16 arms, 42 s, 0 missed. Identity with the one-arm bitwise held.
+
+Mean ‖ΔW‖/‖W‖ module A: γ=10 **1.836**, γ=1 **0.576**, ratio **3.19**
+against a one-decade bar. Mean steps 24.0 vs 501.5 (20.9×). γ is buying
+speed, not feature movement.
+
+Reading **`partial_manipulation`** (band [3, 10), named before numbers).
+The 192-arm runner now refuses. Not `clears_decade`. Not an automatic
+`richness_manipulation_collapses` (<3). Decision: a Hamming-only Adam
+arm at one γ (96), or stop.
+
+μP × Adam explosion (lr0=5, loss 0.5 → 3×10¹⁰ in three steps) written
+into `docs/15` limitation 4 and `docs/22`, not only this log.
+
+Artifacts: `results/adam_richness_gate.json`,
+`results/adam_richness_gate.md`, `docs/22-second-learner-adam.md`,
+`docs/15-what-was-actually-run.md`.
+
+---
+
+## 2026-09-11 — Gate filed as a finding; CE+Adam as one appendix family; Hamming-only pre-commit
+
+`partial_manipulation` is the right reading and the runner refusing the
+192 is correct. Filed as a finding, not a failed check: steps separate
+20.9×, weight change 3.19×. Under Adam, γ buys speed rather than feature
+movement. Pair with the `lr0=5` explosion: μP and adaptive optimisers
+do not compose. Written: `docs/07` §A.9 (CE + Adam, one family),
+`docs/15` limitations 2 and 4, ledger `operating_point` (second entry),
+notebook §9.
+
+Hamming-only at γ=10, 96 arms, pre-committed before the new one-arm.
+Cannot speak to γ, finding 1, or the channel reorganisation. Readings
+named before numbers: `hamming_reproduces` / `hamming_fails` / `partial`,
+plus recovery as a stop. γ=10 because every effect is largest there and
+because Adam's `lr` at the pin is 0.094 rather than 0.00094 with 502
+steps. One-arm cell is drift × s_r=0.5 × stream 10000, not the gate
+cell.
+
+Framing, before the 96 report (`docs/20` §9): the joint-outcome claim
+cannot be "a second learner agrees." Two attempts hit the operating-point
+problem. Geometry with a well-specified stream is what the evidence
+currently supports. Both framings remain defensible; do not resolve by
+more compute.
+
+Artifacts: `docs/07-writeup.md` §A.9, `docs/15-what-was-actually-run.md`,
+`docs/20-restatement-and-next-arm.md` §9, `docs/22-second-learner-adam.md`,
+`results/adam_hamming_precommit.json`, `src/analysis/ledger.py`.
+
+---
+
+## 2026-09-11 — Hamming-only one-arm reached (drift × s_r=0.5)
+
+γ=10, drift, s_r=0.5, stream 10000, `lr0=0.0002`. All 16 tasks reached
+0.05. Steps 19–47 (mean 26.25). Task 0 `‖ΔW‖/‖W‖` A =
+1.8291011753468978, bitwise identity with the frozen one-arm and the
+gate (task 0 does not yet see the input walk). 106 evals, 1204 s. n=1
+licenses the 96, not a reading.
+
+Then: `python scripts/run_adam.py --hamming-only`.
+
+---
+
+## 2026-09-11 — Hamming-only 96: finding3_fails_to_recover; stop
+
+96 arms, γ=10 only, usable 96, missed 0, wall 1948 s. Unique n=8,
+module A, task 0, lag 12.
+
+**Primary reading: `finding3_fails_to_recover`.** At s_r=1, drift is
+−0.3 fl (mean −0.0055, CI [−0.045, +0.034], 3+/5−). Jump is −88.4 fl.
+Gain-under-drift did not hold. The Adam streams are not the same
+object. Hamming-axis flags were computed and are not a reading. Do not
+salvage cliff or gradation. Do not interpret γ. Do not launch the 192.
+
+Artifacts: `results/adam_hamming_slice.json`,
+`results/adam_hamming_slice.md`, `docs/22-second-learner-adam.md`,
+`docs/20-restatement-and-next-arm.md`.
+
+---
+
+## 2026-09-11 — Operating-point family has three entries; second-learner line closed; order pre-committed
+
+Correct stop on `finding3_fails_to_recover`. Framing in `docs/20` §9
+stands: geometry with a well-specified stream.
+
+**Hypothesis, not a reading, not tested.** At s_r=1, γ=10 Adam: drift
+−0.3 fl (CI includes 0) vs SGD +6.7; jump −88.4 vs −55.1. The gain
+under drift is gone; the loss under jump is larger. Finding 3 is
+accumulation over hundreds of SGD steps. Adam reaches target in ~24.
+Twenty-four steps is not enough trajectory for accumulated drift to
+register, while a jump is a discrete disruption that registers fully —
+and larger with less compensating movement. If that is right,
+matched-loss stopping and Adam interact: "matched progress" and
+"comparable trajectory" come apart. Do not test.
+
+That is the third operating-point condition. CE failed shared operating
+point. The Adam gate failed manipulation-survives. The Adam slice
+failed primary-contrast-recovers. Written as `docs/07` §A.9. The
+generalisable claim: a comparison of the form "same setting, different
+learner" needs all three; none is guaranteed; three variations each
+failed a different one.
+
+**Second-learner line closed.** No fourth learner. No replay, EWC,
+architecture variant. The stopping rule, the parameterisation, and the
+geometry measurement were co-designed for one optimiser and one loss.
+
+**Order pre-commit on file** (`docs/23`, `results/order_precommit.json`).
+Audit's weaker prediction, matched composition, schedule B. 64 new
+arms, γ=10, frozen+drift, s_r ∈ {0.75, 0.25}, reverse+shuffle; forward
+paired from Hamming. One-arm first, not yet run. Not a substitute
+second learner.
+
+The paper's structure: findings about the stream, measured on one
+learner, with the learner's boundaries mapped by three failed attempts
+to cross them.
+
+Artifacts: `docs/07-writeup.md` §A.9, `docs/15-what-was-actually-run.md`,
+`docs/20-restatement-and-next-arm.md`, `docs/22-second-learner-adam.md`,
+`docs/23-order-arm.md`, `results/order_precommit.json`,
+`src/analysis/ledger.py`.
+

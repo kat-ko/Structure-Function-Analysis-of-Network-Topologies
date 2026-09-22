@@ -1,6 +1,13 @@
 {
   "generated_by": "scripts/fig_width_invariance.py",
   "lag": 12,
+  "result_set_sha": "f2a0863ede1c",
+  "n_arms": 144,
+  "result_sets": {
+    "width_arms_sha": "f2a0863ede1c",
+    "grid_matched_subset_sha": "f370e93e07d9",
+    "grid_full_sha": "02b74c366e51"
+  },
   "min_floors": 2.0,
   "matched_subset": "streams 0-1, seeds 0-1",
   "note": "lag 12 exists only for task 0; this is a task-0 figure",
